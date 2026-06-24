@@ -8,11 +8,11 @@ function App() {
       {/* ── Navbar ── */}
       <header className="navbar">
         <div className="nav-brand">
-          <img src="/logo.svg" alt="SwimSCPlan logo" className="nav-logo-img" />
+          <img src="/logo.svg" alt="SwimSCPlan brand mark with a stylized wave and the text SwimSCPlan" className="nav-logo-img" />
           <span className="nav-logo">SwimSCPlan</span>
         </div>
         <div className="nav-actions">
-          <button className="btn-secondary">Sign In</button>
+          <button className="btn-secondary" onClick={() => navigate('/sign-in')}>Sign In</button>
           <button className="btn-primary" onClick={() => navigate('/create-account')}>Create Account</button>
         </div>
       </header>
@@ -26,10 +26,7 @@ function App() {
             The planning tool built for swimmers who are serious about the sport.
           </p>
         </div>
-        <div className="hero-img-placeholder">
-          {/* TODO: Replace with <img src="..." alt="..." /> */}
-          <span>Hero Image</span>
-        </div>
+        <img src="/Hero.jpg" alt="Swimmer performing a freestyle stroke in an indoor pool" className="hero-img" />
       </section>
 
       {/* ── Purpose Section ── */}
@@ -43,29 +40,58 @@ function App() {
         </ul>
       </section>
 
-      {/* ── Photo Gallery ── */}
-      <section className="gallery">
-        <h2>Built for the Pool</h2>
-        <div className="gallery-grid">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="gallery-slot">
-              {/* TODO: Replace with <img src="..." alt="..." /> */}
-              <span>Photo {n}</span>
+      {/* ── Features ── */}
+      <section className="features">
+        <h2>Everything you need in one place</h2>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-img-placeholder">
+              {/* TODO: Replace with calendar screenshot */}
+              <span>Calendar Image</span>
             </div>
-          ))}
+            <h3 className="feature-title">Meet Calendar</h3>
+            <p className="feature-blurb">
+              See all your upcoming meets in one view. Never miss a registration
+              deadline or warm-up time again.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-img-placeholder">
+              {/* TODO: Replace with event list screenshot */}
+              <span>Event List Image</span>
+            </div>
+            <h3 className="feature-title">Event Time Comparison</h3>
+            <p className="feature-blurb">
+              Line up your personal bests next to meet cut times and instantly
+              see which events you're closest to qualifying for.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-img-placeholder">
+              {/* TODO: Replace with progress chart screenshot */}
+              <span>Progress Chart Image</span>
+            </div>
+            <h3 className="feature-title">Progress Tracker</h3>
+            <p className="feature-blurb">
+              Watch your times drop over seasons with visual charts that show
+              exactly how far you've come since you started.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ── Call to Action ── */}
       <section className="cta">
-        <img src="/logo.svg" alt="" className="cta-logo" />
+        <img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="cta-logo" />
         <h2>Ready to get started?</h2>
         <p>Create a free account and take control of your training.</p>
         <button className="btn-primary btn-large" onClick={() => navigate('/create-account')}>Create Account</button>
       </section>
 
       <footer className="footer">
-        <img src="/logo.svg" alt="" className="footer-logo" />
+        <img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="footer-logo" />
         <span>© 2026 SwimSCPlan</span>
       </footer>
     </div>
