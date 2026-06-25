@@ -362,13 +362,21 @@
   font-weight: 800;
   letter-spacing: 0.2px;
 }
-.compare-time--met      { background: #15803d; color: #ffffff; box-shadow: 0 0 0 2px #14532d; }
-.compare-time--close    { background: #4ade80; color: #052e16; box-shadow: 0 0 0 2px #16a34a; }
-.compare-time--near     { background: #eab308; color: #1c0a00; box-shadow: 0 0 0 2px #a16207; }
-.compare-time--far      { background: #f97316; color: #ffffff; box-shadow: 0 0 0 2px #c2410c; }
-.compare-time--very-far { background: #dc2626; color: #ffffff; box-shadow: 0 0 0 2px #991b1b; }
+.compare-time--met      { background: #1d4ed8; color: #ffffff; box-shadow: 0 0 0 2px #1e3a8a; }
+.compare-time--close    { background: #0891b2; color: #ffffff; box-shadow: 0 0 0 2px #0e7490; }
+.compare-time--near     { background: #d97706; color: #ffffff; box-shadow: 0 0 0 2px #92400e; }
+.compare-time--far      { background: #ea580c; color: #ffffff; box-shadow: 0 0 0 2px #9a3412; }
+.compare-time--very-far { background: #b91c1c; color: #ffffff; box-shadow: 0 0 0 2px #7f1d1d; }
 .compare-time--no-time  { color: #94a3b8; background: transparent; padding: 0; font-weight: 500; box-shadow: none; }
 .compare-time--no-cut   { color: #94a3b8; background: transparent; padding: 0; font-weight: 500; box-shadow: none; }
+
+.compare-tier-sym {
+  font-size: 11px;
+  font-weight: 900;
+  margin-right: 5px;
+  opacity: 0.9;
+  letter-spacing: 0;
+}
 
 .compare-status {
   font-size: 12px;
@@ -379,11 +387,11 @@
   white-space: nowrap;
 }
 
-.compare-status--met      { background: #15803d; color: #ffffff; font-weight: 800; }
-.compare-status--close    { background: #4ade80; color: #052e16; font-weight: 800; }
-.compare-status--near     { background: #eab308; color: #1c0a00; font-weight: 800; }
-.compare-status--far      { background: #f97316; color: #ffffff; font-weight: 800; }
-.compare-status--very-far { background: #dc2626; color: #ffffff; font-weight: 800; }
+.compare-status--met      { background: #1d4ed8; color: #ffffff; font-weight: 800; }
+.compare-status--close    { background: #0891b2; color: #ffffff; font-weight: 800; }
+.compare-status--near     { background: #d97706; color: #ffffff; font-weight: 800; }
+.compare-status--far      { background: #ea580c; color: #ffffff; font-weight: 800; }
+.compare-status--very-far { background: #b91c1c; color: #ffffff; font-weight: 800; }
 .compare-status--no-time  { background: #e2e8f0; color: #64748b; font-weight: 600; }
 .compare-status--no-cut   { background: transparent; color: #94a3b8; }
 

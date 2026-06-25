@@ -338,7 +338,14 @@ export default function Compare() {
                             className={`compare-chevron${isOpen ? ' compare-chevron--open' : ''}`}
                           />
                         </button>
-                        <span className={`compare-time compare-time--${proximity}`}>{userTime || '—'}</span>
+                        <span className={`compare-time compare-time--${proximity}`}>
+                          {proximity === 'met'      && <span className="compare-tier-sym">✓</span>}
+                          {proximity === 'close'    && <span className="compare-tier-sym">≈</span>}
+                          {proximity === 'near'     && <span className="compare-tier-sym">!</span>}
+                          {proximity === 'far'      && <span className="compare-tier-sym">!!</span>}
+                          {proximity === 'very-far' && <span className="compare-tier-sym">✗</span>}
+                          {userTime || '—'}
+                        </span>
                         <span className="compare-cut">{cutTime || '—'}</span>
                         <span className={`compare-status compare-status--${proximity}`}>
                           {proximity === 'met'                            && '✓ Meets cut'}

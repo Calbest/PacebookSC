@@ -280,11 +280,11 @@
   letter-spacing: -0.3px;
 }
 
-.quals-cell--met      { color: #ffffff; background: #15803d; border-color: #14532d; font-weight: 800; }
-.quals-cell--close    { color: #052e16; background: #4ade80; border-color: #16a34a; font-weight: 800; }
-.quals-cell--near     { color: #1c0a00; background: #eab308; border-color: #a16207; font-weight: 800; }
-.quals-cell--far      { color: #ffffff; background: #f97316; border-color: #c2410c; font-weight: 800; }
-.quals-cell--very-far { color: #ffffff; background: #dc2626; border-color: #991b1b; font-weight: 800; }
+.quals-cell--met      { color: #ffffff; background: #1d4ed8; border-color: #1e3a8a; font-weight: 800; }
+.quals-cell--close    { color: #ffffff; background: #0891b2; border-color: #0e7490; font-weight: 800; }
+.quals-cell--near     { color: #ffffff; background: #d97706; border-color: #92400e; font-weight: 800; }
+.quals-cell--far      { color: #ffffff; background: #ea580c; border-color: #9a3412; font-weight: 800; }
+.quals-cell--very-far { color: #ffffff; background: #b91c1c; border-color: #7f1d1d; font-weight: 800; }
 .quals-cell--no-time  { color: #64748b; background: #f1f5f9; }
 .quals-cell--none     { color: #cbd5e1; }
 
