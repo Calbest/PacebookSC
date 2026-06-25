@@ -8,7 +8,7 @@ import {
 } from '../lib/scsStandards'
 import './Compare.css'
 
-type Course = 'SCY' | 'LCM'
+type Course = 'SCY' | 'LCM' | 'SCM'
 
 const SCY_GROUPS = [
   { stroke: 'Freestyle', events: [
@@ -42,6 +42,36 @@ const SCY_GROUPS = [
 ]
 
 const LCM_GROUPS = [
+  { stroke: 'Freestyle', events: [
+    { id: '50-free',   label: '50m'   },
+    { id: '100-free',  label: '100m'  },
+    { id: '200-free',  label: '200m'  },
+    { id: '400-free',  label: '400m'  },
+    { id: '800-free',  label: '800m'  },
+    { id: '1500-free', label: '1500m' },
+  ]},
+  { stroke: 'Backstroke', events: [
+    { id: '50-back',  label: '50m'  },
+    { id: '100-back', label: '100m' },
+    { id: '200-back', label: '200m' },
+  ]},
+  { stroke: 'Breaststroke', events: [
+    { id: '50-breast',  label: '50m'  },
+    { id: '100-breast', label: '100m' },
+    { id: '200-breast', label: '200m' },
+  ]},
+  { stroke: 'Butterfly', events: [
+    { id: '50-fly',  label: '50m'  },
+    { id: '100-fly', label: '100m' },
+    { id: '200-fly', label: '200m' },
+  ]},
+  { stroke: 'Individual Medley', events: [
+    { id: '200-im', label: '200m' },
+    { id: '400-im', label: '400m' },
+  ]},
+]
+
+const SCM_GROUPS = [
   { stroke: 'Freestyle', events: [
     { id: '50-free',   label: '50m'   },
     { id: '100-free',  label: '100m'  },
@@ -119,7 +149,7 @@ export default function Compare() {
   // Keep selected standard in sync when age group changes
   const safeStandard: StdLevel = levels.includes(selectedStandard) ? selectedStandard : levels[0] ?? 'a'
 
-  const groups = course === 'SCY' ? SCY_GROUPS : LCM_GROUPS
+  const groups = course === 'SCY' ? SCY_GROUPS : course === 'LCM' ? LCM_GROUPS : SCM_GROUPS
 
   function timeKey(eventId: string) {
     return `${course}-${eventId}`
@@ -175,6 +205,10 @@ export default function Compare() {
                 className={`compare-tab${course === 'LCM' ? ' active' : ''}`}
                 onClick={() => setCourse('LCM')}
               >LCM</button>
+              <button
+                className={`compare-tab${course === 'SCM' ? ' active' : ''}`}
+                onClick={() => setCourse('SCM')}
+              >SCM</button>
             </div>
 
             <div className="compare-standard-picker">

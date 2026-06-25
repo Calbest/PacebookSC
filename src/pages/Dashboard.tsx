@@ -117,7 +117,7 @@ const SCY_EVENTS: StrokeGroup[] = [
   },
 ]
 
-type Course = 'SCY' | 'LCM'
+type Course = 'SCY' | 'LCM' | 'SCM'
 type Times = Record<string, string>
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -198,7 +198,7 @@ export default function Dashboard() {
     navigate('/')
   }
 
-  const groups = course === 'LCM' ? LCM_EVENTS : SCY_EVENTS
+  const groups = course === 'SCY' ? SCY_EVENTS : LCM_EVENTS
 
   function timeKey(c: Course, eventId: string) {
     return `${c}-${eventId}`
@@ -280,6 +280,12 @@ export default function Dashboard() {
                 onClick={() => setCourse('LCM')}
               >
                 LCM
+              </button>
+              <button
+                className={`times-tab${course === 'SCM' ? ' active' : ''}`}
+                onClick={() => setCourse('SCM')}
+              >
+                SCM
               </button>
             </div>
 

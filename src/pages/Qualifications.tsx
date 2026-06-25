@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { SCS_STANDARDS, getAgeGroup, getCut, type StdLevel } from '../lib/scsStandards'
 import './Qualifications.css'
 
-type Course = 'SCY' | 'LCM'
+type Course = 'SCY' | 'LCM' | 'SCM'
 
 const MEET_QUALIFIERS: { key: StdLevel; label: string; short: string }[] = [
   { key: 'wag',     label: '2025 WAG',       short: 'WAG'     },
@@ -76,6 +76,36 @@ const LCM_GROUPS = [
   ]},
 ]
 
+const SCM_GROUPS = [
+  { stroke: 'Freestyle', events: [
+    { id: '50-free',   label: '50m'   },
+    { id: '100-free',  label: '100m'  },
+    { id: '200-free',  label: '200m'  },
+    { id: '400-free',  label: '400m'  },
+    { id: '800-free',  label: '800m'  },
+    { id: '1500-free', label: '1500m' },
+  ]},
+  { stroke: 'Backstroke', events: [
+    { id: '50-back',  label: '50m'  },
+    { id: '100-back', label: '100m' },
+    { id: '200-back', label: '200m' },
+  ]},
+  { stroke: 'Breaststroke', events: [
+    { id: '50-breast',  label: '50m'  },
+    { id: '100-breast', label: '100m' },
+    { id: '200-breast', label: '200m' },
+  ]},
+  { stroke: 'Butterfly', events: [
+    { id: '50-fly',  label: '50m'  },
+    { id: '100-fly', label: '100m' },
+    { id: '200-fly', label: '200m' },
+  ]},
+  { stroke: 'Individual Medley', events: [
+    { id: '200-im', label: '200m' },
+    { id: '400-im', label: '400m' },
+  ]},
+]
+
 function calcAge(dob: string): number | null {
   if (!dob) return null
   const birth = new Date(dob)
@@ -117,7 +147,7 @@ export default function Qualifications() {
   const levels   = agData?.levels ?? []
 
   const meets = MEET_QUALIFIERS.filter(m => levels.includes(m.key))
-  const groups = course === 'SCY' ? SCY_GROUPS : LCM_GROUPS
+  const groups = course === 'SCY' ? SCY_GROUPS : course === 'LCM' ? LCM_GROUPS : SCM_GROUPS
 
   function timeKey(eventId: string) {
     return `${course}-${eventId}`
@@ -210,6 +240,10 @@ export default function Qualifications() {
                   className={`quals-tab${course === 'LCM' ? ' active' : ''}`}
                   onClick={() => setCourse('LCM')}
                 >LCM</button>
+                <button
+                  className={`quals-tab${course === 'SCM' ? ' active' : ''}`}
+                  onClick={() => setCourse('SCM')}
+                >SCM</button>
               </div>
 
               {/* ── Qualification grid ── */}
