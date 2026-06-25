@@ -10,3 +10,17 @@ body {
 #root {
   min-height: 100svh;
 }
+
+/* ── Global press feel — every button pops on click ── */
+button:active {
+  transform: scale(0.955);
+  transition: transform 0.07s ease;
+}
+
+/* ── Global card hover lift ── */
+.settings-card:hover,
+.times-panel:hover,
+.goal-card:hover {
+  box-shadow: 0 8px 32px rgba(0,40,85,0.14);
+  transition: box-shadow 0.2s ease;
+}

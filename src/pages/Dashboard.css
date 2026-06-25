@@ -1,3 +1,14 @@
+/* ── Aqua accent tokens ── */
+:root {
+  --aqua:       #00b4d8;
+  --aqua-dark:  #0891b2;
+  --aqua-glow:  rgba(0, 180, 216, 0.25);
+}
+
+/* ── Global button press feel ── */
+button { transition: transform 0.08s, box-shadow 0.08s; }
+button:active { transform: scale(0.96) !important; }
+
 /* ── Layout ── */
 .dash-layout {
   display: flex;
@@ -287,6 +298,23 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 8px;
+  padding: 28px 32px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #001a3d 0%, #003366 60%, #005580 100%);
+  box-shadow: 0 8px 32px rgba(0,40,85,0.22), inset 0 1px 0 rgba(0,180,216,0.2);
+  border: 1px solid rgba(0,180,216,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.dash-main-header::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(0,180,216,0.18) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .dash-header-right {
@@ -448,10 +476,11 @@
 
 .dash-welcome {
   font-size: clamp(26px, 3.5vw, 40px);
-  font-weight: 800;
-  color: #002855;
+  font-weight: 900;
+  color: #ffffff;
   letter-spacing: -1.5px;
   margin: 0;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.25);
   display: flex;
   align-items: baseline;
   gap: 14px;
@@ -459,12 +488,12 @@
 }
 
 .dash-welcome-age {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  color: #64748b;
+  color: #00b4d8;
   letter-spacing: 0;
-  background: #dce8f5;
-  border: 1px solid #cddff2;
+  background: rgba(0,180,216,0.15);
+  border: 1px solid rgba(0,180,216,0.3);
   border-radius: 20px;
   padding: 3px 14px;
 }
@@ -477,8 +506,8 @@
   padding: 3px 14px;
   text-transform: uppercase;
 }
-.dash-welcome-gender--male   { background: #e0eeff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-.dash-welcome-gender--female { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+.dash-welcome-gender--male   { background: rgba(255,255,255,0.12); color: #90e0ef; border: 1px solid rgba(144,224,239,0.3); }
+.dash-welcome-gender--female { background: rgba(255,192,203,0.18); color: #fca5a5; border: 1px solid rgba(252,165,165,0.3); }
 
 .dash-welcome-sub {
   font-size: 15px;
@@ -488,11 +517,17 @@
 
 /* ── Times Panel ── */
 .times-panel {
-  background: #f2f8ff;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(0,40,85,0.09);
+  box-shadow: 0 4px 20px rgba(0,40,85,0.1), 0 0 0 1px rgba(0,180,216,0.1);
   overflow: hidden;
-  border: 1px solid #cddff2;
+  border: 1px solid rgba(0,180,216,0.15);
+  animation: panel-in 0.3s ease both;
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .times-toolbar {

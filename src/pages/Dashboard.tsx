@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, TrendingDown, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { playClick, playDelete, playSave, playNavigate } from '../lib/sounds'
 import './Dashboard.css'
 
 type EventEntry = { id: string; label: string }
@@ -315,6 +316,7 @@ export default function Dashboard() {
       const { error } = await supabase.auth.updateUser({ data: { times: nextTimes } })
       if (error) { setSaveStatus('error'); return }
       setSaveStatus('saved')
+      playSave()
       setTimeout(() => setSaveStatus('idle'), 2000)
     }, 700)
   }, [])
@@ -379,47 +381,47 @@ export default function Dashboard() {
         {/* TODO: Add nav links here (Calendar, Meet Comparison, etc.) */}
         <div className="dash-nav-placeholder" />
 
-        <button className="dash-compare" onClick={() => navigate('/compare')}>
+        <button className="dash-compare" onClick={() => { playNavigate(); navigate('/compare') }}>
           <span className="dash-compare-icon">⇌</span>
           <span>Compare Standards</span>
         </button>
 
-        <button className="dash-competitions" onClick={() => navigate('/qualifications')}>
+        <button className="dash-competitions" onClick={() => { playNavigate(); navigate('/qualifications') }}>
           <Trophy size={16} />
           <span>Competitions</span>
         </button>
 
-        <button className="dash-goals" onClick={() => navigate('/goals')}>
+        <button className="dash-goals" onClick={() => { playNavigate(); navigate('/goals') }}>
           <Target size={16} />
           <span>Goals</span>
         </button>
 
-        <button className="dash-progress" onClick={() => navigate('/progress')}>
+        <button className="dash-progress" onClick={() => { playNavigate(); navigate('/progress') }}>
           <TrendingUp size={16} />
           <span>Progress</span>
         </button>
 
-        <button className="dash-event-planning" onClick={() => navigate('/event-planning')}>
+        <button className="dash-event-planning" onClick={() => { playNavigate(); navigate('/event-planning') }}>
           <CalendarCheck size={16} />
           <span>Event Planning</span>
         </button>
 
-        <button className="dash-time-converter" onClick={() => navigate('/time-converter')}>
+        <button className="dash-time-converter" onClick={() => { playNavigate(); navigate('/time-converter') }}>
           <ArrowLeftRight size={16} />
           <span>Time Converter</span>
         </button>
 
-        <button className="dash-import" onClick={() => navigate('/import')}>
+        <button className="dash-import" onClick={() => { playNavigate(); navigate('/import') }}>
           <Upload size={16} />
           <span>Import Times</span>
         </button>
 
-        <button className="dash-settings" onClick={() => navigate('/settings')}>
+        <button className="dash-settings" onClick={() => { playNavigate(); navigate('/settings') }}>
           <Settings size={16} />
           <span>Settings</span>
         </button>
 
-        <button className="dash-signout" onClick={handleSignOut}>
+        <button className="dash-signout" onClick={() => { playClick(); handleSignOut() }}>
           <LogOut size={16} />
           <span>Sign out</span>
         </button>
