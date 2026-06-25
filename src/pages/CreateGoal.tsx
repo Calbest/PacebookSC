@@ -122,7 +122,6 @@ export default function CreateGoal() {
     setError('')
     if (!selectedEvent) { setError('Please select an event.'); return }
     if (!targetTime)    { setError('Please enter your target time.'); return }
-    if (!deadline)      { setError('Please choose a deadline.'); return }
 
     setSaving(true)
     const { data } = await supabase.auth.getSession()
@@ -251,7 +250,10 @@ export default function CreateGoal() {
 
           {/* Deadline */}
           <div className="cg-field">
-            <label className="cg-label">Deadline</label>
+            <label className="cg-label">
+              Deadline
+              <span className="cg-label-hint">optional</span>
+            </label>
             <input
               className="cg-input"
               type="date"

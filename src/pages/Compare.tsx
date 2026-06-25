@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard } from 'lucide-react'
+import { LayoutDashboard, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   SCS_STANDARDS, getAgeGroup, getCut,
@@ -140,6 +140,33 @@ function formatGap(userSec: number, cutSec: number): string {
   return `+${m}:${s}`
 }
 
+// Returns split-distance labels for a given event (every 50 units, starting at 50).
+// 50-events get a single 25 mark; longer events generate one label per 50 increment.
+function getSplitLabels(eventId: string, c: Course): string[] {
+  const match = eventId.match(/^(\d+)/)
+  if (!match) return []
+  const dist = parseInt(match[1])
+  const unit = c === 'SCY' ? 'y' : 'm'
+  if (dist <= 50) return [`25${unit}`]
+  const labels: string[] = []
+  for (let d = 50; d <= dist; d += 50) labels.push(`${d}${unit}`)
+  return labels
+}
+
+// Same auto-format logic as Dashboard so split inputs feel identical.
+function formatTimeDigits(raw: string): string {
+  const d = raw.replace(/\D/g, '').slice(0, 6)
+  switch (d.length) {
+    case 0: return ''
+    case 1: case 2: return d
+    case 3: return `${d[0]}.${d.slice(1)}`
+    case 4: return `${d.slice(0, 2)}.${d.slice(2)}`
+    case 5: return `${d[0]}:${d.slice(1, 3)}.${d.slice(3)}`
+    case 6: return `${d.slice(0, 2)}:${d.slice(2, 4)}.${d.slice(4)}`
+    default: return d
+  }
+}
+
 export default function Compare() {
   const navigate = useNavigate()
   const [course,           setCourse]           = useState<Course>('SCY')
@@ -147,6 +174,9 @@ export default function Compare() {
   const [dob,              setDob]              = useState('')
   const [gender,           setGender]           = useState('')
   const [selectedStandard, setSelectedStandard] = useState<StdLevel>('a')
+  const [splits,           setSplits]           = useState<Record<string, string[]>>({})
+  const [expandedKey,      setExpandedKey]      = useState<string | null>(null)
+  const splitsSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -154,6 +184,7 @@ export default function Compare() {
       if (!user) { navigate('/'); return }
       const m = user.user_metadata ?? {}
       setTimes(m.times ?? {})
+      setSplits(m.splits ?? {})
       setDob(m.dob ?? '')
       setGender(m.gender ?? '')
     })
@@ -175,6 +206,24 @@ export default function Compare() {
 
   function timeKey(eventId: string) {
     return `${course}-${eventId}`
+  }
+
+  function toggleExpand(key: string) {
+    setExpandedKey(prev => prev === key ? null : key)
+  }
+
+  function updateSplit(key: string, idx: number, raw: string) {
+    const val = formatTimeDigits(raw)
+    setSplits(prev => {
+      const arr = [...(prev[key] ?? [])]
+      arr[idx] = val
+      const next = { ...prev, [key]: arr }
+      if (splitsSaveRef.current) clearTimeout(splitsSaveRef.current)
+      splitsSaveRef.current = setTimeout(async () => {
+        await supabase.auth.updateUser({ data: { splits: next } })
+      }, 800)
+      return next
+    })
   }
 
   const ageGroupLabel =
@@ -265,24 +314,63 @@ export default function Compare() {
                   <span>Status</span>
                 </div>
                 {events.map(({ id, label }) => {
-                  const userTime = times[timeKey(id)] || ''
-                  const cutTime  = getCut(ageGroup, gender, course, id, safeStandard)
-                  const userSec  = toSeconds(userTime)
-                  const cutSec   = toSeconds(cutTime)
+                  const key       = timeKey(id)
+                  const isOpen    = expandedKey === key
+                  const userTime  = times[key] || ''
+                  const cutTime   = getCut(ageGroup, gender, course, id, safeStandard)
+                  const userSec   = toSeconds(userTime)
+                  const cutSec    = toSeconds(cutTime)
                   const proximity = getProximity(userSec, cutSec, userTime)
-                  const gap = userSec && cutSec ? formatGap(userSec, cutSec) : ''
+                  const gap       = userSec && cutSec ? formatGap(userSec, cutSec) : ''
+                  const splitLbls = getSplitLabels(id, course)
 
                   return (
-                    <div key={id} className="compare-row">
-                      <span className="compare-event">{label}</span>
-                      <span className={`compare-time compare-time--${proximity}`}>{userTime || '—'}</span>
-                      <span className="compare-cut">{cutTime || '—'}</span>
-                      <span className={`compare-status compare-status--${proximity}`}>
-                        {proximity === 'met'                            && '✓ Meets cut'}
-                        {proximity === 'no-time'                        && 'No time entered'}
-                        {proximity === 'no-cut'                         && '—'}
-                        {['close','near','far','very-far'].includes(proximity) && `✗ ${gap} behind`}
-                      </span>
+                    <div key={id} className="compare-row-wrapper">
+                      <div className={`compare-row${isOpen ? ' compare-row--open' : ''}`}>
+                        <button
+                          className="compare-event-btn"
+                          onClick={() => toggleExpand(key)}
+                          title="Click to add splits"
+                        >
+                          {label}
+                          <ChevronDown
+                            size={11}
+                            className={`compare-chevron${isOpen ? ' compare-chevron--open' : ''}`}
+                          />
+                        </button>
+                        <span className={`compare-time compare-time--${proximity}`}>{userTime || '—'}</span>
+                        <span className="compare-cut">{cutTime || '—'}</span>
+                        <span className={`compare-status compare-status--${proximity}`}>
+                          {proximity === 'met'                            && '✓ Meets cut'}
+                          {proximity === 'no-time'                        && 'No time entered'}
+                          {proximity === 'no-cut'                         && '—'}
+                          {['close','near','far','very-far'].includes(proximity) && `✗ ${gap} behind`}
+                        </span>
+                      </div>
+
+                      {isOpen && (
+                        <div className="compare-splits">
+                          <div className="compare-splits-header">
+                            <span className="compare-splits-title">Splits</span>
+                            <span className="compare-splits-hint">
+                              Numbers only — colons &amp; decimals placed automatically
+                            </span>
+                          </div>
+                          <div className="compare-splits-grid">
+                            {splitLbls.map((lbl, idx) => (
+                              <div key={lbl} className="compare-split-cell">
+                                <label className="compare-split-label">{lbl}</label>
+                                <input
+                                  className="compare-split-input"
+                                  value={splits[key]?.[idx] ?? ''}
+                                  onChange={e => updateSplit(key, idx, e.target.value)}
+                                  placeholder="—"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
                 })}

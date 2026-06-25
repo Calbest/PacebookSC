@@ -96,8 +96,8 @@ export default function Goals() {
                 const liveSec   = toSeconds(liveTime || goal.currentTime)
                 const targetSec = toSeconds(goal.targetTime)
                 const achieved  = liveSec !== null && targetSec !== null && liveSec <= targetSec
-                const days      = daysLeft(goal.deadline)
-                const overdue   = days < 0
+                const days      = goal.deadline ? daysLeft(goal.deadline) : null
+                const overdue   = days !== null && days < 0
 
                 return (
                   <div
@@ -137,14 +137,18 @@ export default function Goals() {
                     </div>
 
                     <div className="goal-footer">
-                      <span className={`goal-deadline${overdue ? ' goal-deadline--overdue' : ''}`}>
-                        {overdue
-                          ? `Deadline passed — ${formatDeadline(goal.deadline)}`
-                          : days === 0
-                          ? `Due today — ${formatDeadline(goal.deadline)}`
-                          : `${days} day${days === 1 ? '' : 's'} left — ${formatDeadline(goal.deadline)}`
-                        }
-                      </span>
+                      {goal.deadline ? (
+                        <span className={`goal-deadline${overdue ? ' goal-deadline--overdue' : ''}`}>
+                          {overdue
+                            ? `Deadline passed — ${formatDeadline(goal.deadline)}`
+                            : days === 0
+                            ? `Due today — ${formatDeadline(goal.deadline)}`
+                            : `${days} day${days === 1 ? '' : 's'} left — ${formatDeadline(goal.deadline)}`
+                          }
+                        </span>
+                      ) : (
+                        <span className="goal-deadline">No deadline set</span>
+                      )}
                       {achieved && <span className="goal-achieved-badge">✓ Achieved!</span>}
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings, Trophy, Target } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './Dashboard.css'
 
@@ -166,6 +166,10 @@ export default function Dashboard() {
   const [editing,     setEditing]     = useState(false)
   const [times,       setTimes]       = useState<Times>({})
   const [saveStatus,  setSaveStatus]  = useState<SaveStatus>('idle')
+  const [showHelp,    setShowHelp]    = useState(false)
+  const [helpTopic,   setHelpTopic]   = useState('')
+  const [helpMessage, setHelpMessage] = useState('')
+  const [helpStatus,  setHelpStatus]  = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -192,6 +196,24 @@ export default function Dashboard() {
       setTimeout(() => setSaveStatus('idle'), 2000)
     }, 700)
   }, [])
+
+  async function submitHelp() {
+    if (!helpTopic || !helpMessage.trim()) return
+    setHelpStatus('sending')
+    const { data } = await supabase.auth.getSession()
+    const email = data.session?.user?.email ?? ''
+    const { error } = await supabase
+      .from('help_submissions')
+      .insert({ user_email: email, topic: helpTopic, message: helpMessage.trim() })
+    if (error) { setHelpStatus('error'); return }
+    setHelpStatus('sent')
+    setTimeout(() => {
+      setShowHelp(false)
+      setHelpStatus('idle')
+      setHelpTopic('')
+      setHelpMessage('')
+    }, 2500)
+  }
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -248,6 +270,16 @@ export default function Dashboard() {
         <button className="dash-goals" onClick={() => navigate('/goals')}>
           <Target size={16} />
           <span>Goals</span>
+        </button>
+
+        <button className="dash-progress" onClick={() => navigate('/progress')}>
+          <TrendingUp size={16} />
+          <span>Progress</span>
+        </button>
+
+        <button className="dash-import" onClick={() => navigate('/import')}>
+          <Upload size={16} />
+          <span>Import Times</span>
         </button>
 
         <button className="dash-settings" onClick={() => navigate('/settings')}>
@@ -355,6 +387,70 @@ export default function Dashboard() {
         {/* TODO: Add Calendar, Meet Comparison, Progress Chart sections here */}
 
       </main>
+
+      {/* ── Help FAB ── */}
+      <button
+        className={`help-fab${showHelp ? ' help-fab--active' : ''}`}
+        onClick={() => setShowHelp(v => !v)}
+        title="Help & Feedback"
+      >
+        {showHelp ? <X size={18} /> : <HelpCircle size={18} />}
+      </button>
+
+      {showHelp && (
+        <div className="help-panel">
+          <div className="help-panel-header">
+            <h3 className="help-panel-title">Help &amp; Feedback</h3>
+            <button className="help-panel-close" onClick={() => setShowHelp(false)}>
+              <X size={15} />
+            </button>
+          </div>
+
+          {helpStatus === 'sent' ? (
+            <div className="help-sent">
+              <CheckCircle2 size={38} className="help-sent-icon" />
+              <p className="help-sent-text">Got it! I'll get back to you soon.</p>
+            </div>
+          ) : (
+            <div className="help-form">
+              <div className="help-field">
+                <label className="help-label">Topic</label>
+                <select
+                  className="help-select"
+                  value={helpTopic}
+                  onChange={e => setHelpTopic(e.target.value)}
+                >
+                  <option value="">Select a topic…</option>
+                  <option value="Question">Question</option>
+                  <option value="Suggestion">Suggestion / Feature Request</option>
+                  <option value="Bug Report">Bug Report</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="help-field">
+                <label className="help-label">Message</label>
+                <textarea
+                  className="help-textarea"
+                  value={helpMessage}
+                  onChange={e => setHelpMessage(e.target.value)}
+                  placeholder="Ask a question, share a suggestion, or report a bug…"
+                  rows={5}
+                />
+              </div>
+              {helpStatus === 'error' && (
+                <p className="help-error">Something went wrong — try again.</p>
+              )}
+              <button
+                className="help-submit"
+                onClick={submitHelp}
+                disabled={!helpTopic || !helpMessage.trim() || helpStatus === 'sending'}
+              >
+                {helpStatus === 'sending' ? 'Sending…' : 'Send Message'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
