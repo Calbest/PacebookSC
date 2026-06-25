@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
 
@@ -39,6 +39,7 @@ function YoutubeIcon() {
 
 function App() {
   const navigate = useNavigate()
+  const [creatorTab, setCreatorTab] = useState<'caleb' | 'mason'>('caleb')
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -205,6 +206,58 @@ function App() {
                 <span className="about-stat-label">Standards tracked</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Meet the Creators ── */}
+      <section className="creators">
+        <h2 className="creators-heading" data-reveal>Meet the People Behind SwimSCPlan</h2>
+
+        <div className="creators-tabs" data-reveal data-reveal-delay="1">
+          <button
+            className={`creators-tab${creatorTab === 'caleb' ? ' active' : ''}`}
+            onClick={() => setCreatorTab('caleb')}
+          >
+            Caleb Pang &mdash; Creator
+          </button>
+          <button
+            className={`creators-tab${creatorTab === 'mason' ? ' active' : ''}`}
+            onClick={() => setCreatorTab('mason')}
+          >
+            Mason Jung &mdash; Helper
+          </button>
+        </div>
+
+        <div className="creators-card" data-reveal data-reveal-delay="2">
+          <div className="creators-photo-wrap">
+            <div className="creators-photo-placeholder">
+              {creatorTab === 'caleb' ? 'CP' : 'MJ'}
+            </div>
+          </div>
+          <div className="creators-info">
+            <h3 className="creators-name">
+              {creatorTab === 'caleb' ? 'Caleb Pang' : 'Mason Jung'}
+              <span className="creators-role">
+                {creatorTab === 'caleb' ? 'Creator' : 'Helper'}
+              </span>
+            </h3>
+            {creatorTab === 'caleb' ? (
+              <p className="creators-bio">
+                My name is Caleb Pang and I am 14 years old as a freshman in Troy High School.
+                I swim for FAST which is a club based in Fullerton and I have been swimming for
+                2–3 years at this point. I was born in Maryland but moved to Southern California
+                when I was young. For those 2–3 years, I had loved the sport of swimming and even
+                when I had to wake up early in the morning, I always ended up enjoying practice.
+              </p>
+            ) : (
+              <p className="creators-bio">
+                My name is Mason Jung and I helped create this website as my friend, Caleb, encouraged
+                me to solve some problems he had faced while making this website. I am 15 as a freshman
+                in Sunny Hills High School and even though I have never tried swimming as a sport,
+                I still played tennis and love to bike.
+              </p>
+            )}
           </div>
         </div>
       </section>

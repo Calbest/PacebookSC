@@ -457,6 +457,122 @@ p { margin: 0; }
   text-align: center;
 }
 
+/* ── Creators ── */
+.creators {
+  padding: 80px 24px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.creators-heading {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0 0 32px;
+  letter-spacing: -0.5px;
+}
+
+.creators-tabs {
+  display: inline-flex;
+  background: #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 32px;
+}
+
+.creators-tab {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.creators-tab.active {
+  background: var(--navy);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,40,85,0.18);
+}
+
+.creators-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  max-width: 760px;
+  margin-inline: auto;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 44px;
+  box-shadow: 0 4px 24px rgba(0,40,85,0.09);
+  border: 1px solid #e2e8f0;
+  text-align: left;
+  animation: creators-fade 0.25s ease;
+}
+
+@keyframes creators-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.creators-photo-wrap { flex-shrink: 0; }
+
+.creators-photo-placeholder {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1px;
+  border: 4px solid #e2e8f0;
+}
+
+.creators-info { display: flex; flex-direction: column; gap: 12px; }
+
+.creators-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.creators-role {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(0,180,216,0.12);
+  color: var(--teal);
+}
+
+.creators-bio {
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.75;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .creators-card   { flex-direction: column; align-items: center; padding: 28px 20px; text-align: center; }
+  .creators-name   { justify-content: center; }
+  .creators-tabs   { flex-direction: column; width: 100%; }
+  .creators-tab    { width: 100%; }
+}
+
 /* ── Connect ── */
 .connect {
   padding: 80px 40px;
