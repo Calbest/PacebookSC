@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { LOCATIONS } from '../lib/standards'
-import LocationLogo from '../components/LocationLogo'
 import '../App.css'
 import './CreateAccount.css'
 
@@ -11,7 +9,6 @@ export default function CreateAccount() {
   const [fullName,     setFullName]     = useState('')
   const [gender,       setGender]       = useState('')
   const [dob,          setDob]          = useState('')
-  const [location,     setLocation]     = useState('')
   const [clubTeam,     setClubTeam]     = useState('')
   const [highSchool,   setHighSchool]   = useState('')
   const [username,     setUsername]     = useState('')
@@ -37,10 +34,6 @@ export default function CreateAccount() {
       setError('Please enter your birthday.')
       return
     }
-    if (!location) {
-      setError('Please select your location.')
-      return
-    }
     if (password !== confirm) {
       setError('Passwords do not match.')
       return
@@ -60,7 +53,6 @@ export default function CreateAccount() {
           full_name: fullName.trim(),
           gender,
           dob,
-          location,
           club_team: clubTeam.trim(),
           high_school: highSchool.trim(),
         },
@@ -76,8 +68,6 @@ export default function CreateAccount() {
     }
   }
 
-  const selectedLoc  = LOCATIONS.find(l => l.value === location) ?? null
-
   return (
     <div className="auth-page">
       <header className="navbar">
@@ -85,6 +75,7 @@ export default function CreateAccount() {
           <img src="/logo.svg" alt="SwimSCPlan logo" className="nav-logo-img" />
           <span className="nav-logo">SwimSCPlan</span>
         </Link>
+        <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
       </header>
 
       <main className="auth-main">
@@ -136,25 +127,6 @@ export default function CreateAccount() {
                 max={new Date().toISOString().split('T')[0]}
               />
             </label>
-
-            <div className="location-standard-block">
-              {selectedLoc && <LocationLogo location={selectedLoc} />}
-
-              <label className="auth-label">
-                Location
-                <select
-                  className="auth-input auth-select"
-                  value={location}
-                  onChange={e => setLocation(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>Select your location…</option>
-                  {LOCATIONS.map(loc => (
-                    <option key={loc.value} value={loc.value}>{loc.label}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
 
             <div className="auth-team-row">
               <label className="auth-label">

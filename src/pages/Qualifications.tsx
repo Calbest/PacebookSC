@@ -195,16 +195,19 @@ export default function Qualifications() {
       {/* ── Main ── */}
       <div className="quals-page">
         <div className="quals-header">
-          <h1 className="quals-title">Meet Qualifications</h1>
-          <p className="quals-subtitle">
-            Southern California Swimming
-            {ageGroupLabel && <span> · {ageGroupLabel}</span>}
-            {gender && (
-              <span className="quals-gender-tag">
-                {gender === 'male' ? 'Male' : 'Female'}
-              </span>
-            )}
-          </p>
+          <div className="quals-header-info">
+            <h1 className="quals-title">Meet Qualifications</h1>
+            <p className="quals-subtitle">
+              Southern California Swimming
+              {ageGroupLabel && <span> · {ageGroupLabel}</span>}
+              {gender && (
+                <span className="quals-gender-tag">
+                  {gender === 'male' ? 'Male' : 'Female'}
+                </span>
+              )}
+            </p>
+          </div>
+          <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
         </div>
 
         <div className="quals-body">

@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Camera, User } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { LOCATIONS } from '../lib/standards'
-import LocationLogo from '../components/LocationLogo'
 import './Settings.css'
 
 type SaveStatus  = 'idle' | 'saving' | 'saved' | 'error'
@@ -26,7 +24,6 @@ export default function Settings() {
   const [fullName,      setFullName]     = useState('')
   const [gender,        setGender]       = useState('')
   const [dob,           setDob]          = useState('')
-  const [location,      setLocation]     = useState('')
   const [clubTeam,      setClubTeam]     = useState('')
   const [highSchool,    setHighSchool]   = useState('')
   const [profileStatus, setProfileStatus] = useState<SaveStatus>('idle')
@@ -70,7 +67,6 @@ export default function Settings() {
       setFullName(m.full_name ?? '')
       setGender(m.gender ?? '')
       setDob(m.dob ?? '')
-      setLocation(m.location ?? '')
       setClubTeam(m.club_team ?? '')
       setHighSchool(m.high_school ?? '')
       setPhone(m.phone ?? '')
@@ -81,7 +77,7 @@ export default function Settings() {
   async function saveProfile() {
     setProfileStatus('saving')
     const { error } = await supabase.auth.updateUser({
-      data: { full_name: fullName.trim(), gender, dob, location, club_team: clubTeam.trim(), high_school: highSchool.trim() },
+      data: { full_name: fullName.trim(), gender, dob, club_team: clubTeam.trim(), high_school: highSchool.trim() },
     })
     if (error) { setProfileStatus('error'); return }
     setProfileStatus('saved')
@@ -173,7 +169,6 @@ export default function Settings() {
   }
 
   const displayAvatar = avatarPreview || avatarUrl
-  const selectedLoc   = LOCATIONS.find(l => l.value === location) ?? null
 
   return (
     <div className="settings-page">
@@ -183,6 +178,7 @@ export default function Settings() {
           Dashboard
         </button>
         <h1 className="settings-title">Settings</h1>
+        <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
       </div>
 
       <div className="settings-body">
@@ -262,24 +258,6 @@ export default function Settings() {
                 🎂 {formatBirthday(dob)}
               </p>
             )}
-          </div>
-
-          <div className="location-standard-block">
-            {selectedLoc && <LocationLogo location={selectedLoc} />}
-
-            <div className="settings-field" style={{ marginBottom: 0 }}>
-              <label className="settings-label">Location</label>
-              <select
-                className="settings-input settings-select"
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-              >
-                <option value="" disabled>Select a location…</option>
-                {LOCATIONS.map(loc => (
-                  <option key={loc.value} value={loc.value}>{loc.label}</option>
-                ))}
-              </select>
-            </div>
           </div>
 
           <div className="settings-team-row">

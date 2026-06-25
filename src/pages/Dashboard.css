@@ -177,12 +177,27 @@
   max-width: 960px;
 }
 
+.dash-main-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.scs-logo-corner {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
 .dash-welcome {
   font-size: clamp(26px, 3.5vw, 40px);
   font-weight: 800;
   color: #002855;
   letter-spacing: -1.5px;
-  margin: 0 0 8px;
+  margin: 0;
   display: flex;
   align-items: baseline;
   gap: 14px;

@@ -67,9 +67,20 @@
 .compare-header {
   background: linear-gradient(180deg, #001a3d 0%, #002855 100%);
   padding: 28px 48px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .compare-header-info { display: flex; flex-direction: column; gap: 4px; }
+
+.scs-logo-corner {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
 
 .compare-title {
   font-size: 26px;

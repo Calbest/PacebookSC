@@ -192,6 +192,7 @@ export default function Compare() {
               )}
             </p>
           </div>
+          <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
         </div>
 
         <div className="compare-body">

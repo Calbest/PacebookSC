@@ -259,11 +259,14 @@ export default function Dashboard() {
       {/* ── Main ── */}
       <main className="dash-main">
 
-        <h1 className="dash-welcome">
-          Welcome, {fullName || username || '…'}
-          {age !== null && <span className="dash-welcome-age">Age {age}</span>}
-          {gender && <span className={`dash-welcome-gender dash-welcome-gender--${gender}`}>{gender === 'male' ? 'Male' : 'Female'}</span>}
-        </h1>
+        <div className="dash-main-header">
+          <h1 className="dash-welcome">
+            Welcome, {fullName || username || '…'}
+            {age !== null && <span className="dash-welcome-age">Age {age}</span>}
+            {gender && <span className={`dash-welcome-gender dash-welcome-gender--${gender}`}>{gender === 'male' ? 'Male' : 'Female'}</span>}
+          </h1>
+          <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
+        </div>
 
         {/* ── Times Panel ── */}
         <section className="times-panel">

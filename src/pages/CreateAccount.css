@@ -98,42 +98,6 @@
   vertical-align: middle;
 }
 
-.location-standard-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: relative;
-  padding-right: 80px;
-}
-
-.location-standard-header {
-  display: contents;
-}
-
-.location-logo-img {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 68px;
-  height: auto;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.location-logo-fallback {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 10px;
-  font-weight: 800;
-  color: #002855;
-  background: #e0f7fa;
-  border: 1px solid #00b4d8;
-  border-radius: 6px;
-  padding: 4px 8px;
-  white-space: nowrap;
-}
-
 /* ── Name + Gender row ── */
 .name-gender-row {
   display: flex;
@@ -170,6 +134,14 @@
   background: #002855;
   border-color: #002855;
   color: #ffffff;
+}
+
+.scs-logo-corner {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.9;
+  flex-shrink: 0;
 }
 
 .auth-select {

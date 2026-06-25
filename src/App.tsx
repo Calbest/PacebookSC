@@ -1,8 +1,26 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
 
 function App() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12 },
+    )
+    document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="page">
       {/* ── Navbar ── */}
@@ -31,20 +49,20 @@ function App() {
 
       {/* ── Purpose Section ── */}
       <section className="purpose">
-        <h2>What is SwimSCPlan?</h2>
+        <h2 data-reveal>What is SwimSCPlan?</h2>
         <ul className="purpose-list">
-          <li>Compare all your swim event times against upcoming meet cut times at a glance</li>
-          <li>Track your progress over time and watch yourself improve as you grow</li>
-          <li>Built-in calendar to organize and keep up with all your upcoming meets</li>
-          <li>Highlights the events where your times are closest to qualifying cuts so you know exactly where to focus</li>
+          <li data-reveal data-reveal-delay="1">Compare all your swim event times against upcoming meet cut times at a glance</li>
+          <li data-reveal data-reveal-delay="2">Track your progress over time and watch yourself improve as you grow</li>
+          <li data-reveal data-reveal-delay="3">Built-in calendar to organize and keep up with all your upcoming meets</li>
+          <li data-reveal data-reveal-delay="4">Highlights the events where your times are closest to qualifying cuts so you know exactly where to focus</li>
         </ul>
       </section>
 
       {/* ── Features ── */}
       <section className="features">
-        <h2>Everything you need in one place</h2>
+        <h2 data-reveal>Everything you need in one place</h2>
         <div className="features-grid">
-          <div className="feature-card">
+          <div className="feature-card" data-reveal data-reveal-delay="1">
             <div className="feature-img-placeholder">
               {/* TODO: Replace with calendar screenshot */}
               <span>Calendar Image</span>
@@ -56,7 +74,7 @@ function App() {
             </p>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-reveal data-reveal-delay="2">
             <div className="feature-img-placeholder">
               {/* TODO: Replace with event list screenshot */}
               <span>Event List Image</span>
@@ -68,7 +86,7 @@ function App() {
             </p>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-reveal data-reveal-delay="3">
             <div className="feature-img-placeholder">
               {/* TODO: Replace with progress chart screenshot */}
               <span>Progress Chart Image</span>
@@ -84,10 +102,10 @@ function App() {
 
       {/* ── Call to Action ── */}
       <section className="cta">
-        <img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="cta-logo" />
-        <h2>Ready to get started?</h2>
-        <p>Create a free account and take control of your training.</p>
-        <button className="btn-primary btn-large" onClick={() => navigate('/create-account')}>Create Account</button>
+        <img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="cta-logo" data-reveal />
+        <h2 data-reveal data-reveal-delay="1">Ready to get started?</h2>
+        <p data-reveal data-reveal-delay="2">Create a free account and take control of your training.</p>
+        <button className="btn-primary btn-large" data-reveal data-reveal-delay="3" onClick={() => navigate('/create-account')}>Create Account</button>
       </section>
 
       <footer className="footer">
