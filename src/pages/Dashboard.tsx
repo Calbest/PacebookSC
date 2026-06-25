@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './Dashboard.css'
 
@@ -275,6 +275,11 @@ export default function Dashboard() {
         <button className="dash-progress" onClick={() => navigate('/progress')}>
           <TrendingUp size={16} />
           <span>Progress</span>
+        </button>
+
+        <button className="dash-event-planning" onClick={() => navigate('/event-planning')}>
+          <CalendarCheck size={16} />
+          <span>Event Planning</span>
         </button>
 
         <button className="dash-import" onClick={() => navigate('/import')}>

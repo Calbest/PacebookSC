@@ -1,0 +1,699 @@
+/* ── Layout ── */
+.ep-layout {
+  display: flex;
+  min-height: 100svh;
+}
+
+/* ── Sidebar ── */
+.ep-sidebar {
+  width: 200px;
+  min-height: 100svh;
+  background: linear-gradient(180deg, #001a3d 0%, #002855 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 16px 24px;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100svh;
+  flex-shrink: 0;
+}
+
+.ep-sidebar-brand {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ep-sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+
+.ep-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.ep-nav-btn:hover { background: rgba(255,255,255,0.18); }
+
+/* ── Page ── */
+.ep-page {
+  flex: 1;
+  min-height: 100svh;
+  background: #dce8f5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.ep-header {
+  background: linear-gradient(180deg, #001a3d 0%, #002855 100%);
+  padding: 28px 48px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ep-header-info { display: flex; flex-direction: column; gap: 4px; }
+
+.ep-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.ep-subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+/* ── Body ── */
+.ep-body {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Cards ── */
+.ep-card {
+  background: #f2f8ff;
+  border-radius: 16px;
+  border: 1px solid #cddff2;
+  box-shadow: 0 2px 12px rgba(0,40,85,0.07);
+  padding: 24px 24px 20px;
+}
+
+.ep-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #002855;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 18px;
+}
+
+.ep-card-subtitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: #002855;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Setup grid ── */
+.ep-setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 180px 200px;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ep-setup-row2 {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.ep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ep-field--sm { max-width: 200px; }
+
+.ep-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ep-input {
+  padding: 8px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #002855;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ep-input:focus {
+  border-color: #00b4d8;
+  box-shadow: 0 0 0 3px rgba(0,180,216,0.13);
+}
+
+.ep-select {
+  padding: 8px 36px 8px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #002855;
+  background: #ffffff;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  min-width: 200px;
+  transition: border-color 0.15s;
+}
+.ep-select:focus { border-color: #00b4d8; box-shadow: 0 0 0 3px rgba(0,180,216,0.13); }
+
+.ep-hint {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── Deadline chip ── */
+.ep-deadline-chip {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
+}
+.ep-deadline-chip--ok     { background: #dcfce7; color: #15803d; }
+.ep-deadline-chip--soon   { background: #fef9c3; color: #854d0e; }
+.ep-deadline-chip--urgent { background: #fee2e2; color: #991b1b; }
+.ep-deadline-chip--past   { background: #f1f5f9; color: #64748b; }
+
+/* ── Course tabs ── */
+.ep-tabs {
+  display: flex;
+  background: #e2e8f0;
+  border-radius: 9px;
+  padding: 3px;
+  gap: 2px;
+  width: fit-content;
+}
+
+.ep-tab {
+  padding: 7px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  transition: background 0.15s, color 0.15s;
+}
+.ep-tab.active { background: #002855; color: #ffffff; }
+
+/* ── Selection mode tabs ── */
+.ep-sel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.ep-sel-mode-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.ep-mode-tab {
+  padding: 5px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #ffffff;
+  color: #64748b;
+  transition: all 0.15s;
+}
+.ep-mode-tab.active {
+  background: #002855;
+  border-color: #002855;
+  color: #ffffff;
+}
+
+/* ── Paste area ── */
+.ep-paste-area { display: flex; flex-direction: column; gap: 10px; }
+
+.ep-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: 'Courier New', Courier, monospace;
+  color: #002855;
+  background: #ffffff;
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.ep-textarea:focus { border-color: #00b4d8; box-shadow: 0 0 0 3px rgba(0,180,216,0.13); }
+.ep-textarea::placeholder { color: #c0d4e8; font-family: inherit; }
+
+.ep-parse-error {
+  font-size: 13px;
+  color: #dc2626;
+  margin: 0;
+  font-weight: 600;
+}
+
+.ep-paste-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ep-parse-btn {
+  padding: 9px 22px;
+  background: #002855;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ep-parse-btn:hover:not(:disabled) { background: #003a7a; }
+.ep-parse-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.ep-parsed-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+/* ── Manual checkboxes ── */
+.ep-manual-area { display: flex; flex-direction: column; gap: 14px; }
+
+.ep-manual-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ep-mini-btn {
+  padding: 4px 12px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #002855;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ep-mini-btn:hover { background: #cbd5e1; }
+
+.ep-check-group { display: flex; flex-direction: column; gap: 6px; }
+
+.ep-check-stroke {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.ep-check-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
+.ep-check-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #002855;
+  cursor: pointer;
+  user-select: none;
+}
+.ep-check-label input[type="checkbox"] { accent-color: #002855; width: 15px; height: 15px; cursor: pointer; }
+
+/* ── Best Bets card ── */
+.ep-card--bestbets {
+  background: linear-gradient(135deg, #001a3d 0%, #003166 100%);
+  border-color: #002855;
+}
+
+.ep-bestbets-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ep-card--bestbets .ep-card-title { color: #ffffff; margin: 0; }
+
+.ep-star-icon { color: #fbbf24; flex-shrink: 0; }
+
+.ep-bestbets-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  margin-left: 4px;
+}
+
+.ep-bets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.ep-bet-card {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.ep-bet-card:hover { background: rgba(255,255,255,0.12); }
+
+.ep-bet-card--enter  { border-color: rgba(74,222,128,0.4); }
+.ep-bet-card--consider { border-color: rgba(234,179,8,0.4); }
+
+.ep-bet-event {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.ep-bet-time {
+  font-size: 18px;
+  font-weight: 800;
+  color: #7ee8ff;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ep-bet-gap {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Analysis table ── */
+.ep-card--analysis { padding: 0; overflow: hidden; }
+
+.ep-analysis-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.ep-filter-group {
+  display: flex;
+  background: #e2e8f0;
+  border-radius: 9px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.ep-filter-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  transition: background 0.15s, color 0.15s;
+}
+.ep-filter-btn.active { background: #002855; color: #ffffff; }
+
+.ep-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #15803d;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.ep-copy-btn:hover { background: #dcfce7; }
+
+/* Table header */
+.ep-table-head {
+  display: grid;
+  grid-template-columns: 130px 120px 100px 120px 110px 90px;
+  padding: 10px 20px;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Stroke heading */
+.ep-stroke-section { display: flex; flex-direction: column; }
+
+.ep-stroke-heading {
+  font-size: 11px;
+  font-weight: 800;
+  color: #002855;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 20px 8px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Table row */
+.ep-table-row {
+  display: grid;
+  grid-template-columns: 130px 120px 100px 120px 110px 90px;
+  padding: 11px 20px;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.12s;
+}
+.ep-table-row:last-child { border-bottom: none; }
+.ep-table-row:hover { background: #f5faff; }
+
+.ep-row-event {
+  font-size: 14px;
+  font-weight: 700;
+  color: #002855;
+}
+
+.ep-row-time {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #002855;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-row-standard {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-row-gap {
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 9px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+}
+
+.ep-row-goal {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-no-time { color: #94a3b8; font-weight: 400; }
+
+/* ── Proximity colors (match Compare/Quals) ── */
+.ep-prox--met       { background: #1d4ed8; color: #ffffff; }
+.ep-prox--close     { background: #0891b2; color: #ffffff; }
+.ep-prox--near      { background: #d97706; color: #ffffff; }
+.ep-prox--far       { background: #ea580c; color: #ffffff; }
+.ep-prox--very-far  { background: #b91c1c; color: #ffffff; }
+.ep-prox--no-time   { color: #94a3b8; background: transparent; font-weight: 400; padding: 0; }
+.ep-prox--no-cut    { color: #94a3b8; background: transparent; font-weight: 400; padding: 0; }
+
+/* ── Goal check badge ── */
+.ep-goal-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #15803d;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* ── Rec badge ── */
+.ep-rec {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  text-align: center;
+}
+.ep-rec--enter    { background: #1d4ed8; color: #ffffff; }
+.ep-rec--consider { background: #d97706; color: #ffffff; }
+.ep-rec--skip     { background: #e2e8f0; color: #64748b; }
+.ep-rec--notime   { background: #f1f5f9; color: #94a3b8; }
+
+/* ── Staleness icon ── */
+.ep-stale {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  flex-shrink: 0;
+}
+.ep-stale--unknown { color: #94a3b8; }
+.ep-stale--aging   { color: #d97706; }
+.ep-stale--stale   { color: #ea580c; }
+
+/* Best bet card staleness inherits from white */
+.ep-bet-time .ep-stale--unknown,
+.ep-bet-time .ep-stale--aging,
+.ep-bet-time .ep-stale--stale { color: rgba(255,255,255,0.5); }
+
+/* ── Filter empty state ── */
+.ep-filter-empty {
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.ep-filter-reset {
+  background: none;
+  border: none;
+  color: #002855;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+/* ── Empty state ── */
+.ep-empty {
+  background: #f2f8ff;
+  border: 1px solid #cddff2;
+  border-radius: 16px;
+  padding: 48px 36px;
+  text-align: center;
+}
+
+.ep-empty-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #002855;
+  margin: 0 0 8px;
+}
+
+.ep-empty-sub {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  max-width: 440px;
+  margin-inline: auto;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .ep-sidebar         { display: none; }
+  .ep-header          { padding: 20px; }
+  .ep-body            { padding: 20px 12px 48px; }
+  .ep-setup-grid      { grid-template-columns: 1fr; }
+  .ep-field--sm       { max-width: 100%; }
+  .ep-bets-grid       { grid-template-columns: 1fr 1fr; }
+  .ep-table-head      { display: none; }
+  .ep-table-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  .ep-row-standard,
+  .ep-row-goal        { display: none; }
+  .ep-stroke-heading  { padding: 8px 16px; }
+}
