@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck, ArrowLeftRight } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, TrendingDown, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './Dashboard.css'
 
@@ -121,6 +121,102 @@ type Course = 'SCY' | 'LCM' | 'SCM'
 type Times = Record<string, string>
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
+interface AppNotif {
+  id: string
+  type: 'pb' | 'standard' | 'stale' | 'tip' | 'goal'
+  title: string
+  message: string
+}
+
+function parseSeconds(t: string): number {
+  const parts = t.split(':')
+  if (parts.length === 2) return parseInt(parts[0]) * 60 + parseFloat(parts[1])
+  return parseFloat(t)
+}
+
+function generateNotifications(
+  times: Times,
+  timeHistory: Record<string, { date: string; time: string }[]>,
+): AppNotif[] {
+  const notifs: AppNotif[] = []
+  const today = new Date()
+
+  // Stale time warnings
+  Object.entries(timeHistory).forEach(([key, entries]) => {
+    if (!entries || entries.length === 0) return
+    const sorted = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    const days = Math.floor((today.getTime() - new Date(sorted[0].date).getTime()) / 86400000)
+    if (days >= 180) {
+      const parts = key.split('-')
+      const label = parts.slice(2).join(' ')
+      notifs.push({
+        id: `stale-${key}`,
+        type: 'stale',
+        title: 'Stale time detected',
+        message: `Your ${label} time hasn't been updated in ${days} days. Consider racing this event soon.`,
+      })
+    }
+  })
+
+  // PB detection — most recent vs second-most-recent
+  Object.entries(timeHistory).forEach(([key, entries]) => {
+    if (!entries || entries.length < 2) return
+    const sorted = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    const latest = parseSeconds(sorted[0].time)
+    const prev   = parseSeconds(sorted[1].time)
+    if (latest < prev - 0.05) {
+      const parts = key.split('-')
+      const label = parts.slice(2).join(' ')
+      const drop  = (prev - latest).toFixed(2)
+      notifs.push({
+        id: `pb-${key}`,
+        type: 'pb',
+        title: `New personal best — ${label}`,
+        message: `You dropped ${drop}s on your ${label}. Great swim!`,
+      })
+    }
+  })
+
+  // Tip if no times entered at all
+  const hasAny = Object.values(times).some(v => v)
+  if (!hasAny) {
+    notifs.push({
+      id: 'tip-no-times',
+      type: 'tip',
+      title: 'Get started',
+      message: 'Enter your times or import from USA Swimming to unlock comparisons, qualifications, and event planning.',
+    })
+  }
+
+  // Tip if times exist but no goals set
+  if (hasAny && notifs.filter(n => n.type === 'goal').length === 0) {
+    notifs.push({
+      id: 'tip-set-goals',
+      type: 'tip',
+      title: 'Set your season goals',
+      message: 'Head to Goals and set target times for your key events so SwimSCPlan can track your progress.',
+    })
+  }
+
+  return notifs.slice(0, 15)
+}
+
+const NOTIF_ICONS: Record<AppNotif['type'], typeof Bell> = {
+  pb:       Zap,
+  standard: Star,
+  stale:    Clock,
+  tip:      HelpCircle,
+  goal:     Target,
+}
+
+const NOTIF_COLORS: Record<AppNotif['type'], string> = {
+  pb:       '#059669',
+  standard: '#d97706',
+  stale:    '#ea580c',
+  tip:      '#0891b2',
+  goal:     '#7c3aed',
+}
+
 function calcAge(dob: string): number | null {
   if (!dob) return null
   const birth = new Date(dob)
@@ -172,6 +268,12 @@ export default function Dashboard() {
   const [helpTopic,   setHelpTopic]   = useState('')
   const [helpMessage, setHelpMessage] = useState('')
   const [helpStatus,  setHelpStatus]  = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [showNotifs,  setShowNotifs]  = useState(false)
+  const [timeHistory, setTimeHistory] = useState<Record<string, { date: string; time: string }[]>>({})
+  const [readIds,     setReadIds]     = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('sw_read_notifs') ?? '[]')) }
+    catch { return new Set() }
+  })
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -187,8 +289,24 @@ export default function Dashboard() {
       setBannerType(user.user_metadata?.bannerType || 'default')
       setBannerValue(user.user_metadata?.bannerValue || '')
       setTimes(user.user_metadata?.times || {})
+      setTimeHistory(user.user_metadata?.timeHistory || {})
     })
   }, [navigate])
+
+  const notifications = generateNotifications(times, timeHistory)
+  const unreadCount = notifications.filter(n => !readIds.has(n.id)).length
+
+  function markAllRead() {
+    const next = new Set([...readIds, ...notifications.map(n => n.id)])
+    setReadIds(next)
+    localStorage.setItem('sw_read_notifs', JSON.stringify([...next]))
+  }
+
+  function dismissNotif(id: string) {
+    const next = new Set([...readIds, id])
+    setReadIds(next)
+    localStorage.setItem('sw_read_notifs', JSON.stringify([...next]))
+  }
 
   const persistTimes = useCallback((nextTimes: Times) => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -322,8 +440,61 @@ export default function Dashboard() {
             {age !== null && <span className="dash-welcome-age">Age {age}</span>}
             {gender && <span className={`dash-welcome-gender dash-welcome-gender--${gender}`}>{gender === 'male' ? 'Male' : 'Female'}</span>}
           </h1>
-          <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
+          <div className="dash-header-right">
+            <button
+              className="dash-bell-btn"
+              onClick={() => { setShowNotifs(s => !s); if (!showNotifs) markAllRead() }}
+              aria-label="Notifications"
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="dash-bell-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+              )}
+            </button>
+            <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
+          </div>
         </div>
+
+        {/* ── Notifications panel ── */}
+        {showNotifs && (
+          <div className="notifs-panel">
+            <div className="notifs-header">
+              <span className="notifs-title">Notifications</span>
+              <button className="notifs-close" onClick={() => setShowNotifs(false)}>
+                <X size={16} />
+              </button>
+            </div>
+            {notifications.length === 0 ? (
+              <p className="notifs-empty">You're all caught up!</p>
+            ) : (
+              <ul className="notifs-list">
+                {notifications.map(n => {
+                  const Icon = NOTIF_ICONS[n.type]
+                  const color = NOTIF_COLORS[n.type]
+                  const isRead = readIds.has(n.id)
+                  return (
+                    <li key={n.id} className={`notif-item${isRead ? ' read' : ''}`}>
+                      <span className="notif-icon" style={{ color, background: `${color}18` }}>
+                        <Icon size={15} />
+                      </span>
+                      <div className="notif-body">
+                        <p className="notif-title">{n.title}</p>
+                        <p className="notif-msg">{n.message}</p>
+                      </div>
+                      <button
+                        className="notif-dismiss"
+                        onClick={() => dismissNotif(n.id)}
+                        aria-label="Dismiss"
+                      >
+                        <X size={13} />
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
+        )}
 
         {/* ── Times Panel ── */}
         <section className="times-panel">
