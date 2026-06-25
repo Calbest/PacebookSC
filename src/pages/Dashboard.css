@@ -995,7 +995,7 @@ button:active { transform: scale(0.96) !important; }
   .dash-profile-bar { padding: 0 14px 14px; gap: 10px; border-radius: 0 0 10px 10px; }
   .dash-welcome { font-size: 17px; }
   .dash-profile-sub { font-size: 11px; }
-  .dash-profile-signout { display: none; }
+  .dash-profile-signout { padding: 6px 10px; font-size: 12px; }
   .scs-logo-corner { height: 28px; }
   .times-grid { grid-template-columns: 1fr 1fr; }
   .notifs-panel { margin-bottom: 16px; }
