@@ -384,7 +384,7 @@ function App() {
         <div className="creators-card" data-reveal data-reveal-delay="2">
           <div className="creators-photo-wrap">
             <img
-              src={creatorTab === 'caleb' ? '/photos/caleb.jpg' : '/photos/mason.jpg'}
+              src={creatorTab === 'caleb' ? '/photos/IMG_0942.jpeg' : '/photos/IMG_4189.jpeg'}
               alt={creatorTab === 'caleb' ? 'Caleb Pang' : 'Mason Jung'}
               className={`creators-photo${creatorTab === 'mason' ? ' creators-photo--raw' : ''}`}
               onError={e => {

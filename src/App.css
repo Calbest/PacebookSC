@@ -535,6 +535,7 @@ p { margin: 0; }
 
 .creators-photo--raw {
   object-position: center 20%;
+  transform: rotate(-90deg);
 }
 
 .creators-photo-placeholder {
