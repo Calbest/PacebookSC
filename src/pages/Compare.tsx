@@ -118,6 +118,28 @@ function toSeconds(t: string): number | null {
   return parseFloat(t)
 }
 
+type Proximity = 'met' | 'close' | 'near' | 'far' | 'very-far' | 'no-time' | 'no-cut'
+
+function getProximity(userSec: number | null, cutSec: number | null, userTime: string): Proximity {
+  if (!userTime || userSec === null) return 'no-time'
+  if (cutSec === null) return 'no-cut'
+  const pct = (userSec - cutSec) / cutSec * 100
+  if (pct <= 0)  return 'met'
+  if (pct <= 3)  return 'close'
+  if (pct <= 7)  return 'near'
+  if (pct <= 15) return 'far'
+  return 'very-far'
+}
+
+function formatGap(userSec: number, cutSec: number): string {
+  const g = userSec - cutSec
+  if (g <= 0) return ''
+  if (g < 60) return `+${g.toFixed(2)}s`
+  const m = Math.floor(g / 60)
+  const s = (g % 60).toFixed(2).padStart(5, '0')
+  return `+${m}:${s}`
+}
+
 export default function Compare() {
   const navigate = useNavigate()
   const [course,           setCourse]           = useState<Course>('SCY')
@@ -247,23 +269,19 @@ export default function Compare() {
                   const cutTime  = getCut(ageGroup, gender, course, id, safeStandard)
                   const userSec  = toSeconds(userTime)
                   const cutSec   = toSeconds(cutTime)
-
-                  let status: 'met' | 'not-met' | 'no-time' | 'no-cut' = 'no-cut'
-                  if (!userTime)                                            status = 'no-time'
-                  else if (!cutSec)                                         status = 'no-cut'
-                  else if (userSec !== null && userSec <= cutSec)           status = 'met'
-                  else                                                      status = 'not-met'
+                  const proximity = getProximity(userSec, cutSec, userTime)
+                  const gap = userSec && cutSec ? formatGap(userSec, cutSec) : ''
 
                   return (
                     <div key={id} className="compare-row">
                       <span className="compare-event">{label}</span>
-                      <span className="compare-time">{userTime || '—'}</span>
+                      <span className={`compare-time compare-time--${proximity}`}>{userTime || '—'}</span>
                       <span className="compare-cut">{cutTime || '—'}</span>
-                      <span className={`compare-status compare-status--${status}`}>
-                        {status === 'met'     && '✓ Meets cut'}
-                        {status === 'not-met' && '✗ Below cut'}
-                        {status === 'no-time' && 'No time entered'}
-                        {status === 'no-cut'  && '—'}
+                      <span className={`compare-status compare-status--${proximity}`}>
+                        {proximity === 'met'                            && '✓ Meets cut'}
+                        {proximity === 'no-time'                        && 'No time entered'}
+                        {proximity === 'no-cut'                         && '—'}
+                        {['close','near','far','very-far'].includes(proximity) && `✗ ${gap} behind`}
                       </span>
                     </div>
                   )

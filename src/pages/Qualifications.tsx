@@ -123,6 +123,16 @@ function toSeconds(t: string): number | null {
   return parseFloat(t)
 }
 
+function getProximityClass(userSec: number | null, cutSec: number | null): string {
+  if (userSec === null || cutSec === null) return 'no-time'
+  const pct = (userSec - cutSec) / cutSec * 100
+  if (pct <= 0)  return 'met'
+  if (pct <= 3)  return 'close'
+  if (pct <= 7)  return 'near'
+  if (pct <= 15) return 'far'
+  return 'very-far'
+}
+
 export default function Qualifications() {
   const navigate = useNavigate()
   const [course,  setCourse]  = useState<Course>('SCY')
@@ -279,10 +289,8 @@ export default function Qualifications() {
                             if (!userTime) {
                               return <span key={m.key} className="quals-cell quals-cell--no-time">{cut}</span>
                             }
-                            if (uSec !== null && cSec !== null && uSec <= cSec) {
-                              return <span key={m.key} className="quals-cell quals-cell--met">{cut}</span>
-                            }
-                            return <span key={m.key} className="quals-cell quals-cell--miss">{cut}</span>
+                            const pClass = getProximityClass(uSec, cSec)
+                            return <span key={m.key} className={`quals-cell quals-cell--${pClass}`}>{cut}</span>
                           })}
                         </div>
                       )

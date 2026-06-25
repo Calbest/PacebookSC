@@ -280,10 +280,13 @@
   letter-spacing: -0.3px;
 }
 
-.quals-cell--met     { color: #15803d; background: #dcfce7; }
-.quals-cell--miss    { color: #b91c1c; background: #fee2e2; }
-.quals-cell--no-time { color: #64748b; background: #f1f5f9; }
-.quals-cell--none    { color: #cbd5e1; }
+.quals-cell--met      { color: #15803d; background: #dcfce7; border-color: #86efac; }
+.quals-cell--close    { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
+.quals-cell--near     { color: #854d0e; background: #fefce8; border-color: #fef08a; }
+.quals-cell--far      { color: #9a3412; background: #fff7ed; border-color: #fed7aa; }
+.quals-cell--very-far { color: #991b1b; background: #fef2f2; border-color: #fecaca; }
+.quals-cell--no-time  { color: #64748b; background: #f1f5f9; }
+.quals-cell--none     { color: #cbd5e1; }
 
 @media (max-width: 700px) {
   .quals-sidebar { display: none; }

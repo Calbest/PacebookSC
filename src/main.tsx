@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard.tsx'
 import Settings from './pages/Settings.tsx'
 import Compare from './pages/Compare.tsx'
 import Qualifications from './pages/Qualifications.tsx'
+import Goals from './pages/Goals.tsx'
+import CreateGoal from './pages/CreateGoal.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -21,6 +23,8 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/settings" element={<Settings />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/qualifications" element={<Qualifications />} />
+        <Route path="/goals" element={<Goals />} />
+        <Route path="/goals/create" element={<CreateGoal />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
