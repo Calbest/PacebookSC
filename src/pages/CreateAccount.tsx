@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { LOCATIONS, getStandards } from '../lib/standards'
+import { LOCATIONS } from '../lib/standards'
 import LocationLogo from '../components/LocationLogo'
 import '../App.css'
 import './CreateAccount.css'
@@ -12,7 +12,8 @@ export default function CreateAccount() {
   const [gender,       setGender]       = useState('')
   const [dob,          setDob]          = useState('')
   const [location,     setLocation]     = useState('')
-  const [timeStandard, setTimeStandard] = useState('')
+  const [clubTeam,     setClubTeam]     = useState('')
+  const [highSchool,   setHighSchool]   = useState('')
   const [username,     setUsername]     = useState('')
   const [email,        setEmail]        = useState('')
   const [password,     setPassword]     = useState('')
@@ -40,10 +41,6 @@ export default function CreateAccount() {
       setError('Please select your location.')
       return
     }
-    if (!timeStandard) {
-      setError('Please select a time standard.')
-      return
-    }
     if (password !== confirm) {
       setError('Passwords do not match.')
       return
@@ -64,7 +61,8 @@ export default function CreateAccount() {
           gender,
           dob,
           location,
-          time_standard: timeStandard,
+          club_team: clubTeam.trim(),
+          high_school: highSchool.trim(),
         },
       },
     })
@@ -78,7 +76,6 @@ export default function CreateAccount() {
     }
   }
 
-  const standards    = getStandards(location)
   const selectedLoc  = LOCATIONS.find(l => l.value === location) ?? null
 
   return (
@@ -148,7 +145,7 @@ export default function CreateAccount() {
                 <select
                   className="auth-input auth-select"
                   value={location}
-                  onChange={e => { setLocation(e.target.value); setTimeStandard('') }}
+                  onChange={e => setLocation(e.target.value)}
                   required
                 >
                   <option value="" disabled>Select your location…</option>
@@ -157,23 +154,30 @@ export default function CreateAccount() {
                   ))}
                 </select>
               </label>
+            </div>
 
-              {location && (
-                <label className="auth-label">
-                  USA Swimming Time Standard
-                  <select
-                    className="auth-input auth-select"
-                    value={timeStandard}
-                    onChange={e => setTimeStandard(e.target.value)}
-                    required
-                  >
-                    <option value="" disabled>Select a standard…</option>
-                    {standards.map(s => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </select>
-                </label>
-              )}
+            <div className="auth-team-row">
+              <label className="auth-label">
+                Club Team <span className="auth-optional">(optional)</span>
+                <input
+                  className="auth-input"
+                  type="text"
+                  placeholder="e.g. Irvine Novaquatics"
+                  value={clubTeam}
+                  onChange={e => setClubTeam(e.target.value)}
+                  autoComplete="organization"
+                />
+              </label>
+              <label className="auth-label">
+                High School <span className="auth-optional">(optional)</span>
+                <input
+                  className="auth-input"
+                  type="text"
+                  placeholder="e.g. Newport Harbor HS"
+                  value={highSchool}
+                  onChange={e => setHighSchool(e.target.value)}
+                />
+              </label>
             </div>
 
             <label className="auth-label">

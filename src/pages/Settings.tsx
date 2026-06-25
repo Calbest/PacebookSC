@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Camera, User } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { LOCATIONS, getStandards } from '../lib/standards'
+import { LOCATIONS } from '../lib/standards'
 import LocationLogo from '../components/LocationLogo'
 import './Settings.css'
 
@@ -27,7 +27,8 @@ export default function Settings() {
   const [gender,        setGender]       = useState('')
   const [dob,           setDob]          = useState('')
   const [location,      setLocation]     = useState('')
-  const [timeStandard,  setTimeStandard] = useState('')
+  const [clubTeam,      setClubTeam]     = useState('')
+  const [highSchool,    setHighSchool]   = useState('')
   const [profileStatus, setProfileStatus] = useState<SaveStatus>('idle')
 
   // Account
@@ -45,6 +46,11 @@ export default function Settings() {
   const [avatarUrl,     setAvatarUrl]     = useState('')
   const [avatarPreview, setAvatarPreview] = useState('')
   const [avatarStatus,  setAvatarStatus]  = useState<'idle'|'uploading'|'saved'|'error'>('idle')
+
+  // Delete account
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleteStatus,  setDeleteStatus]  = useState<'idle'|'loading'|'error'>('idle')
+  const [deleteError,   setDeleteError]   = useState('')
 
   // Password reset
   const [resetStep,   setResetStep]   = useState<ResetStep>('idle')
@@ -65,7 +71,8 @@ export default function Settings() {
       setGender(m.gender ?? '')
       setDob(m.dob ?? '')
       setLocation(m.location ?? '')
-      setTimeStandard(m.time_standard ?? '')
+      setClubTeam(m.club_team ?? '')
+      setHighSchool(m.high_school ?? '')
       setPhone(m.phone ?? '')
       setAvatarUrl(m.avatar_url ?? '')
     })
@@ -74,7 +81,7 @@ export default function Settings() {
   async function saveProfile() {
     setProfileStatus('saving')
     const { error } = await supabase.auth.updateUser({
-      data: { full_name: fullName.trim(), gender, dob, location, time_standard: timeStandard },
+      data: { full_name: fullName.trim(), gender, dob, location, club_team: clubTeam.trim(), high_school: highSchool.trim() },
     })
     if (error) { setProfileStatus('error'); return }
     setProfileStatus('saved')
@@ -150,6 +157,19 @@ export default function Settings() {
     setResetStep('idle')
     setNewPassword('')
     setConfirmPass('')
+  }
+
+  async function deleteAccount() {
+    setDeleteStatus('loading')
+    setDeleteError('')
+    const { error } = await supabase.rpc('delete_user')
+    if (error) {
+      setDeleteError(error.message)
+      setDeleteStatus('error')
+      return
+    }
+    await supabase.auth.signOut()
+    navigate('/')
   }
 
   const displayAvatar = avatarPreview || avatarUrl
@@ -247,12 +267,12 @@ export default function Settings() {
           <div className="location-standard-block">
             {selectedLoc && <LocationLogo location={selectedLoc} />}
 
-            <div className="settings-field" style={{ marginBottom: 14 }}>
+            <div className="settings-field" style={{ marginBottom: 0 }}>
               <label className="settings-label">Location</label>
               <select
                 className="settings-input settings-select"
                 value={location}
-                onChange={e => { setLocation(e.target.value); setTimeStandard('') }}
+                onChange={e => setLocation(e.target.value)}
               >
                 <option value="" disabled>Select a location…</option>
                 {LOCATIONS.map(loc => (
@@ -260,22 +280,31 @@ export default function Settings() {
                 ))}
               </select>
             </div>
+          </div>
 
-            {location && (
-              <div className="settings-field" style={{ marginBottom: 0 }}>
-                <label className="settings-label">USA Swimming Time Standard</label>
-                <select
-                  className="settings-input settings-select"
-                  value={timeStandard}
-                  onChange={e => setTimeStandard(e.target.value)}
-                >
-                  <option value="" disabled>Select a standard…</option>
-                  {getStandards(location).map(s => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+          <div className="settings-team-row">
+            <div className="settings-field" style={{ flex: 1, marginBottom: 0 }}>
+              <label className="settings-label">
+                Club Team <span className="settings-optional">(optional)</span>
+              </label>
+              <input
+                className="settings-input"
+                value={clubTeam}
+                placeholder="e.g. Irvine Novaquatics"
+                onChange={e => setClubTeam(e.target.value)}
+              />
+            </div>
+            <div className="settings-field" style={{ flex: 1, marginBottom: 0 }}>
+              <label className="settings-label">
+                High School <span className="settings-optional">(optional)</span>
+              </label>
+              <input
+                className="settings-input"
+                value={highSchool}
+                placeholder="e.g. Newport Harbor HS"
+                onChange={e => setHighSchool(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="settings-profile-footer">
@@ -429,6 +458,50 @@ export default function Settings() {
 
           {resetStatus === 'success' && <p className="status-success">Password updated successfully!</p>}
           {resetError && <p className="status-error">{resetError}</p>}
+        </section>
+
+        {/* ── Danger Zone ── */}
+        <section className="settings-card settings-card--danger">
+          <h2 className="settings-section-title settings-section-title--danger">Danger Zone</h2>
+
+          {!deleteConfirm ? (
+            <div className="danger-idle">
+              <p className="settings-hint">
+                Permanently delete your account and all your data. This cannot be undone.
+              </p>
+              <button className="settings-delete-btn" onClick={() => setDeleteConfirm(true)}>
+                Delete Account
+              </button>
+            </div>
+          ) : (
+            <div className="danger-confirm">
+              <p className="danger-warning">
+                Are you sure? Your times, profile, and all data will be permanently erased.
+              </p>
+              <div className="reset-actions">
+                <button
+                  className="settings-delete-btn--confirm"
+                  onClick={deleteAccount}
+                  disabled={deleteStatus === 'loading'}
+                >
+                  {deleteStatus === 'loading' ? 'Deleting…' : 'Yes, delete my account'}
+                </button>
+                <button
+                  className="settings-cancel-btn"
+                  onClick={() => { setDeleteConfirm(false); setDeleteError('') }}
+                >
+                  Cancel
+                </button>
+              </div>
+              {deleteError && (
+                <p className="status-error" style={{ marginTop: 10 }}>
+                  {deleteError.includes('delete_user') || deleteError.includes('function')
+                    ? 'Setup required — run the SQL function in Supabase first (see instructions above).'
+                    : deleteError}
+                </p>
+              )}
+            </div>
+          )}
         </section>
 
       </div>

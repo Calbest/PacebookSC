@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './Dashboard.css'
 
@@ -238,6 +238,11 @@ export default function Dashboard() {
         <button className="dash-compare" onClick={() => navigate('/compare')}>
           <span className="dash-compare-icon">⇌</span>
           <span>Compare Standards</span>
+        </button>
+
+        <button className="dash-competitions" onClick={() => navigate('/qualifications')}>
+          <Trophy size={16} />
+          <span>Competitions</span>
         </button>
 
         <button className="dash-settings" onClick={() => navigate('/settings')}>

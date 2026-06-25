@@ -8,6 +8,7 @@ import SignIn from './pages/SignIn.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Settings from './pages/Settings.tsx'
 import Compare from './pages/Compare.tsx'
+import Qualifications from './pages/Qualifications.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/compare" element={<Compare />} />
+        <Route path="/qualifications" element={<Qualifications />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
