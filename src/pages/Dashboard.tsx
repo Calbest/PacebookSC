@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, TrendingDown, Zap } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { playClick, playDelete, playSave, playNavigate } from '../lib/sounds'
 import './Dashboard.css'
@@ -437,23 +437,38 @@ export default function Dashboard() {
             ? { background: bannerValue }
             : undefined
         }>
-          <h1 className="dash-welcome">
-            Welcome, {fullName || username || '…'}
-            {age !== null && <span className="dash-welcome-age">Age {age}</span>}
-            {gender && <span className={`dash-welcome-gender dash-welcome-gender--${gender}`}>{gender === 'male' ? 'Male' : 'Female'}</span>}
-          </h1>
-          <div className="dash-header-right">
+          {/* Top-right actions */}
+          <div className="dash-banner-actions">
             <button
               className="dash-bell-btn"
               onClick={() => { setShowNotifs(s => !s); if (!showNotifs) markAllRead() }}
               aria-label="Notifications"
             >
-              <Bell size={20} />
+              <Bell size={18} />
               {unreadCount > 0 && (
                 <span className="dash-bell-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
               )}
             </button>
             <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
+          </div>
+
+          {/* Profile row */}
+          <div className="dash-banner-profile">
+            <div className="dash-banner-avatar-wrap">
+              {avatarUrl
+                ? <img src={avatarUrl} alt="avatar" className="dash-banner-avatar-img" />
+                : <User size={32} className="dash-banner-avatar-icon" />
+              }
+            </div>
+            <div className="dash-banner-info">
+              <h1 className="dash-welcome">{fullName || username || '…'}</h1>
+              <div className="dash-banner-chips">
+                {age !== null && <span className="dash-chip">Age {age}</span>}
+                {gender && <span className="dash-chip">{gender === 'male' ? 'Male' : 'Female'}</span>}
+                <span className="dash-chip">{course}</span>
+                <span className="dash-chip dash-chip--dim">Southern California Swimming</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -644,6 +659,30 @@ export default function Dashboard() {
           )}
         </div>
       )}
+
+      {/* ── Mobile bottom nav ── */}
+      <nav className="dash-mobile-nav">
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/compare') }}>
+          <Trophy size={20} />
+          Compare
+        </button>
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/qualifications') }}>
+          <Star size={20} />
+          Quals
+        </button>
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/event-planning') }}>
+          <CalendarCheck size={20} />
+          Events
+        </button>
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/goals') }}>
+          <Target size={20} />
+          Goals
+        </button>
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/settings') }}>
+          <Settings size={20} />
+          Settings
+        </button>
+      </nav>
     </div>
   )
 }

@@ -222,6 +222,18 @@ function App() {
               what you're chasing and how close you are.
             </p>
           </div>
+
+          <div className="feature-card" data-reveal data-reveal-delay="1">
+            <div className="feature-img-placeholder">
+              <span>📱</span>
+            </div>
+            <h3 className="feature-title">Mobile Friendly</h3>
+            <p className="feature-blurb">
+              Built to work on any device. The dashboard, time tables, qualifications view,
+              and event planner all adapt to your phone screen — with a bottom navigation bar
+              so everything is one tap away at a meet.
+            </p>
+          </div>
         </div>
       </section>
 
