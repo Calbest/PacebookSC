@@ -1,6 +1,89 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from './lib/supabase'
 import './App.css'
+
+function StarRating() {
+  const [hovered,  setHovered]  = useState(0)
+  const [selected, setSelected] = useState(0)
+  const [comment,  setComment]  = useState('')
+  const [status,   setStatus]   = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
+
+  async function submit() {
+    if (!selected) return
+    setStatus('sending')
+    const { error } = await supabase
+      .from('ratings')
+      .insert({ stars: selected, comment: comment.trim() || null })
+    setStatus(error ? 'error' : 'done')
+  }
+
+  if (status === 'done') {
+    return (
+      <section className="rating-section">
+        <div className="rating-card">
+          <div className="rating-thanks-icon">★</div>
+          <h3 className="rating-thanks-title">Thanks for the feedback!</h3>
+          <p className="rating-thanks-sub">Your rating helps us improve SwimSCPlan.</p>
+        </div>
+      </section>
+    )
+  }
+
+  const display = hovered || selected
+
+  return (
+    <section className="rating-section">
+      <div className="rating-card">
+        <h2 className="rating-heading">Rate SwimSCPlan</h2>
+        <p className="rating-sub">How useful has this app been for your swimming?</p>
+
+        <div className="rating-stars" onMouseLeave={() => setHovered(0)}>
+          {[1, 2, 3, 4, 5].map(n => (
+            <button
+              key={n}
+              className={`rating-star${n <= display ? ' filled' : ''}`}
+              onMouseEnter={() => setHovered(n)}
+              onClick={() => setSelected(n)}
+              aria-label={`${n} star${n > 1 ? 's' : ''}`}
+            >
+              ★
+            </button>
+          ))}
+        </div>
+
+        {selected > 0 && (
+          <p className="rating-label">
+            {['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'][selected]}
+          </p>
+        )}
+
+        {selected > 0 && (
+          <textarea
+            className="rating-comment"
+            placeholder="Any comments? (optional)"
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            rows={3}
+            maxLength={500}
+          />
+        )}
+
+        <button
+          className="rating-submit"
+          onClick={submit}
+          disabled={!selected || status === 'sending'}
+        >
+          {status === 'sending' ? 'Submitting…' : 'Submit Rating'}
+        </button>
+
+        {status === 'error' && (
+          <p className="rating-error">Something went wrong — please try again.</p>
+        )}
+      </div>
+    </section>
+  )
+}
 
 function InstagramIcon() {
   return (
@@ -341,6 +424,9 @@ function App() {
           </div>
         </div>
       </section>
+
+      {/* ── Star Rating ── */}
+      <StarRating />
 
       {/* ── Connect / Socials ── */}
       <section className="connect">
