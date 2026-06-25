@@ -518,7 +518,24 @@ p { margin: 0; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.creators-photo-wrap { flex-shrink: 0; }
+.creators-photo-wrap { flex-shrink: 0; position: relative; }
+
+.creators-photo {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 15%;
+  border: 3px solid rgba(255,255,255,0.15);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.creators-photo--raw {
+  object-position: center 20%;
+}
 
 .creators-photo-placeholder {
   width: 110px;
@@ -709,6 +726,105 @@ p { margin: 0; }
   filter: brightness(0) invert(1);
   opacity: 0.3;
 }
+
+/* ── Quotes Carousel ── */
+.quotes-section {
+  padding: 72px 48px;
+  background: linear-gradient(180deg, #001a3d 0%, #002855 100%);
+  text-align: center;
+}
+
+.quotes-heading {
+  font-size: 30px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 36px;
+  letter-spacing: -0.5px;
+}
+
+.quotes-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.quotes-arrow {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quotes-arrow:hover { background: rgba(255,255,255,0.2); }
+
+.quotes-card {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 36px 40px 28px;
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quotes-mark {
+  font-size: 72px;
+  line-height: 0.7;
+  color: rgba(100,180,255,0.35);
+  font-family: Georgia, serif;
+  align-self: flex-start;
+  user-select: none;
+}
+
+.quotes-text {
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.9);
+  margin: 12px 0 16px;
+  font-style: italic;
+}
+
+.quotes-author {
+  font-size: 13px;
+  font-weight: 800;
+  color: #64b5f6;
+  letter-spacing: 0.3px;
+  margin: 0 0 20px;
+  align-self: flex-end;
+}
+
+.quotes-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.quotes-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+.quotes-dot.active { background: #64b5f6; transform: scale(1.25); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

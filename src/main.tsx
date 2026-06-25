@@ -14,6 +14,7 @@ import CreateGoal from './pages/CreateGoal.tsx'
 import Import from './pages/Import.tsx'
 import Progress from './pages/Progress.tsx'
 import EventPlanning from './pages/EventPlanning.tsx'
+import TimeConverter from './pages/TimeConverter.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/import" element={<Import />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/event-planning" element={<EventPlanning />} />
+        <Route path="/time-converter" element={<TimeConverter />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

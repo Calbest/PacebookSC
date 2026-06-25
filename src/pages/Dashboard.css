@@ -213,6 +213,27 @@
   color: #ffffff;
 }
 
+.dash-time-converter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(20,184,166,0.12);
+  border: 1px solid rgba(20,184,166,0.3);
+  color: #5eead4;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dash-time-converter:hover {
+  background: rgba(20,184,166,0.22);
+  color: #ffffff;
+}
+
 .dash-settings {
   display: flex;
   align-items: center;

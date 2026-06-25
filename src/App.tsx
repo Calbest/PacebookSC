@@ -37,6 +37,60 @@ function YoutubeIcon() {
   )
 }
 
+const QUOTES = [
+  { text: "The water is your friend. You don't have to fight with water, just share the same spirit as the water, and it will help you move.", author: "Aleksandr Popov" },
+  { text: "I don't do it for the medals. I do it because I love it.", author: "Katie Ledecky" },
+  { text: "You can't put a limit on anything. The more you dream, the farther you get.", author: "Michael Phelps" },
+  { text: "Gold medals aren't really made of gold. They're made of sweat, determination, and a hard-to-find alloy called guts.", author: "Dan Gable" },
+  { text: "Swimming is normal for me. I'm relaxed. I'm comfortable, and I know my surroundings.", author: "Michael Phelps" },
+  { text: "The more I practice, the luckier I get.", author: "Gary Player" },
+  { text: "You have to expect things of yourself before you can do them.", author: "Michael Jordan" },
+  { text: "I try to beat myself every time I get in the water. Whatever I did in my last race, I try to do better.", author: "Katie Ledecky" },
+  { text: "There may be people that have more talent than you, but there's no excuse for anyone to work harder than you do.", author: "Derek Jeter" },
+  { text: "Champions keep playing until they get it right.", author: "Billie Jean King" },
+  { text: "Persistence can change failure into extraordinary achievement.", author: "Matt Biondi" },
+  { text: "The secret to success is to start before you are ready.", author: "Marie Forleo" },
+  { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
+  { text: "You can't win unless you learn how to lose.", author: "Kareem Abdul-Jabbar" },
+  { text: "Every morning in Africa, a gazelle wakes up, and it knows it must run faster than the fastest lion or it will be killed. Every morning a lion wakes up and it knows it must run faster than the slowest gazelle or it will starve to death. It doesn't matter whether you are a lion or a gazelle. When the sun comes up, you better be running.", author: "Unknown" },
+  { text: "Do you know what my favorite part of the game is? The opportunity to play.", author: "Mike Singletary" },
+  { text: "I've failed over and over again in my life, and that is why I succeed.", author: "Michael Jordan" },
+  { text: "Believe me, the reward is not so great without the struggle.", author: "Wilma Rudolph" },
+  { text: "It's not the will to win that matters — everyone has that. It's the will to prepare to win that matters.", author: "Paul 'Bear' Bryant" },
+  { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+]
+
+function QuotesCarousel() {
+  const [idx, setIdx] = useState(0)
+  const prev = () => setIdx(i => (i - 1 + QUOTES.length) % QUOTES.length)
+  const next = () => setIdx(i => (i + 1) % QUOTES.length)
+  const q = QUOTES[idx]
+  return (
+    <section className="quotes-section">
+      <h2 className="quotes-heading" data-reveal>Fuel for the Pool</h2>
+      <div className="quotes-carousel">
+        <button className="quotes-arrow" onClick={prev} aria-label="Previous quote">&#8592;</button>
+        <div className="quotes-card">
+          <span className="quotes-mark">&ldquo;</span>
+          <p className="quotes-text">{q.text}</p>
+          <p className="quotes-author">— {q.author}</p>
+          <div className="quotes-dots">
+            {QUOTES.map((_, i) => (
+              <button
+                key={i}
+                className={`quotes-dot${i === idx ? ' active' : ''}`}
+                onClick={() => setIdx(i)}
+                aria-label={`Go to quote ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+        <button className="quotes-arrow" onClick={next} aria-label="Next quote">&#8594;</button>
+      </div>
+    </section>
+  )
+}
+
 function App() {
   const navigate = useNavigate()
   const [creatorTab, setCreatorTab] = useState<'caleb' | 'mason'>('caleb')
@@ -210,6 +264,9 @@ function App() {
         </div>
       </section>
 
+      {/* ── Quotes Carousel ── */}
+      <QuotesCarousel />
+
       {/* ── Meet the Creators ── */}
       <section className="creators">
         <h2 className="creators-heading" data-reveal>Meet the People Behind SwimSCPlan</h2>
@@ -231,7 +288,18 @@ function App() {
 
         <div className="creators-card" data-reveal data-reveal-delay="2">
           <div className="creators-photo-wrap">
-            <div className="creators-photo-placeholder">
+            <img
+              src={creatorTab === 'caleb' ? '/photos/caleb.jpg' : '/photos/mason.jpg'}
+              alt={creatorTab === 'caleb' ? 'Caleb Pang' : 'Mason Jung'}
+              className={`creators-photo${creatorTab === 'mason' ? ' creators-photo--raw' : ''}`}
+              onError={e => {
+                const img = e.currentTarget as HTMLImageElement
+                img.style.display = 'none'
+                const fallback = img.nextElementSibling as HTMLElement
+                if (fallback) fallback.style.display = 'flex'
+              }}
+            />
+            <div className="creators-photo-placeholder" style={{ display: 'none' }}>
               {creatorTab === 'caleb' ? 'CP' : 'MJ'}
             </div>
           </div>

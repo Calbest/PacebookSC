@@ -1,0 +1,307 @@
+.tc-page {
+  min-height: 100svh;
+  background: #dce8f5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.tc-header {
+  background: linear-gradient(180deg, #001a3d 0%, #002855 100%);
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tc-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.tc-back:hover { background: rgba(255,255,255,0.18); color: #ffffff; }
+
+.tc-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+/* ── Body ── */
+.tc-body {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tc-subtitle {
+  font-size: 14px;
+  color: #475569;
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+
+.tc-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  margin-bottom: 24px;
+}
+
+/* ── Controls ── */
+.tc-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.tc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tc-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tc-select {
+  padding: 9px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  background: #f8fafc;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+.tc-select:focus { border-color: #002855; }
+
+/* ── Input row ── */
+.tc-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 8px;
+}
+
+.tc-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.tc-input-wrap:focus-within { border-color: #002855; }
+
+.tc-course-badge {
+  font-size: 11px;
+  font-weight: 900;
+  color: #ffffff;
+  background: #002855;
+  padding: 0 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  min-width: 48px;
+  justify-content: center;
+}
+
+.tc-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+  padding: 14px 16px;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+.tc-input::placeholder { color: #cbd5e1; font-weight: 400; font-size: 15px; }
+
+.tc-swap-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.tc-swap-btn:hover { background: #e2e8f0; color: #002855; }
+
+.tc-reset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tc-reset-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+.tc-parsed-label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 0 20px;
+}
+
+/* ── Results ── */
+.tc-results {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.tc-result-card {
+  background: linear-gradient(135deg, #001a3d 0%, #002855 100%);
+  border-radius: 14px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tc-result-course {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tc-result-abbr {
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tc-result-full {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+}
+
+.tc-result-time {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-disclaimer {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
+
+/* ── Reference ── */
+.tc-reference {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tc-ref-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+}
+
+.tc-ref-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.tc-ref-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+}
+
+.tc-ref-abbr {
+  font-size: 15px;
+  font-weight: 900;
+  color: #002855;
+}
+
+.tc-ref-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tc-ref-len {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .tc-header  { padding: 18px 20px; }
+  .tc-body    { padding: 24px 16px 60px; }
+  .tc-card    { padding: 20px; }
+  .tc-controls { grid-template-columns: 1fr; }
+  .tc-results  { grid-template-columns: 1fr; }
+  .tc-ref-grid { grid-template-columns: 1fr; }
+}
