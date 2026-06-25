@@ -518,35 +518,43 @@ p { margin: 0; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.creators-photo-wrap { flex-shrink: 0; position: relative; }
-
-.creators-photo {
+.creators-photo-wrap {
+  flex-shrink: 0;
+  position: relative;
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  object-fit: cover;
-  object-position: center 15%;
+  overflow: hidden;
   border: 3px solid rgba(255,255,255,0.15);
   box-shadow: 0 6px 24px rgba(0,0,0,0.35);
-  display: block;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
 }
 
+.creators-photo {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+}
+
+/* Caleb: portrait iPhone photo shot sideways — rotate left inside circle */
 .creators-photo--caleb {
-  transform: rotate(-90deg);
-  object-position: center 40%;
-  filter: brightness(1.18) contrast(1.12) saturate(1.08) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  object-position: center 30%;
+  transform: rotate(-90deg) scale(1.35);
+  transform-origin: center center;
+  filter: brightness(1.18) contrast(1.12) saturate(1.08);
 }
 
 .creators-photo--mason {
-  object-position: center 15%;
+  object-position: center 20%;
 }
 
 .creators-photo-placeholder {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
   background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
   display: flex;
   align-items: center;
