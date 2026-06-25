@@ -1,12 +1,34 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, User } from 'lucide-react'
+import { ArrowLeft, Camera, User, RotateCcw, Eraser, Save } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './Settings.css'
 
 type SaveStatus  = 'idle' | 'saving' | 'saved' | 'error'
 type ResetStep   = 'idle' | 'code_sent'
 type ResetStatus = 'idle' | 'loading' | 'success' | 'error'
+type BannerType  = 'default' | 'gradient' | 'color' | 'canvas'
+
+const GRADIENT_PRESETS = [
+  { label: 'Navy (Default)', value: 'linear-gradient(180deg, #001a3d 0%, #002855 100%)' },
+  { label: 'Ocean',          value: 'linear-gradient(135deg, #0369a1 0%, #001a3d 100%)' },
+  { label: 'Sunset',         value: 'linear-gradient(135deg, #f97316 0%, #dc2626 55%, #9333ea 100%)' },
+  { label: 'Forest',         value: 'linear-gradient(135deg, #166534 0%, #052e16 100%)' },
+  { label: 'Purple Rain',    value: 'linear-gradient(135deg, #7c3aed 0%, #1e1b4b 100%)' },
+  { label: 'Midnight',       value: 'linear-gradient(180deg, #0f172a 0%, #334155 100%)' },
+  { label: 'Rose',           value: 'linear-gradient(135deg, #f43f5e 0%, #881337 100%)' },
+  { label: 'Aurora',         value: 'linear-gradient(135deg, #059669 0%, #0891b2 50%, #7c3aed 100%)' },
+  { label: 'Sky',            value: 'linear-gradient(180deg, #0ea5e9 0%, #0c4a6e 100%)' },
+  { label: 'Ember',          value: 'linear-gradient(135deg, #f59e0b 0%, #b91c1c 100%)' },
+]
+
+const COLOR_PRESETS = [
+  '#002855', '#0369a1', '#7c3aed', '#166534',
+  '#b91c1c', '#c2410c', '#be185d', '#0f172a',
+]
+
+const CANVAS_BG_FROM = '#001a3d'
+const CANVAS_BG_TO   = '#002855'
 
 function formatBirthday(isoDate: string): string {
   if (!isoDate) return ''
@@ -17,8 +39,11 @@ function formatBirthday(isoDate: string): string {
 }
 
 export default function Settings() {
-  const navigate  = useNavigate()
-  const fileInput = useRef<HTMLInputElement>(null)
+  const navigate   = useNavigate()
+  const fileInput  = useRef<HTMLInputElement>(null)
+  const canvasRef  = useRef<HTMLCanvasElement>(null)
+  const drawingRef = useRef(false)
+  const lastPos    = useRef<{ x: number; y: number } | null>(null)
 
   // Profile
   const [fullName,      setFullName]     = useState('')
@@ -43,6 +68,15 @@ export default function Settings() {
   const [avatarUrl,     setAvatarUrl]     = useState('')
   const [avatarPreview, setAvatarPreview] = useState('')
   const [avatarStatus,  setAvatarStatus]  = useState<'idle'|'uploading'|'saved'|'error'>('idle')
+
+  // Banner
+  const [bannerType,   setBannerType]   = useState<BannerType>('default')
+  const [bannerValue,  setBannerValue]  = useState('')
+  const [bannerTab,    setBannerTab]    = useState<'colors' | 'paint'>('colors')
+  const [bannerStatus, setBannerStatus] = useState<SaveStatus>('idle')
+  const [brushColor,   setBrushColor]   = useState('#7ee8ff')
+  const [brushSize,    setBrushSize]    = useState(12)
+  const [isEraser,     setIsEraser]     = useState(false)
 
   // Delete account
   const [deleteConfirm, setDeleteConfirm] = useState(false)
@@ -71,8 +105,135 @@ export default function Settings() {
       setHighSchool(m.high_school ?? '')
       setPhone(m.phone ?? '')
       setAvatarUrl(m.avatar_url ?? '')
+      setBannerType((m.bannerType as BannerType) ?? 'default')
+      setBannerValue(m.bannerValue ?? '')
     })
   }, [navigate])
+
+  // ── Canvas helpers ────────────────────────────────────────────────────────
+
+  function fillCanvasBg(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+    const g = ctx.createLinearGradient(0, 0, 0, canvas.height)
+    g.addColorStop(0, CANVAS_BG_FROM)
+    g.addColorStop(1, CANVAS_BG_TO)
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  }
+
+  function initCanvas() {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    if (bannerType === 'canvas' && bannerValue) {
+      const img = new Image()
+      img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      img.src = bannerValue
+    } else {
+      fillCanvasBg(ctx, canvas)
+    }
+  }
+
+  useEffect(() => {
+    if (bannerTab !== 'paint') return
+    const t = setTimeout(initCanvas, 30)
+    return () => clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bannerTab])
+
+  function getCanvasPos(e: React.MouseEvent<HTMLCanvasElement>) {
+    const canvas = canvasRef.current!
+    const r = canvas.getBoundingClientRect()
+    return {
+      x: (e.clientX - r.left) * (canvas.width / r.width),
+      y: (e.clientY - r.top)  * (canvas.height / r.height),
+    }
+  }
+
+  function getTouchCanvasPos(e: React.TouchEvent<HTMLCanvasElement>) {
+    const canvas = canvasRef.current!
+    const r = canvas.getBoundingClientRect()
+    const t = e.touches[0]
+    return {
+      x: (t.clientX - r.left) * (canvas.width / r.width),
+      y: (t.clientY - r.top)  * (canvas.height / r.height),
+    }
+  }
+
+  function paintLine(from: { x: number; y: number }, to: { x: number; y: number }) {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    ctx.strokeStyle = isEraser ? CANVAS_BG_FROM : brushColor
+    ctx.lineWidth   = isEraser ? brushSize * 2.5 : brushSize
+    ctx.lineCap     = 'round'
+    ctx.lineJoin    = 'round'
+    ctx.beginPath()
+    ctx.moveTo(from.x, from.y)
+    ctx.lineTo(to.x, to.y)
+    ctx.stroke()
+  }
+
+  function onMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    drawingRef.current = true
+    lastPos.current = getCanvasPos(e)
+  }
+  function onMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!drawingRef.current || !lastPos.current) return
+    const pos = getCanvasPos(e)
+    paintLine(lastPos.current, pos)
+    lastPos.current = pos
+  }
+  function onMouseUp()    { drawingRef.current = false; lastPos.current = null }
+  function onMouseLeave() { drawingRef.current = false; lastPos.current = null }
+
+  function onTouchStart(e: React.TouchEvent<HTMLCanvasElement>) {
+    e.preventDefault()
+    drawingRef.current = true
+    lastPos.current = getTouchCanvasPos(e)
+  }
+  function onTouchMove(e: React.TouchEvent<HTMLCanvasElement>) {
+    e.preventDefault()
+    if (!drawingRef.current || !lastPos.current) return
+    const pos = getTouchCanvasPos(e)
+    paintLine(lastPos.current, pos)
+    lastPos.current = pos
+  }
+  function onTouchEnd() { drawingRef.current = false; lastPos.current = null }
+
+  function clearCanvas() {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    fillCanvasBg(canvas.getContext('2d')!, canvas)
+  }
+
+  async function saveColorBanner(type: 'default' | 'gradient' | 'color', value = '') {
+    setBannerStatus('saving')
+    await supabase.auth.updateUser({ data: { bannerType: type, bannerValue: value } })
+    setBannerType(type)
+    setBannerValue(value)
+    setBannerStatus('saved')
+    setTimeout(() => setBannerStatus('idle'), 2000)
+  }
+
+  async function saveCanvasBanner() {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    setBannerStatus('saving')
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+    await supabase.auth.updateUser({ data: { bannerType: 'canvas', bannerValue: dataUrl } })
+    setBannerType('canvas')
+    setBannerValue(dataUrl)
+    setBannerStatus('saved')
+    setTimeout(() => setBannerStatus('idle'), 2000)
+  }
+
+  // current banner CSS for live preview
+  const bannerPreviewStyle: React.CSSProperties =
+    bannerType === 'canvas' && bannerValue
+      ? { backgroundImage: `url(${bannerValue})`, backgroundSize: 'cover', backgroundPosition: 'center top' }
+      : (bannerType === 'gradient' || bannerType === 'color') && bannerValue
+      ? { background: bannerValue }
+      : { background: 'linear-gradient(180deg, #001a3d 0%, #002855 100%)' }
 
   async function saveProfile() {
     setProfileStatus('saving')
@@ -211,6 +372,147 @@ export default function Settings() {
               )}
             </div>
           </div>
+        </section>
+
+        {/* ── Banner Customization ── */}
+        <section className="settings-card">
+          <h2 className="settings-section-title">Dashboard Banner</h2>
+
+          {/* Live preview */}
+          <div className="banner-preview" style={bannerPreviewStyle}>
+            <span className="banner-preview-label">Welcome, {fullName || 'You'}</span>
+          </div>
+
+          {/* Mode tabs */}
+          <div className="banner-mode-tabs">
+            <button
+              className={`banner-mode-tab${bannerTab === 'colors' ? ' active' : ''}`}
+              onClick={() => setBannerTab('colors')}
+            >Color &amp; Gradients</button>
+            <button
+              className={`banner-mode-tab${bannerTab === 'paint' ? ' active' : ''}`}
+              onClick={() => setBannerTab('paint')}
+            >Paint Your Own</button>
+          </div>
+
+          {/* ── Colors tab ── */}
+          {bannerTab === 'colors' && (
+            <div className="banner-colors-panel">
+              <div className="banner-sub-label">Gradient Presets</div>
+              <div className="banner-gradient-grid">
+                {GRADIENT_PRESETS.map(p => (
+                  <button
+                    key={p.value}
+                    className={`banner-gradient-swatch${bannerType === 'gradient' && bannerValue === p.value ? ' selected' : ''}`}
+                    style={{ background: p.value }}
+                    title={p.label}
+                    onClick={() => saveColorBanner('gradient', p.value)}
+                  />
+                ))}
+              </div>
+
+              <div className="banner-sub-label" style={{ marginTop: 16 }}>Solid Colors</div>
+              <div className="banner-solid-row">
+                {COLOR_PRESETS.map(c => (
+                  <button
+                    key={c}
+                    className={`banner-solid-swatch${bannerType === 'color' && bannerValue === c ? ' selected' : ''}`}
+                    style={{ background: c }}
+                    title={c}
+                    onClick={() => saveColorBanner('color', c)}
+                  />
+                ))}
+                {/* Custom color wheel */}
+                <label className="banner-color-wheel-btn" title="Pick any color">
+                  🎨
+                  <input
+                    type="color"
+                    value={bannerType === 'color' && bannerValue.startsWith('#') ? bannerValue : '#002855'}
+                    onChange={e => saveColorBanner('color', e.target.value)}
+                    hidden
+                  />
+                </label>
+              </div>
+
+              <button
+                className="banner-reset-btn"
+                onClick={() => saveColorBanner('default')}
+              >
+                <RotateCcw size={13} />
+                Reset to Default
+              </button>
+            </div>
+          )}
+
+          {/* ── Paint tab ── */}
+          {bannerTab === 'paint' && (
+            <div className="banner-paint-panel">
+              <canvas
+                ref={canvasRef}
+                className="banner-canvas"
+                width={800}
+                height={180}
+                onMouseDown={onMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseLeave}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              />
+
+              <div className="banner-paint-toolbar">
+                <label className="banner-tool-group">
+                  <span className="banner-tool-label">Color</span>
+                  <input
+                    type="color"
+                    value={brushColor}
+                    onChange={e => { setBrushColor(e.target.value); setIsEraser(false) }}
+                    className="banner-brush-color"
+                  />
+                </label>
+
+                <label className="banner-tool-group">
+                  <span className="banner-tool-label">Size&nbsp;{brushSize}px</span>
+                  <input
+                    type="range"
+                    min={3}
+                    max={48}
+                    value={brushSize}
+                    onChange={e => setBrushSize(Number(e.target.value))}
+                    className="banner-size-slider"
+                  />
+                </label>
+
+                <button
+                  className={`banner-tool-btn${isEraser ? ' active' : ''}`}
+                  onClick={() => setIsEraser(e => !e)}
+                >
+                  <Eraser size={14} />
+                  Eraser
+                </button>
+
+                <button className="banner-tool-btn" onClick={clearCanvas}>
+                  <RotateCcw size={14} />
+                  Clear
+                </button>
+
+                <button
+                  className="banner-save-canvas-btn"
+                  onClick={saveCanvasBanner}
+                  disabled={bannerStatus === 'saving'}
+                >
+                  <Save size={14} />
+                  {bannerStatus === 'saving' ? 'Saving…' : bannerStatus === 'saved' ? 'Saved!' : 'Save Banner'}
+                </button>
+              </div>
+              <p className="banner-paint-hint">Draw on the canvas above — this will become your dashboard banner.</p>
+            </div>
+          )}
+
+          {bannerTab === 'colors' && bannerStatus === 'saved' && (
+            <p className="status-success" style={{ marginTop: 10 }}>Banner saved!</p>
+          )}
         </section>
 
         {/* ── Profile Info ── */}

@@ -162,6 +162,8 @@ export default function Dashboard() {
   const [gender,      setGender]      = useState('')
   const [age,         setAge]         = useState<number | null>(null)
   const [avatarUrl,   setAvatarUrl]   = useState('')
+  const [bannerType,  setBannerType]  = useState('default')
+  const [bannerValue, setBannerValue] = useState('')
   const [course,      setCourse]      = useState<Course>('SCY')
   const [editing,     setEditing]     = useState(false)
   const [times,       setTimes]       = useState<Times>({})
@@ -182,6 +184,8 @@ export default function Dashboard() {
       setGender(user.user_metadata?.gender || '')
       setAge(calcAge(user.user_metadata?.dob || ''))
       setAvatarUrl(user.user_metadata?.avatar_url || '')
+      setBannerType(user.user_metadata?.bannerType || 'default')
+      setBannerValue(user.user_metadata?.bannerValue || '')
       setTimes(user.user_metadata?.times || {})
     })
   }, [navigate])
@@ -301,7 +305,13 @@ export default function Dashboard() {
       {/* ── Main ── */}
       <main className="dash-main">
 
-        <div className="dash-main-header">
+        <div className="dash-main-header" style={
+          bannerType === 'canvas' && bannerValue
+            ? { backgroundImage: `url(${bannerValue})`, backgroundSize: 'cover', backgroundPosition: 'center top' }
+            : (bannerType === 'gradient' || bannerType === 'color') && bannerValue
+            ? { background: bannerValue }
+            : undefined
+        }>
           <h1 className="dash-welcome">
             Welcome, {fullName || username || '…'}
             {age !== null && <span className="dash-welcome-age">Age {age}</span>}
