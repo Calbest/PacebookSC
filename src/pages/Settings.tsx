@@ -78,6 +78,18 @@ export default function Settings() {
   const [brushSize,    setBrushSize]    = useState(12)
   const [isEraser,     setIsEraser]     = useState(false)
 
+  // Notifications
+  const [notifPrefs, setNotifPrefs] = useState({
+    personalBests:    true,
+    swimMeetReminder: true,
+    weeklyProgress:   true,
+    goalAchieved:     true,
+    streakMilestone:  true,
+    trainingTips:     false,
+    newFeatures:      true,
+  })
+  const [notifStatus, setNotifStatus] = useState<SaveStatus>('idle')
+
   // Delete account
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleteStatus,  setDeleteStatus]  = useState<'idle'|'loading'|'error'>('idle')
@@ -107,6 +119,7 @@ export default function Settings() {
       setAvatarUrl(m.avatar_url ?? '')
       setBannerType((m.bannerType as BannerType) ?? 'default')
       setBannerValue(m.bannerValue ?? '')
+      if (m.notifPrefs) setNotifPrefs(prev => ({ ...prev, ...m.notifPrefs }))
     })
   }, [navigate])
 
@@ -267,6 +280,18 @@ export default function Settings() {
     if (error) { setPhoneStatus('error'); return }
     setPhoneStatus('saved')
     setTimeout(() => setPhoneStatus('idle'), 2500)
+  }
+
+  async function saveNotifPrefs() {
+    setNotifStatus('saving')
+    const { error } = await supabase.auth.updateUser({ data: { notifPrefs } })
+    if (error) { setNotifStatus('error'); return }
+    setNotifStatus('saved')
+    setTimeout(() => setNotifStatus('idle'), 2500)
+  }
+
+  function toggleNotif(key: keyof typeof notifPrefs) {
+    setNotifPrefs(p => ({ ...p, [key]: !p[key] }))
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -738,6 +763,50 @@ export default function Settings() {
 
           {resetStatus === 'success' && <p className="status-success">Password updated successfully!</p>}
           {resetError && <p className="status-error">{resetError}</p>}
+        </section>
+
+        {/* ── Notifications ── */}
+        <section className="settings-card">
+          <h2 className="settings-section-title">Notifications</h2>
+          <p className="settings-hint" style={{ marginBottom: 20 }}>
+            Choose which alerts you'd like to receive inside the app.
+          </p>
+
+          <div className="notif-list">
+            {([
+              { key: 'personalBests',    label: 'New personal bests',         desc: 'Alert when you beat your own record in any event' },
+              { key: 'swimMeetReminder', label: 'Upcoming swim meet reminders', desc: 'Remind you before a meet is approaching' },
+              { key: 'weeklyProgress',   label: 'Weekly progress summary',    desc: 'A recap of your training and times each week' },
+              { key: 'goalAchieved',     label: 'Goal achieved',              desc: 'Celebrate when you hit a cut or target time' },
+              { key: 'streakMilestone',  label: 'Streak milestones',          desc: 'Recognition when you hit login or training streaks' },
+              { key: 'trainingTips',     label: 'Training tips',              desc: 'Occasional tips on technique and race strategy' },
+              { key: 'newFeatures',      label: 'New features & updates',     desc: 'Know when SwimSCPlan adds something new' },
+            ] as { key: keyof typeof notifPrefs; label: string; desc: string }[]).map(({ key, label, desc }) => (
+              <div key={key} className="notif-row">
+                <div className="notif-row-text">
+                  <span className="notif-row-label">{label}</span>
+                  <span className="notif-row-desc">{desc}</span>
+                </div>
+                <button
+                  role="switch"
+                  aria-checked={notifPrefs[key]}
+                  className={`notif-toggle${notifPrefs[key] ? ' on' : ''}`}
+                  onClick={() => toggleNotif(key)}
+                >
+                  <span className="notif-toggle-thumb" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="settings-footer" style={{ marginTop: 24 }}>
+            <button className="settings-save-btn" onClick={saveNotifPrefs} disabled={notifStatus === 'saving'}>
+              <Save size={15} />
+              {notifStatus === 'saving' ? 'Saving…' : 'Save Preferences'}
+            </button>
+            {notifStatus === 'saved'  && <span className="status-saved">Saved!</span>}
+            {notifStatus === 'error'  && <span className="status-error">Error saving.</span>}
+          </div>
         </section>
 
         {/* ── Delete Account ── */}
