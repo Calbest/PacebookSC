@@ -230,6 +230,13 @@ export default function Import() {
           </div>
         </div>
 
+        <div className="import-notice import-notice--recommend">
+          <span className="import-recommend-badge">Recommended</span>
+          <div>
+            <strong>Use Swimcloud for your full career history.</strong> Go to swimcloud.com, search your name, open your profile's <em>Times</em> tab, and copy the full table. Swimcloud has the most complete record of every meet swim and includes dates on every row.
+          </div>
+        </div>
+
         {/* ── Source tabs + instructions ── */}
         <div className="import-card">
           <div className="import-source-tabs">

@@ -43,6 +43,41 @@ CREATE POLICY "help_insert_anon"
 -- Admins can read via service role key (bypasses RLS by default).
 
 
+-- ── Storage: avatars bucket ──────────────────────────────────
+-- Before running these, create the bucket manually in:
+--   Supabase Dashboard → Storage → Buckets → New Bucket
+--   Name: avatars   Toggle: Public ✓
+--
+-- Then run these policies:
+
+CREATE POLICY "avatars_insert_own"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+CREATE POLICY "avatars_update_own"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+CREATE POLICY "avatars_select_public"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'avatars');
+
+-- ── Storage: race-photos bucket ───────────────────────────────
+-- Create bucket: name=race-photos, Public ✓
+
+CREATE POLICY "racephotos_insert_own"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'race-photos' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+CREATE POLICY "racephotos_update_own"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'race-photos' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+CREATE POLICY "racephotos_select_public"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'race-photos');
+
+
 -- ── Supabase auth.users — no RLS needed ──────────────────────
 -- All user data lives in auth.users.raw_user_meta_data which is
 -- already protected: the Supabase JWT enforces that each user can

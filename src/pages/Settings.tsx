@@ -311,11 +311,16 @@ export default function Settings() {
       .from('avatars')
       .upload(path, file, { upsert: true })
 
-    if (uploadErr) { setAvatarStatus('error'); setAvatarPreview(''); return }
+    if (uploadErr) {
+      console.error('Avatar upload error:', uploadErr)
+      setAvatarStatus('error')
+      setAvatarPreview('')
+      return
+    }
 
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
     const { error: updateErr } = await supabase.auth.updateUser({ data: { avatar_url: publicUrl } })
-    if (updateErr) { setAvatarStatus('error'); return }
+    if (updateErr) { console.error('Avatar metadata error:', updateErr); setAvatarStatus('error'); return }
     setAvatarUrl(publicUrl)
     setAvatarStatus('saved')
     setTimeout(() => setAvatarStatus('idle'), 2500)
@@ -363,17 +368,14 @@ export default function Settings() {
   return (
     <div className="settings-page">
       <div className="settings-header">
-        <button className="settings-back" onClick={() => navigate('/dashboard')}>
-          <ArrowLeft size={16} />
-          Dashboard
-        </button>
-        <h1 className="settings-title">Settings</h1>
-        <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
-      </div>
-
-      <div className="settings-body">
-
-        {/* ── Tab nav ── */}
+        <div className="settings-header-top">
+          <button className="settings-back" onClick={() => navigate('/dashboard')}>
+            <ArrowLeft size={16} />
+            Dashboard
+          </button>
+          <h1 className="settings-title">Settings</h1>
+          <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
+        </div>
         <div className="settings-tabs">
           <button
             className={`settings-tab${settingsTab === 'profile' ? ' active' : ''}`}
@@ -388,6 +390,9 @@ export default function Settings() {
             Account &amp; Security
           </button>
         </div>
+      </div>
+
+      <div className="settings-body">
 
         {settingsTab === 'profile' && <>
 
@@ -413,8 +418,7 @@ export default function Settings() {
               {avatarStatus === 'saved'     && <p className="status-success">Photo updated!</p>}
               {avatarStatus === 'error'     && (
                 <p className="status-error">
-                  Upload failed. Make sure the <strong>avatars</strong> bucket exists in
-                  Supabase → Storage → Buckets (set it to public).
+                  Upload failed. In Supabase: go to <strong>Storage → Buckets</strong>, create a bucket named <strong>avatars</strong> (toggle Public on), then run the storage SQL from <code>supabase/rls_policies.sql</code> in the SQL Editor.
                 </p>
               )}
             </div>

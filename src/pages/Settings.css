@@ -8,11 +8,18 @@
 /* ── Header ── */
 .settings-header {
   background: linear-gradient(180deg, #001a3d 0%, #002855 100%);
-  padding: 28px 48px 24px;
+  padding: 0 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.settings-header-top {
   display: flex;
   align-items: center;
   gap: 20px;
   justify-content: space-between;
+  padding: 28px 0 20px;
 }
 
 .scs-logo-corner {
@@ -64,29 +71,30 @@
   gap: 24px;
 }
 
-/* ── Tab nav ── */
+/* ── Tab nav (lives in header, dark background) ── */
 .settings-tabs {
   display: flex;
-  gap: 10px;
+  gap: 0;
+  border-bottom: 2px solid rgba(255,255,255,0.12);
 }
 
 .settings-tab {
-  flex: 1;
-  padding: 11px 16px;
-  border: 2px solid #002855;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #002855;
+  padding: 12px 24px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: color 0.15s, border-color 0.15s;
   letter-spacing: 0.2px;
 }
-.settings-tab:hover { background: #e8f0fa; }
+.settings-tab:hover { color: rgba(255,255,255,0.85); }
 .settings-tab.active {
-  background: #002855;
   color: #ffffff;
+  border-bottom-color: #f59e0b;
 }
 
 /* ── Card ── */

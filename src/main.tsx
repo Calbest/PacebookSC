@@ -16,6 +16,7 @@ import Progress from './pages/Progress.tsx'
 import EventPlanning from './pages/EventPlanning.tsx'
 import TimeConverter from './pages/TimeConverter.tsx'
 import Calendar from './pages/Calendar.tsx'
+import RaceLibrary from './pages/RaceLibrary.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/event-planning" element={<EventPlanning />} />
         <Route path="/time-converter" element={<TimeConverter />} />
         <Route path="/calendar" element={<Calendar />} />
+        <Route path="/race-library" element={<RaceLibrary />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
