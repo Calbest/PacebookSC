@@ -36,11 +36,13 @@ body {
 h1, h2 { margin: 0; }
 
 h1 {
-  font-size: clamp(36px, 5vw, 64px);
-  line-height: 1.05;
-  font-weight: 800;
-  letter-spacing: -2px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 1px;
   color: var(--white);
+  text-transform: uppercase;
 }
 
 h2 {
@@ -222,12 +224,8 @@ p { margin: 0; }
   line-height: 1.7;
 }
 
-/* Scoped hero heading styles (bold system font + gradients) */
+/* Scoped hero heading gradient (font inherits from global h1) */
 .hero-heading {
-  font-size: clamp(48px, 7vw, 96px);
-  line-height: 1.05;
-  font-weight: 800;
-  letter-spacing: -2px;
   background: linear-gradient(135deg, var(--teal-light) 0%, var(--white) 100%);
   -webkit-background-clip: text;
   background-clip: text;
