@@ -237,6 +237,16 @@ function QuotesCarousel() {
   )
 }
 
+function WaveDivider({ flip = false, fill = '#ffffff' }: { flip?: boolean; fill?: string }) {
+  return (
+    <div className="wave-divider" style={{ transform: flip ? 'scaleY(-1)' : undefined }}>
+      <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 32 C240 72 480 0 720 36 C960 72 1200 8 1440 40 L1440 72 L0 72 Z" fill={fill}/>
+      </svg>
+    </div>
+  )
+}
+
 function App() {
   const navigate = useNavigate()
   const [creatorTab, setCreatorTab] = useState<'caleb' | 'mason'>('caleb')
@@ -276,12 +286,15 @@ function App() {
         <div className="hero-text">
           <h1>Train Smarter.<br />Swim Faster.</h1>
           <p className="hero-sub">
-            {/* TODO: Replace with your one-line inspiration / tagline */}
             The planning tool built for swimmers who are serious about the sport.
           </p>
         </div>
-        <img src="/Hero.jpg" alt="Swimmer performing a freestyle stroke in an indoor pool" className="hero-img" />
+        <div className="hero-visual">
+          <img src="/Hero.jpg" alt="Swimmer in pool" className="hero-img" />
+          <img src="/swimmer.svg" alt="Swimmer icon" className="hero-swimmer-svg" />
+        </div>
       </section>
+      <WaveDivider fill="#f0f7ff" />
 
       {/* ── Purpose Section ── */}
       <section className="purpose">
@@ -293,6 +306,7 @@ function App() {
           <li data-reveal data-reveal-delay="4">Track goals, log splits, visualize progress over time, and keep everything in one place instead of scattered across spreadsheets and PDF cut sheets</li>
         </ul>
       </section>
+      <WaveDivider flip fill="#0f172a" />
 
       {/* ── Features ── */}
       <section className="features">
@@ -300,7 +314,7 @@ function App() {
         <div className="features-grid">
           <div className="feature-card" data-reveal data-reveal-delay="1">
             <div className="feature-img-placeholder">
-              <span>📊</span>
+              <img src="/swimmer.svg" alt="" className="feature-svg" />
             </div>
             <h3 className="feature-title">Compare Times</h3>
             <p className="feature-blurb">
@@ -311,8 +325,8 @@ function App() {
           </div>
 
           <div className="feature-card" data-reveal data-reveal-delay="2">
-            <div className="feature-img-placeholder">
-              <span>🏆</span>
+            <div className="feature-img-placeholder feature-img-placeholder--pool">
+              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="4" y="4" width="72" height="48" rx="4" fill="none" stroke="#00b4d8" strokeWidth="3"/><line x1="4" y1="20" x2="76" y2="20" stroke="#1e3a8a" strokeWidth="1.5" strokeDasharray="4 3"/><line x1="4" y1="36" x2="76" y2="36" stroke="#1e3a8a" strokeWidth="1.5" strokeDasharray="4 3"/><path d="M4 48 Q20 42 36 48 Q52 54 68 48 Q72 46 76 48" stroke="#00b4d8" strokeWidth="2.5" fill="none"/><circle cx="22" cy="14" r="5" fill="#1e3a8a"/><path d="M26 14 C32 8 48 6 56 12" stroke="#1e3a8a" strokeWidth="3.5" fill="none" strokeLinecap="round"/></svg>
             </div>
             <h3 className="feature-title">Qualifications View</h3>
             <p className="feature-blurb">
@@ -322,8 +336,8 @@ function App() {
           </div>
 
           <div className="feature-card" data-reveal data-reveal-delay="3">
-            <div className="feature-img-placeholder">
-              <span>📈</span>
+            <div className="feature-img-placeholder feature-img-placeholder--pool">
+              <svg viewBox="0 0 80 56" className="feature-svg-inline"><polyline points="8,44 24,32 38,36 52,20 68,12" stroke="#00b4d8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/><circle cx="8" cy="44" r="3" fill="#1e3a8a"/><circle cx="24" cy="32" r="3" fill="#1e3a8a"/><circle cx="38" cy="36" r="3" fill="#1e3a8a"/><circle cx="52" cy="20" r="3" fill="#1e3a8a"/><circle cx="68" cy="12" r="3.5" fill="#00b4d8"/><line x1="8" y1="48" x2="72" y2="48" stroke="#334155" strokeWidth="1.5"/><line x1="8" y1="8" x2="8" y2="48" stroke="#334155" strokeWidth="1.5"/></svg>
             </div>
             <h3 className="feature-title">Progress Tracker</h3>
             <p className="feature-blurb">
@@ -334,8 +348,8 @@ function App() {
           </div>
 
           <div className="feature-card" data-reveal data-reveal-delay="1">
-            <div className="feature-img-placeholder">
-              <span>📥</span>
+            <div className="feature-img-placeholder feature-img-placeholder--pool">
+              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="18" y="6" width="44" height="34" rx="4" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><line x1="26" y1="16" x2="54" y2="16" stroke="#00b4d8" strokeWidth="2"/><line x1="26" y1="24" x2="54" y2="24" stroke="#00b4d8" strokeWidth="2"/><line x1="26" y1="32" x2="42" y2="32" stroke="#00b4d8" strokeWidth="2"/><line x1="40" y1="40" x2="40" y2="52" stroke="#1e3a8a" strokeWidth="2.5"/><polyline points="33,46 40,54 47,46" stroke="#1e3a8a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
             <h3 className="feature-title">Import Times</h3>
             <p className="feature-blurb">
@@ -346,8 +360,8 @@ function App() {
           </div>
 
           <div className="feature-card" data-reveal data-reveal-delay="2">
-            <div className="feature-img-placeholder">
-              <span>📅</span>
+            <div className="feature-img-placeholder feature-img-placeholder--pool">
+              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="10" y="8" width="60" height="42" rx="5" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><line x1="10" y1="20" x2="70" y2="20" stroke="#1e3a8a" strokeWidth="2"/><line x1="26" y1="8" x2="26" y2="20" stroke="#1e3a8a" strokeWidth="2"/><line x1="54" y1="8" x2="54" y2="20" stroke="#1e3a8a" strokeWidth="2"/><circle cx="28" cy="34" r="4" fill="#00b4d8"/><circle cx="44" cy="34" r="4" fill="#1e3a8a" opacity="0.3"/><circle cx="60" cy="34" r="4" fill="#1e3a8a" opacity="0.3"/></svg>
             </div>
             <h3 className="feature-title">Event Planning</h3>
             <p className="feature-blurb">
@@ -358,8 +372,8 @@ function App() {
           </div>
 
           <div className="feature-card" data-reveal data-reveal-delay="3">
-            <div className="feature-img-placeholder">
-              <span>🎯</span>
+            <div className="feature-img-placeholder feature-img-placeholder--pool">
+              <svg viewBox="0 0 80 56" className="feature-svg-inline"><circle cx="40" cy="28" r="22" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><circle cx="40" cy="28" r="15" fill="none" stroke="#1e3a8a" strokeWidth="2"/><circle cx="40" cy="28" r="8" fill="none" stroke="#00b4d8" strokeWidth="2"/><circle cx="40" cy="28" r="3" fill="#00b4d8"/><line x1="40" y1="4" x2="40" y2="10" stroke="#1e3a8a" strokeWidth="2"/><line x1="40" y1="46" x2="40" y2="52" stroke="#1e3a8a" strokeWidth="2"/><line x1="16" y1="28" x2="22" y2="28" stroke="#1e3a8a" strokeWidth="2"/><line x1="58" y1="28" x2="64" y2="28" stroke="#1e3a8a" strokeWidth="2"/></svg>
             </div>
             <h3 className="feature-title">Goals</h3>
             <p className="feature-blurb">
@@ -370,8 +384,8 @@ function App() {
           </div>
 
           <div className="feature-card" data-reveal data-reveal-delay="1">
-            <div className="feature-img-placeholder">
-              <span>📱</span>
+            <div className="feature-img-placeholder feature-img-placeholder--pool">
+              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="28" y="4" width="24" height="42" rx="4" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><line x1="28" y1="38" x2="52" y2="38" stroke="#1e3a8a" strokeWidth="2"/><circle cx="40" cy="43" r="2" fill="#00b4d8"/><line x1="33" y1="14" x2="47" y2="14" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round"/><line x1="33" y1="20" x2="47" y2="20" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round"/><line x1="33" y1="26" x2="42" y2="26" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round"/></svg>
             </div>
             <h3 className="feature-title">Mobile Friendly</h3>
             <p className="feature-blurb">
@@ -382,6 +396,8 @@ function App() {
           </div>
         </div>
       </section>
+
+      <WaveDivider fill="#f0f7ff" />
 
       {/* ── About / Inspiration ── */}
       <section className="about">
@@ -421,6 +437,8 @@ function App() {
           </div>
         </div>
       </section>
+
+      <WaveDivider flip fill="#0f172a" />
 
       {/* ── Quotes Carousel ── */}
       <QuotesCarousel />
