@@ -224,6 +224,27 @@ button:active { transform: scale(0.96) !important; }
   color: #ffffff;
 }
 
+.dash-calendar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: #6ee7b7;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.dash-calendar:hover {
+  background: rgba(16,185,129,0.22);
+  color: #ffffff;
+}
+
 .dash-time-converter {
   display: flex;
   align-items: center;
@@ -686,6 +707,36 @@ button:active { transform: scale(0.96) !important; }
   padding: 1px 5px;
   font-family: monospace;
   font-size: 12px;
+}
+.times-date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  background: #f8fbff;
+  border-bottom: 1px solid #cddff2;
+  flex-wrap: wrap;
+}
+.times-date-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  flex-shrink: 0;
+}
+.times-date-input {
+  border: 1.5px solid #cddff2;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 13px;
+  color: #0f172a;
+  background: #fff;
+  font-family: inherit;
+  outline: none;
+}
+.times-date-input:focus { border-color: #1d4ed8; }
+.times-date-hint {
+  font-size: 11px;
+  color: #94a3b8;
 }
 
 /* ── Specialty chart ── */

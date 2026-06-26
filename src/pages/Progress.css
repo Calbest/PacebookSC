@@ -404,6 +404,70 @@
   background: #fef2f2;
 }
 
+/* ── Top row: controls left + specialty chart right ── */
+.prog-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 4px;
+}
+.prog-controls-wrap { flex: 1; min-width: 0; }
+
+/* ── Specialty card ── */
+.specialty-card {
+  background: #ffffff;
+  border: 1px solid #cddff2;
+  border-radius: 14px;
+  padding: 18px 20px 14px;
+  box-shadow: 0 2px 8px rgba(0,40,85,0.07);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.specialty-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 10px;
+  align-self: flex-start;
+}
+.specialty-empty {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 6px;
+  max-width: 160px;
+}
+
+/* ── Unknown-date warning banner ── */
+.prog-unknown-banner {
+  border: 1.5px solid #f59e0b;
+  border-radius: 12px;
+  background: #fffbeb;
+  overflow: hidden;
+}
+.prog-unknown-header {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; background: none; border: none;
+  padding: 12px 16px; cursor: pointer; text-align: left;
+  font-size: 13px; font-weight: 700; color: #92400e;
+}
+.prog-unknown-icon { flex-shrink: 0; color: #f59e0b; }
+.prog-unknown-chevron { margin-left: auto; color: #92400e; transition: transform 0.2s; }
+.prog-unknown-chevron.open { transform: rotate(180deg); }
+.prog-unknown-list { padding: 0 16px 14px; }
+.prog-unknown-hint { font-size: 12px; color: #78350f; margin: 0 0 10px; }
+.prog-unknown-row {
+  display: flex; gap: 12px; align-items: center;
+  padding: 6px 0; border-top: 1px solid #fde68a;
+  font-size: 12px;
+}
+.prog-unknown-key  { color: #92400e; font-weight: 600; flex: 1; }
+.prog-unknown-time { color: #0f172a; font-weight: 700; }
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .prog-sidebar  { display: none; }
@@ -413,4 +477,6 @@
   .prog-stats    { gap: 8px; }
   .prog-stat     { padding: 10px 14px; min-width: 90px; }
   .prog-stat-value { font-size: 17px; }
+  .prog-top-row  { flex-direction: column; }
+  .specialty-card { width: 100%; align-items: center; }
 }

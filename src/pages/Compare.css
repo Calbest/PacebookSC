@@ -395,6 +395,20 @@
 .compare-status--no-time  { background: #e2e8f0; color: #64748b; font-weight: 600; }
 .compare-status--no-cut   { background: #f1f5f9; color: #64748b; font-weight: 600; }
 
+.compare-goal-btn {
+  background: #002855;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.compare-goal-btn:hover { background: #1d4ed8; }
+
 @media (max-width: 640px) {
   .compare-sidebar        { display: none; }
   .compare-header         { padding: 20px; }
@@ -405,4 +419,5 @@
   .compare-row > span:nth-child(3) { display: none; }
   .compare-splits-hint    { display: none; }
   .compare-split-input    { width: 58px; font-size: 12px; }
+  .compare-goal-btn       { display: none; }
 }

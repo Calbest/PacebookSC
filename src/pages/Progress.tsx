@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Plus, Trash2 } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Plus, Trash2, AlertTriangle, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './Progress.css'
 
@@ -43,18 +43,21 @@ function fmtSec(s: number): string {
 }
 
 function fmtDate(iso: string): string {
+  if (iso === 'unknown') return 'Date unknown'
   return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   })
 }
 
 function fmtDateShort(iso: string): string {
+  if (iso === 'unknown') return '?'
   return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
     month: 'short', day: 'numeric',
   })
 }
 
 function fmtDateMonth(iso: string): string {
+  if (iso === 'unknown') return '?'
   return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
     month: 'short', year: 'numeric',
   })
@@ -195,21 +198,80 @@ function LineChart({ entries }: { entries: TimeEntry[] }) {
   )
 }
 
+// ─── Specialty Radar Chart ──────────────────────────────────────────────────
+
+type Times = Record<string, string>
+
+function parseSecs(t: string): number {
+  if (!t) return 0
+  const p = t.split(':')
+  return p.length === 2 ? parseFloat(p[0]) * 60 + parseFloat(p[1]) : parseFloat(t)
+}
+
+const STROKE_REF: Record<string, { label: string; fast: number; slow: number; events: string[] }> = {
+  free:   { label: 'Free',   fast: 50,  slow: 90,  events: ['100-free',  '200-free',  '50-free']   },
+  back:   { label: 'Back',   fast: 58,  slow: 98,  events: ['100-back',  '200-back',  '50-back']   },
+  breast: { label: 'Breast', fast: 66,  slow: 110, events: ['100-breast','200-breast', '50-breast'] },
+  fly:    { label: 'Fly',    fast: 57,  slow: 98,  events: ['100-fly',   '200-fly',   '50-fly']    },
+  im:     { label: 'IM',     fast: 130, slow: 210, events: ['200-im',    '400-im']                  },
+}
+const STROKE_ORDER = ['free', 'back', 'breast', 'fly', 'im']
+
+function SpecialtyChart({ times, course }: { times: Times; course: Course }) {
+  const CX = 100, CY = 100, R = 78, N = 5
+
+  function vertex(i: number, r: number) {
+    const a = (i * 2 * Math.PI) / N - Math.PI / 2
+    return { x: CX + r * Math.cos(a), y: CY + r * Math.sin(a) }
+  }
+  function ring(r: number) {
+    return Array.from({ length: N }, (_, i) => vertex(i, r)).map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  }
+
+  const scores = STROKE_ORDER.map(key => {
+    const ref = STROKE_REF[key]
+    const best = ref.events.map(ev => parseSecs(times[`${course}-${ev}`] || '')).filter(s => s > 0)
+    if (!best.length) return 0
+    return Math.max(0, Math.min(1, (ref.slow - Math.min(...best)) / (ref.slow - ref.fast)))
+  })
+
+  const dataPoly = scores.map((s, i) => { const p = vertex(i, s * R); return `${p.x.toFixed(1)},${p.y.toFixed(1)}` }).join(' ')
+  const hasAny   = scores.some(s => s > 0)
+
+  return (
+    <div className="specialty-card">
+      <h3 className="specialty-title">Specialty</h3>
+      <svg viewBox="0 0 200 200" width={200} height={200}>
+        {[0.25, 0.5, 0.75, 1].map(f => (
+          <polygon key={f} points={ring(R * f)} fill="none" stroke="rgba(0,40,85,0.12)" strokeWidth="1" />
+        ))}
+        {STROKE_ORDER.map((_, i) => { const p = vertex(i, R); return <line key={i} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="rgba(0,40,85,0.12)" strokeWidth="1" /> })}
+        {hasAny && <polygon points={dataPoly} fill="rgba(0,100,200,0.22)" stroke="#1d4ed8" strokeWidth="2" />}
+        {STROKE_ORDER.map((key, i) => { const p = vertex(i, R + 16); return <text key={key} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="600" fill="#334155">{STROKE_REF[key].label}</text> })}
+      </svg>
+      {!hasAny && <p className="specialty-empty">Add times on the Dashboard to see your specialty.</p>}
+    </div>
+  )
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function Progress() {
   const navigate = useNavigate()
-  const [course,   setCourse]   = useState<Course>('SCY')
-  const [eventId,  setEventId]  = useState('100-free')
-  const [history,  setHistory]  = useState<TimeHistory>({})
-  const [newDate,  setNewDate]  = useState(new Date().toISOString().slice(0, 10))
-  const [newTime,  setNewTime]  = useState('')
+  const [course,       setCourse]       = useState<Course>('SCY')
+  const [eventId,      setEventId]      = useState('100-free')
+  const [history,      setHistory]      = useState<TimeHistory>({})
+  const [dashTimes,    setDashTimes]    = useState<Times>({})
+  const [newDate,      setNewDate]      = useState(new Date().toISOString().slice(0, 10))
+  const [newTime,      setNewTime]      = useState('')
+  const [showUnknown,  setShowUnknown]  = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       const user = data.session?.user
       if (!user) { navigate('/'); return }
       setHistory(user.user_metadata?.timeHistory ?? {})
+      setDashTimes(user.user_metadata?.times ?? {})
     })
   }, [navigate])
 
@@ -223,6 +285,13 @@ export default function Progress() {
   const displayLabel = evMeta
     ? `${evMeta.label} ${evMeta.stroke === 'Individual Medley' ? 'IM' : evMeta.stroke}`
     : eventId
+
+  // Collect all entries with unknown date for the warning panel
+  const unknownEntries: { key: string; time: string }[] = Object.entries(history).flatMap(
+    ([k, arr]) => arr.filter(e => e.date === 'unknown').map(e => ({ key: k, time: e.time }))
+  )
+
+  const datedEntries = entries.filter(e => e.date !== 'unknown')
 
   // Stats
   const fastest = entries.reduce<TimeEntry | null>((b, e) => {
@@ -272,6 +341,10 @@ export default function Progress() {
 
         <div className="prog-body">
 
+          {/* ── Top row: controls + specialty chart ── */}
+          <div className="prog-top-row">
+            <div className="prog-controls-wrap">
+
           {/* ── Selectors ── */}
           <div className="prog-controls">
             <div className="prog-course-tabs">
@@ -301,9 +374,12 @@ export default function Progress() {
               </select>
             </div>
           </div>
+            </div>{/* end prog-controls-wrap */}
+            <SpecialtyChart times={dashTimes} course={course} />
+          </div>{/* end prog-top-row */}
 
           {/* ── Stat chips ── */}
-          {entries.length >= 2 && (
+          {entries.length >= 1 && (
             <div className="prog-stats">
               <div className="prog-stat">
                 <span className="prog-stat-label">Swims logged</span>
@@ -313,27 +389,56 @@ export default function Progress() {
                 <span className="prog-stat-label">Best time</span>
                 <span className="prog-stat-value prog-stat-value--blue">{fastest?.time ?? '—'}</span>
               </div>
-              <div className="prog-stat">
-                <span className="prog-stat-label">Overall change</span>
-                <span className={`prog-stat-value${delta !== null && delta < 0 ? ' prog-stat-value--green' : delta !== null && delta > 0 ? ' prog-stat-value--red' : ''}`}>
-                  {delta !== null
-                    ? `${delta < 0 ? '−' : '+'}${fmtSec(Math.abs(delta))}`
-                    : '—'}
-                </span>
-              </div>
-              <div className="prog-stat">
-                <span className="prog-stat-label">Period</span>
-                <span className="prog-stat-value prog-stat-value--sm">
-                  {fmtDateMonth(entries[0].date)} – {fmtDateMonth(entries[entries.length - 1].date)}
-                </span>
-              </div>
+              {datedEntries.length >= 2 && (
+                <div className="prog-stat">
+                  <span className="prog-stat-label">Overall change</span>
+                  <span className={`prog-stat-value${delta !== null && delta < 0 ? ' prog-stat-value--green' : delta !== null && delta > 0 ? ' prog-stat-value--red' : ''}`}>
+                    {delta !== null
+                      ? `${delta < 0 ? '−' : '+'}${fmtSec(Math.abs(delta))}`
+                      : '—'}
+                  </span>
+                </div>
+              )}
+              {datedEntries.length >= 2 && (
+                <div className="prog-stat">
+                  <span className="prog-stat-label">Period</span>
+                  <span className="prog-stat-value prog-stat-value--sm">
+                    {fmtDateMonth(datedEntries[0].date)} – {fmtDateMonth(datedEntries[datedEntries.length - 1].date)}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Unknown-date warning ── */}
+          {unknownEntries.length > 0 && (
+            <div className="prog-unknown-banner">
+              <button
+                className="prog-unknown-header"
+                onClick={() => setShowUnknown(v => !v)}
+              >
+                <AlertTriangle size={16} className="prog-unknown-icon" />
+                <span>{unknownEntries.length} entr{unknownEntries.length === 1 ? 'y' : 'ies'} missing a date — these won't appear on the chart</span>
+                <ChevronDown size={14} className={`prog-unknown-chevron${showUnknown ? ' open' : ''}`} />
+              </button>
+              {showUnknown && (
+                <div className="prog-unknown-list">
+                  <p className="prog-unknown-hint">Find when you swam these times and update them using the entry list below after selecting the correct event.</p>
+                  {unknownEntries.map((e, i) => (
+                    <div key={i} className="prog-unknown-row">
+                      <span className="prog-unknown-key">{e.key}</span>
+                      <span className="prog-unknown-time">{e.time}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {/* ── Chart ── */}
           <div className="prog-chart-card">
             <div className="prog-chart-head">{displayLabel} · {course}</div>
-            <LineChart entries={entries} />
+            <LineChart entries={entries.filter(e => e.date !== 'unknown')} />
           </div>
 
           {/* ── Add entry form ── */}

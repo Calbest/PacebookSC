@@ -1,0 +1,249 @@
+/* ── Layout ── */
+.cal-layout {
+  display: flex;
+  min-height: 100svh;
+  background: #f0f5fb;
+}
+
+/* ── Sidebar ── */
+.cal-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #002855;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 16px 24px;
+  gap: 6px;
+}
+.cal-sidebar-brand {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  padding: 0 4px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.cal-sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.cal-nav-btn {
+  display: flex; align-items: center; gap: 9px;
+  background: transparent; border: none; color: rgba(255,255,255,0.82);
+  font-size: 13px; font-weight: 600; padding: 9px 10px; border-radius: 8px;
+  cursor: pointer; text-align: left; transition: background 0.15s, color 0.15s;
+  width: 100%;
+}
+.cal-nav-btn:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
+
+.cal-sidebar-actions {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 16px;
+}
+.cal-sidebar-action-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-size: 12px; font-weight: 700;
+  padding: 9px 12px; border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.cal-sidebar-action-btn:hover { background: rgba(255,255,255,0.2); }
+
+.cal-saving { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: auto; padding-left: 4px; }
+
+/* ── Main page ── */
+.cal-page {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+}
+
+.cal-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 36px 40px 24px;
+}
+.cal-title { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+.cal-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+
+.cal-body { padding: 0 40px 48px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Card ── */
+.cal-card {
+  background: #ffffff;
+  border: 1px solid #cddff2;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 8px rgba(0,40,85,0.06);
+}
+.cal-card-title { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 8px; }
+.cal-card-desc  { font-size: 12px; color: #64748b; margin: 0 0 10px; }
+
+/* ── Schedule day grid ── */
+.cal-day-grid {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.cal-day-toggle {
+  padding: 7px 14px; border-radius: 8px;
+  border: 2px solid #002855;
+  background: #c8d8e8; color: #002855;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.cal-day-toggle.active { background: #002855; color: #ffffff; }
+.cal-day-toggle--dryland {
+  border-color: #059669;
+  background: #d1fae5; color: #065f46;
+}
+.cal-day-toggle--dryland.active { background: #059669; color: #ffffff; }
+
+/* ── Fields ── */
+.cal-field { display: flex; flex-direction: column; gap: 6px; }
+.cal-label { font-size: 12px; font-weight: 700; color: #334155; }
+.cal-input {
+  padding: 10px 12px; border: 1.5px solid #cddff2; border-radius: 8px;
+  font-size: 14px; color: #0f172a; background: #f8fbff;
+  font-family: inherit; outline: none;
+  transition: border-color 0.15s;
+}
+.cal-input:focus { border-color: #1d4ed8; }
+
+/* ── Add meet actions ── */
+.cal-meet-add-actions { display: flex; gap: 10px; margin-top: 12px; }
+.cal-btn-cancel {
+  padding: 9px 18px; border: 1.5px solid #cbd5e1; border-radius: 8px;
+  background: #f8fafc; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.cal-btn-save {
+  padding: 9px 18px; border: none; border-radius: 8px;
+  background: #002855; color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s;
+}
+.cal-btn-save:hover { background: #1d4ed8; }
+.cal-btn-save:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Month nav ── */
+.cal-month-nav {
+  display: flex; align-items: center; gap: 14px;
+}
+.cal-month-arrow {
+  background: #ffffff; border: 1.5px solid #cddff2; border-radius: 8px;
+  padding: 6px 10px; cursor: pointer; display: flex; align-items: center;
+  color: #002855; transition: background 0.15s;
+}
+.cal-month-arrow:hover { background: #dbeafe; }
+.cal-month-label { font-size: 17px; font-weight: 800; color: #0f172a; }
+
+/* ── Calendar grid ── */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-grid-head {
+  text-align: center;
+  font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;
+  padding: 6px 0;
+}
+
+/* ── Cells ── */
+.cal-cell {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 6px;
+  min-height: 80px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: relative;
+}
+.cal-cell--empty { background: transparent; border-color: transparent; }
+.cal-cell--today { border-color: #1d4ed8; box-shadow: 0 0 0 2px rgba(29,78,216,0.15); }
+.cal-cell--practice { background: #f0f7ff; }
+.cal-cell--meet { background: #fef3c7; border-color: #f59e0b; }
+
+.cal-cell-num {
+  font-size: 12px; font-weight: 700; color: #334155;
+}
+.cal-cell--today .cal-cell-num {
+  color: #1d4ed8;
+}
+
+.cal-cell-meet-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  background: #fbbf24; color: #7c2d12;
+  font-size: 9px; font-weight: 800;
+  border-radius: 5px; padding: 3px 5px;
+  line-height: 1.2;
+}
+.cal-cell-meet-del {
+  background: none; border: none; cursor: pointer; color: inherit; padding: 0; display: flex; align-items: center;
+  opacity: 0.7; flex-shrink: 0;
+}
+.cal-cell-meet-del:hover { opacity: 1; }
+
+.cal-cell-checks {
+  display: flex; flex-direction: column; gap: 3px; margin-top: auto;
+}
+.cal-check-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: #e2e8f0; border: none; border-radius: 5px;
+  font-size: 10px; font-weight: 700; color: #475569; padding: 3px 6px;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.cal-check-btn.active { background: #002855; color: #ffffff; }
+.cal-check-btn--dry { background: #d1fae5; color: #065f46; }
+.cal-check-btn--dry.active { background: #059669; color: #ffffff; }
+
+/* ── Report ── */
+.cal-report {
+  background: #ffffff;
+  border: 1px solid #cddff2;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 8px rgba(0,40,85,0.06);
+}
+.cal-report-title { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 14px; }
+.cal-report-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+.cal-report-stat {
+  background: #f0f5fb;
+  border-radius: 10px; padding: 14px 20px;
+  min-width: 110px; text-align: center;
+}
+.cal-report-val  { font-size: 24px; font-weight: 800; color: #0f172a; }
+.cal-report-lbl  { font-size: 11px; color: #64748b; margin-top: 2px; }
+.cal-report-note { font-size: 12px; color: #475569; margin: 12px 0 0; }
+
+/* ── Meets list ── */
+.cal-meets-list {
+  background: #ffffff;
+  border: 1px solid #cddff2;
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+.cal-meets-title { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0 0 10px; }
+.cal-meet-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px;
+}
+.cal-meet-row:last-child { border-bottom: none; }
+.cal-meet-date { color: #64748b; font-size: 12px; min-width: 88px; }
+.cal-meet-name { flex: 1; font-weight: 600; color: #0f172a; }
+.cal-meet-del {
+  background: none; border: none; cursor: pointer; color: #94a3b8;
+  display: flex; align-items: center; padding: 4px;
+  border-radius: 4px; transition: color 0.15s, background 0.15s;
+}
+.cal-meet-del:hover { color: #dc2626; background: #fef2f2; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .cal-sidebar  { display: none; }
+  .cal-header   { padding: 20px; }
+  .cal-body     { padding: 0 14px 48px; }
+  .cal-cell     { min-height: 60px; padding: 5px 4px; }
+  .cal-cell-num { font-size: 11px; }
+  .cal-check-btn { font-size: 9px; padding: 2px 4px; }
+  .cal-report-stats { gap: 10px; }
+  .cal-report-stat  { min-width: 80px; padding: 10px 12px; }
+  .cal-report-val   { font-size: 18px; }
+}

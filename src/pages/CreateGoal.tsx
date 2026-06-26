@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Goal } from './Goals'
@@ -72,14 +72,20 @@ function formatTimeDigits(raw: string): string {
 
 export default function CreateGoal() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const comboRef = useRef<HTMLDivElement>(null)
 
-  const [course,        setCourse]        = useState<Course>('SCY')
+  const prefillCourse  = (searchParams.get('course') as Course | null) ?? 'SCY'
+  const prefillEventId = searchParams.get('event') ?? ''
+  const prefillCutTime = searchParams.get('cut') ?? ''
+  const prefillStroke  = searchParams.get('stroke') ?? ''
+
+  const [course,        setCourse]        = useState<Course>(prefillCourse)
   const [search,        setSearch]        = useState('')
   const [showDropdown,  setShowDropdown]  = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<EventOption | null>(null)
   const [currentTime,   setCurrentTime]   = useState('')
-  const [targetTime,    setTargetTime]    = useState('')
+  const [targetTime,    setTargetTime]    = useState(prefillCutTime)
   const [deadline,      setDeadline]      = useState('')
   const [times,         setTimes]         = useState<Record<string, string>>({})
   const [saving,        setSaving]        = useState(false)
@@ -91,9 +97,22 @@ export default function CreateGoal() {
     supabase.auth.getSession().then(({ data }) => {
       const user = data.session?.user
       if (!user) { navigate('/'); return }
-      setTimes(user.user_metadata?.times ?? {})
+      const t = user.user_metadata?.times ?? {}
+      setTimes(t)
+
+      if (prefillEventId) {
+        const flat = prefillCourse === 'SCY' ? SCY_FLAT : prefillCourse === 'LCM' ? LCM_FLAT : SCM_FLAT
+        const ev = flat.find(e => e.id === prefillEventId) ?? (
+          prefillStroke ? { id: prefillEventId, stroke: prefillStroke, label: prefillEventId } as EventOption : null
+        )
+        if (ev) {
+          setSelectedEvent(ev)
+          setSearch(ev.label)
+          setCurrentTime(t[`${prefillCourse}-${prefillEventId}`] || '')
+        }
+      }
     })
-  }, [navigate])
+  }, [navigate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const eventsFlat = course === 'SCY' ? SCY_FLAT : course === 'LCM' ? LCM_FLAT : SCM_FLAT
 

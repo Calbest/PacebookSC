@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, HelpCircle, CheckCircle2, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, Zap } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { playClick, playSave, playNavigate } from '../lib/sounds'
 import './Dashboard.css'
@@ -206,7 +206,7 @@ const NOTIF_ICONS: Record<AppNotif['type'], typeof Bell> = {
   pb:       Zap,
   standard: Star,
   stale:    Clock,
-  tip:      HelpCircle,
+  tip:      Bell,
   goal:     Target,
 }
 
@@ -252,93 +252,6 @@ function isValidTime(value: string): boolean {
   return parseInt(match[1], 10) <= 59
 }
 
-function parseSecs(t: string): number {
-  if (!t) return 0
-  const parts = t.split(':')
-  if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1])
-  return parseFloat(t)
-}
-
-// Reference: best (fast) and baseline (slow) seconds for each stroke's primary event
-const STROKE_REF: Record<string, { fast: number; slow: number; events: string[]; label: string }> = {
-  free:   { label: 'Free',   fast: 50,  slow: 90,  events: ['100-free',  '200-free',  '50-free']  },
-  back:   { label: 'Back',   fast: 58,  slow: 98,  events: ['100-back',  '200-back',  '50-back']  },
-  breast: { label: 'Breast', fast: 66,  slow: 110, events: ['100-breast','200-breast', '50-breast'] },
-  fly:    { label: 'Fly',    fast: 57,  slow: 98,  events: ['100-fly',   '200-fly',   '50-fly']   },
-  im:     { label: 'IM',     fast: 130, slow: 210, events: ['200-im',    '400-im']                 },
-}
-const STROKE_ORDER = ['free', 'back', 'breast', 'fly', 'im']
-
-function SpecialtyChart({ times, course }: { times: Times; course: Course }) {
-  const SIZE = 200
-  const CX = SIZE / 2
-  const CY = SIZE / 2
-  const R  = 80
-  const N  = 5
-
-  function point(i: number, r: number) {
-    const angle = (i * 2 * Math.PI) / N - Math.PI / 2
-    return { x: CX + r * Math.cos(angle), y: CY + r * Math.sin(angle) }
-  }
-
-  function pts(radius: number) {
-    return Array.from({ length: N }, (_, i) => point(i, radius))
-      .map(p => `${p.x},${p.y}`).join(' ')
-  }
-
-  const scores = STROKE_ORDER.map(key => {
-    const ref = STROKE_REF[key]
-    const best = ref.events
-      .map(ev => parseSecs(times[`${course}-${ev}`] || ''))
-      .filter(s => s > 0)
-    if (!best.length) return 0
-    const t = Math.min(...best)
-    return Math.max(0, Math.min(1, (ref.slow - t) / (ref.slow - ref.fast)))
-  })
-
-  const dataPoints = scores.map((s, i) => point(i, s * R))
-  const dataPoly   = dataPoints.map(p => `${p.x},${p.y}`).join(' ')
-
-  const hasAny = scores.some(s => s > 0)
-
-  return (
-    <div className="specialty-card">
-      <h3 className="specialty-title">Specialty</h3>
-      <div className="specialty-chart">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE}>
-          {/* Grid rings */}
-          {[0.25, 0.5, 0.75, 1].map(frac => (
-            <polygon key={frac} points={pts(R * frac)}
-              fill="none" stroke="rgba(0,40,85,0.12)" strokeWidth="1" />
-          ))}
-          {/* Axis lines */}
-          {STROKE_ORDER.map((_, i) => {
-            const p = point(i, R)
-            return <line key={i} x1={CX} y1={CY} x2={p.x} y2={p.y}
-              stroke="rgba(0,40,85,0.12)" strokeWidth="1" />
-          })}
-          {/* Data polygon */}
-          {hasAny && (
-            <polygon points={dataPoly}
-              fill="rgba(0,100,200,0.25)" stroke="#1d4ed8" strokeWidth="2" />
-          )}
-          {/* Axis labels */}
-          {STROKE_ORDER.map((key, i) => {
-            const p = point(i, R + 16)
-            return (
-              <text key={key} x={p.x} y={p.y}
-                textAnchor="middle" dominantBaseline="middle"
-                fontSize="11" fontWeight="600" fill="#334155">
-                {STROKE_REF[key].label}
-              </text>
-            )
-          })}
-        </svg>
-        {!hasAny && <p className="specialty-empty">Add times to see your specialty.</p>}
-      </div>
-    </div>
-  )
-}
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -353,12 +266,9 @@ export default function Dashboard() {
   const [editing,     setEditing]     = useState(false)
   const [times,       setTimes]       = useState<Times>({})
   const [saveStatus,  setSaveStatus]  = useState<SaveStatus>('idle')
-  const [showHelp,    setShowHelp]    = useState(false)
-  const [helpTopic,   setHelpTopic]   = useState('')
-  const [helpMessage, setHelpMessage] = useState('')
-  const [helpStatus,  setHelpStatus]  = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [showNotifs,  setShowNotifs]  = useState(false)
   const [timeHistory, setTimeHistory] = useState<Record<string, { date: string; time: string }[]>>({})
+  const [timeDate,    setTimeDate]    = useState(new Date().toISOString().slice(0, 10))
   const [readIds,     setReadIds]     = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('sw_read_notifs') ?? '[]')) }
     catch { return new Set() }
@@ -409,24 +319,6 @@ export default function Dashboard() {
     }, 700)
   }, [])
 
-  async function submitHelp() {
-    if (!helpTopic || !helpMessage.trim()) return
-    setHelpStatus('sending')
-    const { data } = await supabase.auth.getSession()
-    const email = data.session?.user?.email ?? ''
-    const { error } = await supabase
-      .from('help_submissions')
-      .insert({ user_email: email, topic: helpTopic, message: helpMessage.trim() })
-    if (error) { setHelpStatus('error'); return }
-    setHelpStatus('sent')
-    setTimeout(() => {
-      setShowHelp(false)
-      setHelpStatus('idle')
-      setHelpTopic('')
-      setHelpMessage('')
-    }, 2500)
-  }
-
   async function handleSignOut() {
     await supabase.auth.signOut()
     navigate('/')
@@ -440,11 +332,24 @@ export default function Dashboard() {
 
   function handleTimeChange(eventId: string, raw: string) {
     const formatted = formatTimeDigits(raw)
+    const key = timeKey(course, eventId)
     setTimes(prev => {
-      const next = { ...prev, [timeKey(course, eventId)]: formatted }
+      const next = { ...prev, [key]: formatted }
       persistTimes(next)
       return next
     })
+    if (formatted) {
+      setTimeHistory(prev => {
+        const arr = [...(prev[key] ?? [])]
+        const date = timeDate || 'unknown'
+        const idx = arr.findIndex(e => e.date === date)
+        if (idx >= 0) arr[idx] = { date, time: formatted }
+        else arr.push({ date, time: formatted })
+        const next = { ...prev, [key]: arr }
+        supabase.auth.updateUser({ data: { timeHistory: next } })
+        return next
+      })
+    }
   }
 
   return (
@@ -494,6 +399,11 @@ export default function Dashboard() {
           <span>Event Planning</span>
         </button>
 
+        <button className="dash-calendar" onClick={() => { playNavigate(); navigate('/calendar') }}>
+          <CalendarCheck size={16} />
+          <span>Calendar</span>
+        </button>
+
         <button className="dash-time-converter" onClick={() => { playNavigate(); navigate('/time-converter') }}>
           <ArrowLeftRight size={16} />
           <span>Time Converter</span>
@@ -509,10 +419,7 @@ export default function Dashboard() {
           <span>Settings</span>
         </button>
 
-        <button className="dash-help-sidebar" onClick={() => setShowHelp(v => !v)}>
-          <HelpCircle size={16} />
-          <span>Help &amp; Feedback</span>
-        </button>
+
 
         <button className="dash-signout" onClick={() => { playClick(); handleSignOut() }}>
           <LogOut size={16} />
@@ -622,11 +529,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── Specialty + Times row ── */}
-        <div className="dash-content-row">
-          <SpecialtyChart times={times} course={course} />
-        </div>
-
         {/* ── Times Panel ── */}
         <section className="times-panel">
           <div className="times-toolbar">
@@ -677,6 +579,19 @@ export default function Dashboard() {
             </div>
           )}
 
+          {editing && (
+            <div className="times-date-row">
+              <label className="times-date-label">Date of these times</label>
+              <input
+                type="date"
+                className="times-date-input"
+                value={timeDate}
+                onChange={e => setTimeDate(e.target.value)}
+              />
+              <span className="times-date-hint">Used to log entries in Progress Tracker</span>
+            </div>
+          )}
+
           <div className="times-grid">
             {groups.map(({ stroke, events }) => (
               <div
@@ -710,61 +625,6 @@ export default function Dashboard() {
 
       </main>
 
-      {showHelp && (
-        <div className="help-panel">
-          <div className="help-panel-header">
-            <h3 className="help-panel-title">Help &amp; Feedback</h3>
-            <button className="help-panel-close" onClick={() => setShowHelp(false)}>
-              <X size={15} />
-            </button>
-          </div>
-
-          {helpStatus === 'sent' ? (
-            <div className="help-sent">
-              <CheckCircle2 size={38} className="help-sent-icon" />
-              <p className="help-sent-text">Got it! I'll get back to you soon.</p>
-            </div>
-          ) : (
-            <div className="help-form">
-              <div className="help-field">
-                <label className="help-label">Topic</label>
-                <select
-                  className="help-select"
-                  value={helpTopic}
-                  onChange={e => setHelpTopic(e.target.value)}
-                >
-                  <option value="">Select a topic…</option>
-                  <option value="Question">Question</option>
-                  <option value="Suggestion">Suggestion / Feature Request</option>
-                  <option value="Bug Report">Bug Report</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div className="help-field">
-                <label className="help-label">Message</label>
-                <textarea
-                  className="help-textarea"
-                  value={helpMessage}
-                  onChange={e => setHelpMessage(e.target.value)}
-                  placeholder="Ask a question, share a suggestion, or report a bug…"
-                  rows={5}
-                />
-              </div>
-              {helpStatus === 'error' && (
-                <p className="help-error">Something went wrong — try again.</p>
-              )}
-              <button
-                className="help-submit"
-                onClick={submitHelp}
-                disabled={!helpTopic || !helpMessage.trim() || helpStatus === 'sending'}
-              >
-                {helpStatus === 'sending' ? 'Sending…' : 'Send Message'}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* ── Mobile bottom nav ── */}
       <nav className="dash-mobile-nav">
         <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/compare') }}>
@@ -787,9 +647,9 @@ export default function Dashboard() {
           <Settings size={20} />
           Settings
         </button>
-        <button className="dash-mobile-nav-btn" onClick={() => setShowHelp(v => !v)}>
-          <HelpCircle size={20} />
-          Help
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/calendar') }}>
+          <CalendarCheck size={20} />
+          Calendar
         </button>
       </nav>
     </div>

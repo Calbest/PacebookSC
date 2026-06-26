@@ -361,6 +361,23 @@ export default function Compare() {
                           {proximity === 'no-cut'                         && '—'}
                           {['close','near','far','very-far'].includes(proximity) && `✗ ${gap} behind`}
                         </span>
+                        {['close','near','far'].includes(proximity) && cutTime && (
+                          <button
+                            className="compare-goal-btn"
+                            title="Create a goal to hit this standard"
+                            onClick={() => {
+                              const params = new URLSearchParams({
+                                course,
+                                event:  id,
+                                cut:    cutTime,
+                                stroke,
+                              })
+                              navigate(`/goals/create?${params.toString()}`)
+                            }}
+                          >
+                            + Goal
+                          </button>
+                        )}
                       </div>
 
                       {isOpen && (
