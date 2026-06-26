@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { supabase } from './lib/supabase'
 import './App.css'
 
@@ -97,6 +98,7 @@ function ReviewsCarousel({ refresh }: { refresh: number }) {
       .select('id, comment, created_at')
       .eq('stars', 5)
       .not('comment', 'is', null)
+      .neq('comment', '')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         if (data) {
@@ -200,8 +202,14 @@ function QuotesCarousel() {
   const next = () => setIdx(i => (i + 1) % QUOTES.length)
   const q = QUOTES[idx]
   return (
-    <section className="quotes-section">
-      <h2 className="quotes-heading" data-reveal>Fuel for the Pool</h2>
+    <motion.section
+      className="quotes-section"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.7, ease: easeOut }}
+    >
+      <h2 className="quotes-heading">Fuel for the Pool</h2>
       <div className="quotes-carousel">
         <button className="quotes-arrow" onClick={prev} aria-label="Previous quote">&#8592;</button>
         <div className="quotes-card">
@@ -221,7 +229,7 @@ function QuotesCarousel() {
         </div>
         <button className="quotes-arrow" onClick={next} aria-label="Next quote">&#8594;</button>
       </div>
-    </section>
+    </motion.section>
   )
 }
 
@@ -235,33 +243,82 @@ function WaveDivider({ flip = false, fill = '#ffffff' }: { flip?: boolean; fill?
   )
 }
 
+const NAV_SECTIONS = [
+  { label: 'Home', id: 'hero' },
+  { label: 'What', id: 'what' },
+  { label: 'Features', id: 'features' },
+  { label: 'Our Story', id: 'about' },
+  { label: 'Team', id: 'creators' },
+]
+
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const easeOut = [0.22, 1, 0.36, 1] as const
+
+// Reusable motion variants
+const fadeUp = {
+  initial: { opacity: 0, y: 36 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' as const },
+  transition: { duration: 0.7, ease: easeOut },
+}
+
+const fadeUpDelayed = (delay: number) => ({
+  initial: { opacity: 0, y: 36 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' as const },
+  transition: { duration: 0.7, ease: easeOut, delay },
+})
+
+const fadeLeft = {
+  initial: { opacity: 0, x: -40 },
+  whileInView: { opacity: 1, x: 0 },
+  viewport: { once: true, margin: '-80px' as const },
+  transition: { duration: 0.7, ease: easeOut },
+}
+
+const fadeRight = {
+  initial: { opacity: 0, x: 40 },
+  whileInView: { opacity: 1, x: 0 },
+  viewport: { once: true, margin: '-80px' as const },
+  transition: { duration: 0.7, ease: easeOut },
+}
+
+const staggerContainer = {
+  initial: {},
+  whileInView: {},
+  viewport: { once: true, margin: '-60px' as const },
+}
+
+const staggerItem = (delay: number) => ({
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' as const },
+  transition: { duration: 0.6, ease: easeOut, delay },
+})
+
 function App() {
   const navigate = useNavigate()
   const [creatorTab, setCreatorTab] = useState<'caleb' | 'mason'>('caleb')
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible')
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.12 },
-    )
-    document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el))
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <div className="page">
       {/* ── Navbar ── */}
       <header className="navbar">
-        <div className="nav-brand">
-          <img src="/logo.svg" alt="SwimSCPlan brand mark with a stylized wave and the text SwimSCPlan" className="nav-logo-img" />
-          <span className="nav-logo">SwimSCPlan</span>
+        <div className="nav-left">
+          <div className="nav-brand">
+            <img src="/logo.svg" alt="SwimSCPlan brand mark with a stylized wave and the text SwimSCPlan" className="nav-logo-img" />
+            <span className="nav-logo">SwimSCPlan</span>
+          </div>
+          <nav className="nav-links">
+            {NAV_SECTIONS.map(s => (
+              <button key={s.id} className="nav-link" onClick={() => scrollTo(s.id)}>
+                {s.label}
+              </button>
+            ))}
+          </nav>
         </div>
         <div className="nav-actions">
           <button className="btn-secondary" onClick={() => navigate('/sign-in')}>Sign In</button>
@@ -269,8 +326,8 @@ function App() {
         </div>
       </header>
 
-      {/* ── Hero / Inspiration ── */}
-      <section className="hero">
+      {/* ── Hero ── */}
+      <section id="hero" className="hero">
         <div className="hero-text">
           <h1 className="hero-heading">
             Train Smarter.<br />
@@ -282,7 +339,7 @@ function App() {
           </p>
           <div className="hero-cta-row">
             <button className="btn-primary" onClick={() => navigate('/create-account')}>Get Started Free</button>
-            <button className="btn-secondary" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>See How It Works</button>
+            <button className="btn-secondary" onClick={() => scrollTo('features')}>See How It Works</button>
           </div>
         </div>
         <div className="hero-visual">
@@ -292,126 +349,69 @@ function App() {
       <WaveDivider fill="#f0f7ff" />
 
       {/* ── Purpose Section ── */}
-      <section className="purpose">
-        <h2 data-reveal>What is SwimSCPlan?</h2>
-        <ul className="purpose-list">
-          <li data-reveal data-reveal-delay="1">Compare every event time against SCS national and championship qualifying cuts — color-coded so you know exactly how close you are</li>
-          <li data-reveal data-reveal-delay="2">Import your times directly from USA Swimming or Swimcloud and have them populate your dashboard, progress history, and event analysis automatically</li>
-          <li data-reveal data-reveal-delay="3">Plan which events to enter at any meet — paste the schedule, see a ranked recommendation for each event based on your times and how recently they were swum</li>
-          <li data-reveal data-reveal-delay="4">Track goals, log splits, visualize progress over time, and keep everything in one place instead of scattered across spreadsheets and PDF cut sheets</li>
-        </ul>
+      <section id="what" className="purpose">
+        <motion.h2 {...fadeUp}>What is SwimSCPlan?</motion.h2>
+        <motion.ul className="purpose-list" {...staggerContainer}>
+          {[
+            'Compare every event time against SCS national and championship qualifying cuts — color-coded so you know exactly how close you are',
+            'Import your times directly from USA Swimming or Swimcloud and have them populate your dashboard, progress history, and event analysis automatically',
+            'Plan which events to enter at any meet — paste the schedule, see a ranked recommendation for each event based on your times and how recently they were swum',
+            'Track goals, log splits, visualize progress over time, and keep everything in one place instead of scattered across spreadsheets and PDF cut sheets',
+          ].map((text, i) => (
+            <motion.li key={i} {...staggerItem(i * 0.1)}>{text}</motion.li>
+          ))}
+        </motion.ul>
       </section>
       <WaveDivider flip fill="#0f172a" />
 
       {/* ── Features ── */}
-      <section className="features">
-        <h2 data-reveal>Everything you need in one place</h2>
-        <div className="features-grid">
-          <div className="feature-card" data-reveal data-reveal-delay="1">
-            <div className="feature-img-placeholder">
-              <img src="/swimmer.svg" alt="" className="feature-svg" />
-            </div>
-            <h3 className="feature-title">Compare Times</h3>
-            <p className="feature-blurb">
-              Line up your personal bests against SCS qualifying standards for every event and course.
-              Five color tiers show exactly how close you are — from "Meets Cut" to "Needs Work" —
-              plus inline split logging for each event.
-            </p>
-          </div>
-
-          <div className="feature-card" data-reveal data-reveal-delay="2">
-            <div className="feature-img-placeholder feature-img-placeholder--pool">
-              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="4" y="4" width="72" height="48" rx="4" fill="none" stroke="#00b4d8" strokeWidth="3"/><line x1="4" y1="20" x2="76" y2="20" stroke="#1e3a8a" strokeWidth="1.5" strokeDasharray="4 3"/><line x1="4" y1="36" x2="76" y2="36" stroke="#1e3a8a" strokeWidth="1.5" strokeDasharray="4 3"/><path d="M4 48 Q20 42 36 48 Q52 54 68 48 Q72 46 76 48" stroke="#00b4d8" strokeWidth="2.5" fill="none"/><circle cx="22" cy="14" r="5" fill="#1e3a8a"/><path d="M26 14 C32 8 48 6 56 12" stroke="#1e3a8a" strokeWidth="3.5" fill="none" strokeLinecap="round"/></svg>
-            </div>
-            <h3 className="feature-title">Qualifications View</h3>
-            <p className="feature-blurb">
-              See which SCS championship meets (WAG, JAG, Elite Ch, SAG) you currently qualify for
-              across every event side by side. Summary cards count how many cuts you've hit per meet.
-            </p>
-          </div>
-
-          <div className="feature-card" data-reveal data-reveal-delay="3">
-            <div className="feature-img-placeholder feature-img-placeholder--pool">
-              <svg viewBox="0 0 80 56" className="feature-svg-inline"><polyline points="8,44 24,32 38,36 52,20 68,12" stroke="#00b4d8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/><circle cx="8" cy="44" r="3" fill="#1e3a8a"/><circle cx="24" cy="32" r="3" fill="#1e3a8a"/><circle cx="38" cy="36" r="3" fill="#1e3a8a"/><circle cx="52" cy="20" r="3" fill="#1e3a8a"/><circle cx="68" cy="12" r="3.5" fill="#00b4d8"/><line x1="8" y1="48" x2="72" y2="48" stroke="#334155" strokeWidth="1.5"/><line x1="8" y1="8" x2="8" y2="48" stroke="#334155" strokeWidth="1.5"/></svg>
-            </div>
-            <h3 className="feature-title">Progress Tracker</h3>
-            <p className="feature-blurb">
-              Watch your times drop with an SVG line chart for each event. Add entries manually or
-              import from USA Swimming to auto-populate history. See your best time, total improvement,
-              and number of swims logged.
-            </p>
-          </div>
-
-          <div className="feature-card" data-reveal data-reveal-delay="1">
-            <div className="feature-img-placeholder feature-img-placeholder--pool">
-              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="18" y="6" width="44" height="34" rx="4" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><line x1="26" y1="16" x2="54" y2="16" stroke="#00b4d8" strokeWidth="2"/><line x1="26" y1="24" x2="54" y2="24" stroke="#00b4d8" strokeWidth="2"/><line x1="26" y1="32" x2="42" y2="32" stroke="#00b4d8" strokeWidth="2"/><line x1="40" y1="40" x2="40" y2="52" stroke="#1e3a8a" strokeWidth="2.5"/><polyline points="33,46 40,54 47,46" stroke="#1e3a8a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </div>
-            <h3 className="feature-title">Import Times</h3>
-            <p className="feature-blurb">
-              Copy your times from USA Swimming or Swimcloud and paste them in.
-              The parser pulls out events, courses, and times automatically — no formatting needed.
-              Saves to your dashboard and progress history in one click.
-            </p>
-          </div>
-
-          <div className="feature-card" data-reveal data-reveal-delay="2">
-            <div className="feature-img-placeholder feature-img-placeholder--pool">
-              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="10" y="8" width="60" height="42" rx="5" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><line x1="10" y1="20" x2="70" y2="20" stroke="#1e3a8a" strokeWidth="2"/><line x1="26" y1="8" x2="26" y2="20" stroke="#1e3a8a" strokeWidth="2"/><line x1="54" y1="8" x2="54" y2="20" stroke="#1e3a8a" strokeWidth="2"/><circle cx="28" cy="34" r="4" fill="#00b4d8"/><circle cx="44" cy="34" r="4" fill="#1e3a8a" opacity="0.3"/><circle cx="60" cy="34" r="4" fill="#1e3a8a" opacity="0.3"/></svg>
-            </div>
-            <h3 className="feature-title">Event Planning</h3>
-            <p className="feature-blurb">
-              Paste a meet schedule and instantly see which events to enter. Each event gets
-              an Enter / Consider / Skip recommendation based on your proximity to the standard
-              and how recently the time was swum. Includes entry deadline countdown.
-            </p>
-          </div>
-
-          <div className="feature-card" data-reveal data-reveal-delay="3">
-            <div className="feature-img-placeholder feature-img-placeholder--pool">
-              <svg viewBox="0 0 80 56" className="feature-svg-inline"><circle cx="40" cy="28" r="22" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><circle cx="40" cy="28" r="15" fill="none" stroke="#1e3a8a" strokeWidth="2"/><circle cx="40" cy="28" r="8" fill="none" stroke="#00b4d8" strokeWidth="2"/><circle cx="40" cy="28" r="3" fill="#00b4d8"/><line x1="40" y1="4" x2="40" y2="10" stroke="#1e3a8a" strokeWidth="2"/><line x1="40" y1="46" x2="40" y2="52" stroke="#1e3a8a" strokeWidth="2"/><line x1="16" y1="28" x2="22" y2="28" stroke="#1e3a8a" strokeWidth="2"/><line x1="58" y1="28" x2="64" y2="28" stroke="#1e3a8a" strokeWidth="2"/></svg>
-            </div>
-            <h3 className="feature-title">Goals</h3>
-            <p className="feature-blurb">
-              Set target times for specific events and courses with optional deadlines.
-              Goals appear alongside your best times across the app so you always know
-              what you're chasing and how close you are.
-            </p>
-          </div>
-
-          <div className="feature-card" data-reveal data-reveal-delay="1">
-            <div className="feature-img-placeholder feature-img-placeholder--pool">
-              <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="28" y="4" width="24" height="42" rx="4" fill="none" stroke="#1e3a8a" strokeWidth="2.5"/><line x1="28" y1="38" x2="52" y2="38" stroke="#1e3a8a" strokeWidth="2"/><circle cx="40" cy="43" r="2" fill="#00b4d8"/><line x1="33" y1="14" x2="47" y2="14" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round"/><line x1="33" y1="20" x2="47" y2="20" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round"/><line x1="33" y1="26" x2="42" y2="26" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round"/></svg>
-            </div>
-            <h3 className="feature-title">Mobile Friendly</h3>
-            <p className="feature-blurb">
-              Built to work on any device. The dashboard, time tables, qualifications view,
-              and event planner all adapt to your phone screen — with a bottom navigation bar
-              so everything is one tap away at a meet.
-            </p>
-          </div>
-        </div>
+      <section id="features" className="features">
+        <motion.h2 {...fadeUp}>Everything you need in one place</motion.h2>
+        <motion.div className="features-grid" {...staggerContainer}>
+          {[
+            { title: 'Compare Times', blurb: 'Line up your personal bests against SCS qualifying standards for every event and course. Five color tiers show exactly how close you are — from "Meets Cut" to "Needs Work" — plus inline split logging for each event.', svg: '/swimmer.svg' },
+            { title: 'Qualifications View', blurb: 'See which SCS championship meets (WAG, JAG, Elite Ch, SAG) you currently qualify for across every event side by side. Summary cards count how many cuts you\'ve hit per meet.' },
+            { title: 'Progress Tracker', blurb: 'Watch your times drop with an SVG line chart for each event. Add entries manually or import from USA Swimming to auto-populate history. See your best time, total improvement, and number of swims logged.' },
+            { title: 'Import Times', blurb: 'Copy your times from USA Swimming or Swimcloud and paste them in. The parser pulls out events, courses, and times automatically — no formatting needed. Saves to your dashboard and progress history in one click.' },
+            { title: 'Event Planning', blurb: 'Paste a meet schedule and instantly see which events to enter. Each event gets an Enter / Consider / Skip recommendation based on your proximity to the standard and how recently the time was swum. Includes entry deadline countdown.' },
+            { title: 'Goals', blurb: 'Set target times for specific events and courses with optional deadlines. Goals appear alongside your best times across the app so you always know what you\'re chasing and how close you are.' },
+            { title: 'Mobile Friendly', blurb: 'Built to work on any device. The dashboard, time tables, qualifications view, and event planner all adapt to your phone screen — with a bottom navigation bar so everything is one tap away at a meet.' },
+          ].map((card, i) => (
+            <motion.div key={card.title} className="feature-card" {...staggerItem(i * 0.08)}>
+              <div className="feature-img-placeholder">
+                {card.svg ? (
+                  <img src={card.svg} alt="" className="feature-svg" />
+                ) : (
+                  <svg viewBox="0 0 80 56" className="feature-svg-inline"><rect x="4" y="4" width="72" height="48" rx="4" fill="none" stroke="#00b4d8" strokeWidth="3"/><line x1="4" y1="20" x2="76" y2="20" stroke="#1e3a8a" strokeWidth="1.5" strokeDasharray="4 3"/><line x1="4" y1="36" x2="76" y2="36" stroke="#1e3a8a" strokeWidth="1.5" strokeDasharray="4 3"/><path d="M4 48 Q20 42 36 48 Q52 54 68 48 Q72 46 76 48" stroke="#00b4d8" strokeWidth="2.5" fill="none"/><circle cx="22" cy="14" r="5" fill="#1e3a8a"/><path d="M26 14 C32 8 48 6 56 12" stroke="#1e3a8a" strokeWidth="3.5" fill="none" strokeLinecap="round"/></svg>
+                )}
+              </div>
+              <h3 className="feature-title">{card.title}</h3>
+              <p className="feature-blurb">{card.blurb}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
 
       <WaveDivider fill="#f0f7ff" />
 
       {/* ── About / Inspiration ── */}
-      <section className="about">
+      <section id="about" className="about">
         <div className="about-inner">
-          <div className="about-text">
-            <span className="about-badge" data-reveal>Our Story</span>
-            <h2 data-reveal data-reveal-delay="1">Built by a swimmer,<br />for swimmers.</h2>
-            <p className="about-body" data-reveal data-reveal-delay="2">
+          <motion.div className="about-text" {...fadeLeft}>
+            <span className="about-badge">Our Story</span>
+            <h2>Built by a swimmer,<br />for swimmers.</h2>
+            <p className="about-body">
               SwimSCPlan was created out of frustration with scattered spreadsheets and PDF
               standards sheets. I wanted one place that knew my times, knew the SCS cuts, and
               told me exactly where I stood — without digging through documents before every meet.
             </p>
-            <p className="about-inspiration" data-reveal data-reveal-delay="3">
+            <p className="about-inspiration">
               The inspiration? Every swimmer deserves a clear goal to chase and real data to
               back it up — not just a gut feeling. Whether you're chasing your first WAG cut or
               shaving tenths off your 50 fly, you should always know how close you are.
             </p>
-          </div>
-          <div className="about-quote-col" data-reveal data-reveal-delay="2">
+          </motion.div>
+          <motion.div className="about-quote-col" {...fadeRight}>
             <blockquote className="about-quote">
               "You can't improve what you don't measure. Start tracking, start dropping time."
             </blockquote>
@@ -429,7 +429,7 @@ function App() {
                 <span className="about-stat-label">Standards tracked</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -439,10 +439,10 @@ function App() {
       <QuotesCarousel />
 
       {/* ── Meet the Creators ── */}
-      <section className="creators">
-        <h2 className="creators-heading" data-reveal>Meet the People Behind SwimSCPlan</h2>
+      <section id="creators" className="creators">
+        <motion.h2 className="creators-heading" {...fadeUp}>Meet the People Behind SwimSCPlan</motion.h2>
 
-        <div className="creators-tabs" data-reveal data-reveal-delay="1">
+        <motion.div className="creators-tabs" {...fadeUpDelayed(0.1)}>
           <button
             className={`creators-tab${creatorTab === 'caleb' ? ' active' : ''}`}
             onClick={() => setCreatorTab('caleb')}
@@ -455,9 +455,9 @@ function App() {
           >
             Mason Jung &mdash; Helper
           </button>
-        </div>
+        </motion.div>
 
-        <div className="creators-card" data-reveal data-reveal-delay="2">
+        <motion.div className="creators-card" {...fadeUpDelayed(0.2)}>
           <div className="creators-photo-wrap">
             <img
               src={creatorTab === 'caleb' ? '/photos/IMG_4189.jpeg' : '/photos/IMG_0942.jpeg'}
@@ -498,7 +498,7 @@ function App() {
               </p>
             )}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── Star Rating + Reviews ── */}
@@ -507,43 +507,40 @@ function App() {
       {/* ── Connect / Socials ── */}
       <section className="connect">
         <div className="connect-inner">
-          <h2 data-reveal>Connect</h2>
-          <p className="connect-sub" data-reveal data-reveal-delay="1">
+          <motion.h2 {...fadeUp}>Connect</motion.h2>
+          <motion.p className="connect-sub" {...fadeUpDelayed(0.1)}>
             Follow the journey and share your swimming progress.
-          </p>
-          <div className="connect-grid">
-            {/* Replace href="#" with your actual social links */}
-            <a href="#" className="connect-card" data-reveal data-reveal-delay="1">
-              <span className="connect-icon"><InstagramIcon /></span>
-              <span className="connect-platform">Instagram</span>
-              <span className="connect-handle">@your_handle</span>
-            </a>
-            <a href="#" className="connect-card" data-reveal data-reveal-delay="2">
-              <span className="connect-icon"><XIcon /></span>
-              <span className="connect-platform">X (Twitter)</span>
-              <span className="connect-handle">@your_handle</span>
-            </a>
-            <a href="#" className="connect-card" data-reveal data-reveal-delay="3">
-              <span className="connect-icon"><TikTokIcon /></span>
-              <span className="connect-platform">TikTok</span>
-              <span className="connect-handle">@your_handle</span>
-            </a>
-            <a href="#" className="connect-card" data-reveal data-reveal-delay="4">
-              <span className="connect-icon"><YoutubeIcon /></span>
-              <span className="connect-platform">YouTube</span>
-              <span className="connect-handle">your channel</span>
-            </a>
-          </div>
+          </motion.p>
+          <motion.div className="connect-grid" {...staggerContainer}>
+            {[
+              { icon: <InstagramIcon />, platform: 'Instagram', handle: '@your_handle' },
+              { icon: <XIcon />, platform: 'X (Twitter)', handle: '@your_handle' },
+              { icon: <TikTokIcon />, platform: 'TikTok', handle: '@your_handle' },
+              { icon: <YoutubeIcon />, platform: 'YouTube', handle: 'your channel' },
+            ].map((link, i) => (
+              <motion.a key={link.platform} href="#" className="connect-card" {...staggerItem(i * 0.1)}>
+                <span className="connect-icon">{link.icon}</span>
+                <span className="connect-platform">{link.platform}</span>
+                <span className="connect-handle">{link.handle}</span>
+              </motion.a>
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* ── Call to Action ── */}
-      <section className="cta">
-        <img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="cta-logo" data-reveal />
-        <h2 data-reveal data-reveal-delay="1">Ready to get started?</h2>
-        <p data-reveal data-reveal-delay="2">Create a free account and take control of your training.</p>
-        <button className="btn-primary btn-large reveal-blur" data-reveal data-reveal-delay="5" onClick={() => navigate('/create-account')}>Create Account</button>
-        <p className="cta-trust" data-reveal data-reveal-delay="4">No credit card required. Free forever.</p>
+      <section id="cta" className="cta">
+        <motion.img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="cta-logo" {...fadeUp} />
+        <motion.h2 {...fadeUpDelayed(0.1)}>Ready to get started?</motion.h2>
+        <motion.p {...fadeUpDelayed(0.2)}>Create a free account and take control of your training.</motion.p>
+        <motion.button
+          className="btn-primary btn-large cta-pulse"
+          {...fadeUpDelayed(0.3)}
+          onClick={() => navigate('/create-account')}
+        >
+          Create Account
+        </motion.button>
+        <motion.p className="cta-trust" {...fadeUpDelayed(0.4)}>No credit card required. Free forever.</motion.p>
       </section>
 
       <footer className="footer">
