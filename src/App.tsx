@@ -16,6 +16,9 @@ function StarRating({ onDone }: { onDone?: () => void }) {
     const { error } = await supabase
       .from('ratings')
       .insert({ stars: selected, comment: comment.trim() || null })
+    if (error) {
+      console.error('Rating submit error:', error.message, error.code, error.details)
+    }
     setStatus(error ? 'error' : 'done')
     if (!error) onDone?.()
   }

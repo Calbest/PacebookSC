@@ -4,6 +4,14 @@
 -- ============================================================
 
 -- ── ratings table ────────────────────────────────────────────
+-- Create the table if it doesn't exist yet
+CREATE TABLE IF NOT EXISTS public.ratings (
+  id         bigserial PRIMARY KEY,
+  stars      smallint NOT NULL CHECK (stars BETWEEN 1 AND 5),
+  comment    text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
 -- Anyone can submit a rating, but only select is public.
 -- No user can update or delete any row.
 
