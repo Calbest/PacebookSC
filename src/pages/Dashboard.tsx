@@ -412,10 +412,16 @@ export default function Dashboard() {
             {age !== null && <span className="dash-age">Age {age}</span>}
             {gender && <span className={`dash-gender dash-gender--${gender}`}>{gender === 'male' ? 'Male' : 'Female'}</span>}
           </div>
-          <button className="dash-settings-icon" onClick={() => { playNavigate(); navigate('/settings') }} title="Settings">
-            <Settings size={15} />
-            <span>Settings</span>
-          </button>
+          <div className="dash-profile-actions">
+            <button className="dash-settings-icon" onClick={() => { playNavigate(); navigate('/settings') }} title="Settings">
+              <Settings size={15} />
+              <span>Settings</span>
+            </button>
+            <button className="dash-settings-icon" onClick={() => { playNavigate(); navigate('/import') }} title="Import Times">
+              <Upload size={15} />
+              <span>Import</span>
+            </button>
+          </div>
         </div>
 
         {/* Scrollable nav */}
@@ -461,18 +467,7 @@ export default function Dashboard() {
           <span>Race Library</span>
         </button>
 
-        <button className="dash-import" onClick={() => { playNavigate(); navigate('/import') }}>
-          <Upload size={16} />
-          <span>Import Times</span>
-        </button>
-
         </nav>
-
-        {/* Sign out pinned at bottom */}
-        <button className="dash-signout" onClick={() => { playClick(); handleSignOut() }}>
-          <LogOut size={16} />
-          <span>Sign out</span>
-        </button>
       </aside>
 
       {/* ── Main ── */}

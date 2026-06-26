@@ -110,6 +110,19 @@ button:active { transform: scale(0.96) !important; }
 .dash-nav-scroll::-webkit-scrollbar-track { background: transparent; }
 .dash-nav-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
+/* Settings + Import row inside profile block */
+.dash-profile-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  width: 100%;
+}
+.dash-profile-actions .dash-settings-icon {
+  flex: 1;
+  justify-content: center;
+  margin-top: 0;
+}
+
 /* Settings shortcut inside profile block */
 .dash-settings-icon {
   display: flex;
