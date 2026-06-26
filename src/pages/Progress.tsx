@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Plus, Trash2, AlertTriangle, ChevronDown } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Plus, Trash2, AlertTriangle, ChevronDown, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Progress.css'
 
 // ─── Types & Data ───────────────────────────────────────────────────────────
@@ -265,6 +266,7 @@ export default function Progress() {
   const [newDate,      setNewDate]      = useState(new Date().toISOString().slice(0, 10))
   const [newTime,      setNewTime]      = useState('')
   const [showUnknown,  setShowUnknown]  = useState(false)
+  const [showTC,       setShowTC]       = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -327,8 +329,13 @@ export default function Progress() {
             <LayoutDashboard size={16} />
             <span>Dashboard</span>
           </button>
+          <button className="prog-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} />
+            <span>Time Converter</span>
+          </button>
         </nav>
       </aside>
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
 
       <div className="prog-page">
         <div className="prog-header">

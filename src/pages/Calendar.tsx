@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, ChevronLeft, ChevronRight, Plus, X, Check } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, Plus, X, Check, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Calendar.css'
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -59,6 +60,7 @@ export default function Calendar() {
   })
   const [showAddMeet,  setShowAddMeet]  = useState(false)
   const [showSchedule, setShowSchedule] = useState(false)
+  const [showTC,       setShowTC]       = useState(false)
   const [newMeetName,  setNewMeetName]  = useState('')
   const [newMeetDate,  setNewMeetDate]  = useState('')
   const [saving,       setSaving]       = useState(false)
@@ -174,12 +176,17 @@ export default function Calendar() {
 
   return (
     <div className="cal-layout">
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
       <aside className="cal-sidebar">
         <div className="cal-sidebar-brand">Calendar</div>
         <nav className="cal-sidebar-nav">
           <button className="cal-nav-btn" onClick={() => navigate('/dashboard')}>
             <LayoutDashboard size={16} />
             <span>Dashboard</span>
+          </button>
+          <button className="cal-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} />
+            <span>Time Converter</span>
           </button>
         </nav>
         <div className="cal-sidebar-actions">

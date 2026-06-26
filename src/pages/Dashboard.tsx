@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, ArrowLeftRight, Bell, Star, Clock, Zap, Film } from 'lucide-react'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import { supabase } from '../lib/supabase'
 import { playClick, playSave, playNavigate } from '../lib/sounds'
 import './Dashboard.css'
@@ -314,6 +315,7 @@ export default function Dashboard() {
   const [importBannerDismissed, setImportBannerDismissed] = useState(
     () => localStorage.getItem('sw_import_banner_dismissed') === '1'
   )
+  const [showTC, setShowTC] = useState(false)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -395,6 +397,8 @@ export default function Dashboard() {
   }
 
   return (
+    <>
+    <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
     <div className="dash-layout">
 
       {/* ── Sidebar ── */}
@@ -457,7 +461,7 @@ export default function Dashboard() {
           <span>Calendar</span>
         </button>
 
-        <button className="dash-time-converter" onClick={() => { playNavigate(); navigate('/time-converter') }}>
+        <button className="dash-time-converter" onClick={() => setShowTC(true)}>
           <ArrowLeftRight size={16} />
           <span>Time Converter</span>
         </button>
@@ -730,5 +734,6 @@ export default function Dashboard() {
         </button>
       </nav>
     </div>
+    </>
   )
 }

@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, ChevronDown, BookOpen } from 'lucide-react'
+import { LayoutDashboard, ChevronDown, BookOpen, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   SCS_STANDARDS, getAgeGroup, getCut,
   type StdLevel,
 } from '../lib/scsStandards'
 import ColorLegend from '../components/ColorLegend'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Compare.css'
 
 type Course = 'SCY' | 'LCM' | 'SCM'
@@ -171,6 +172,7 @@ function formatTimeDigits(raw: string): string {
 export default function Compare() {
   const navigate = useNavigate()
   const [showLegend,       setShowLegend]       = useState(false)
+  const [showTC,           setShowTC]           = useState(false)
   const [course,           setCourse]           = useState<Course>('SCY')
   const [times,            setTimes]            = useState<Record<string, string>>({})
   const [dob,              setDob]              = useState('')
@@ -240,6 +242,7 @@ export default function Compare() {
     <div className="compare-layout">
 
       {showLegend && <ColorLegend onClose={() => setShowLegend(false)} />}
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
 
       {/* ── Sidebar ── */}
       <aside className="compare-sidebar">
@@ -252,6 +255,10 @@ export default function Compare() {
           <button className="compare-nav-btn" onClick={() => setShowLegend(true)}>
             <BookOpen size={16} />
             <span>Color Legend</span>
+          </button>
+          <button className="compare-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} />
+            <span>Time Converter</span>
           </button>
         </nav>
       </aside>

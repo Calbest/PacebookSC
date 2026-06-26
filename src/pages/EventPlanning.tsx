@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Clock, Star, Copy, Check, BookOpen, CalendarCheck } from 'lucide-react'
+import { LayoutDashboard, Clock, Star, Copy, Check, BookOpen, CalendarCheck, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { SCS_STANDARDS, getAgeGroup, getCut, type StdLevel } from '../lib/scsStandards'
 import ColorLegend from '../components/ColorLegend'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import './EventPlanning.css'
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -239,6 +240,7 @@ export default function EventPlanning() {
   const [recFilter,   setRecFilter]   = useState<RecFilter>('all')
   const [copied,      setCopied]      = useState(false)
   const [showLegend,  setShowLegend]  = useState(false)
+  const [showTC,      setShowTC]      = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -397,6 +399,7 @@ export default function EventPlanning() {
     <div className="ep-layout">
 
       {showLegend && <ColorLegend onClose={() => setShowLegend(false)} />}
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
 
       {/* ── Sidebar ── */}
       <aside className="ep-sidebar">
@@ -409,6 +412,10 @@ export default function EventPlanning() {
           <button className="ep-nav-btn" onClick={() => setShowLegend(true)}>
             <BookOpen size={16} />
             <span>Color Legend</span>
+          </button>
+          <button className="ep-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} />
+            <span>Time Converter</span>
           </button>
         </nav>
       </aside>

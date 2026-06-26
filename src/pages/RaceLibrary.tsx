@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Plus, X, Camera, Video, ChevronLeft, Trash2, Save } from 'lucide-react'
+import { LayoutDashboard, Plus, X, Camera, Video, ChevronLeft, Trash2, Save, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import './RaceLibrary.css'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -227,6 +228,7 @@ export default function RaceLibrary() {
   const [view,     setView]     = useState<'list' | 'add' | 'detail'>('list')
   const [selected, setSelected] = useState<RaceEntry | null>(null)
   const [editing,  setEditing]  = useState(false)
+  const [showTC,   setShowTC]   = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -265,11 +267,15 @@ export default function RaceLibrary() {
 
   if (view === 'list') return (
     <div className="rl-layout">
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
       <aside className="rl-sidebar">
         <div className="rl-sidebar-brand">Race Library</div>
         <nav className="rl-sidebar-nav">
           <button className="rl-nav-btn" onClick={() => navigate('/dashboard')}>
             <LayoutDashboard size={16} /><span>Dashboard</span>
+          </button>
+          <button className="rl-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} /><span>Time Converter</span>
           </button>
         </nav>
       </aside>
@@ -322,11 +328,15 @@ export default function RaceLibrary() {
 
   if (view === 'add') return (
     <div className="rl-layout">
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
       <aside className="rl-sidebar">
         <div className="rl-sidebar-brand">Race Library</div>
         <nav className="rl-sidebar-nav">
           <button className="rl-nav-btn" onClick={() => navigate('/dashboard')}>
             <LayoutDashboard size={16} /><span>Dashboard</span>
+          </button>
+          <button className="rl-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} /><span>Time Converter</span>
           </button>
         </nav>
       </aside>
@@ -350,11 +360,15 @@ export default function RaceLibrary() {
   const r = selected!
   return (
     <div className="rl-layout">
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
       <aside className="rl-sidebar">
         <div className="rl-sidebar-brand">Race Library</div>
         <nav className="rl-sidebar-nav">
           <button className="rl-nav-btn" onClick={() => navigate('/dashboard')}>
             <LayoutDashboard size={16} /><span>Dashboard</span>
+          </button>
+          <button className="rl-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} /><span>Time Converter</span>
           </button>
         </nav>
       </aside>

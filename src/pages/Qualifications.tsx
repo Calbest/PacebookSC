@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, BookOpen } from 'lucide-react'
+import { LayoutDashboard, BookOpen, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { SCS_STANDARDS, getAgeGroup, getCut, type StdLevel } from '../lib/scsStandards'
 import ColorLegend from '../components/ColorLegend'
+import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Qualifications.css'
 
 type Course = 'SCY' | 'LCM' | 'SCM'
@@ -137,6 +138,7 @@ function getProximityClass(userSec: number | null, cutSec: number | null): strin
 export default function Qualifications() {
   const navigate = useNavigate()
   const [showLegend, setShowLegend] = useState(false)
+  const [showTC,     setShowTC]     = useState(false)
   const [course,  setCourse]  = useState<Course>('SCY')
   const [times,   setTimes]   = useState<Record<string, string>>({})
   const [dob,     setDob]     = useState('')
@@ -194,6 +196,7 @@ export default function Qualifications() {
     <div className="quals-layout">
 
       {showLegend && <ColorLegend onClose={() => setShowLegend(false)} />}
+      <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
 
       {/* ── Sidebar ── */}
       <aside className="quals-sidebar">
@@ -206,6 +209,10 @@ export default function Qualifications() {
           <button className="quals-nav-btn" onClick={() => setShowLegend(true)}>
             <BookOpen size={16} />
             <span>Color Legend</span>
+          </button>
+          <button className="quals-nav-btn" onClick={() => setShowTC(true)}>
+            <ArrowRightLeft size={16} />
+            <span>Time Converter</span>
           </button>
         </nav>
       </aside>
