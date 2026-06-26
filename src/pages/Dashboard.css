@@ -329,22 +329,23 @@ button:active { transform: scale(0.96) !important; }
   border: 1px solid #e2e8f0;
   border-top: none;
   border-radius: 0 0 14px 14px;
-  padding: 0 20px 18px 20px;
+  padding: 12px 20px 18px 20px;
   display: flex;
   align-items: flex-end;
-  gap: 14px;
+  gap: 16px;
   box-shadow: 0 4px 12px rgba(0,40,85,0.07);
 }
 
 /* Avatar — overlaps banner bottom edge */
 .dash-banner-avatar-wrap {
-  margin-top: -36px;
-  width: 80px;
-  height: 80px;
+  align-self: flex-start;
+  margin-top: -56px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background: #e2e8f0;
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,7 +360,7 @@ button:active { transform: scale(0.96) !important; }
 }
 
 .dash-banner-avatar-initials {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 800;
   color: #475569;
   user-select: none;
@@ -1012,9 +1013,9 @@ button:active { transform: scale(0.96) !important; }
   .dash-profile-header { margin-bottom: 16px; }
   .dash-banner-strip { height: 100px; border-radius: 10px 10px 0 0; }
   .dash-banner-actions { top: 10px; right: 12px; }
-  .dash-banner-avatar-wrap { width: 60px; height: 60px; margin-top: -28px; border-width: 2px; }
-  .dash-banner-avatar-initials { font-size: 20px; }
-  .dash-profile-bar { padding: 0 14px 14px; gap: 10px; border-radius: 0 0 10px 10px; }
+  .dash-banner-avatar-wrap { width: 70px; height: 70px; margin-top: -40px; border-width: 3px; }
+  .dash-banner-avatar-initials { font-size: 22px; }
+  .dash-profile-bar { padding: 10px 14px 14px; gap: 10px; border-radius: 0 0 10px 10px; }
   .dash-welcome { font-size: 17px; }
   .dash-profile-sub { font-size: 11px; }
   .dash-profile-signout { padding: 6px 10px; font-size: 12px; }
