@@ -740,9 +740,9 @@ export default function Settings() {
           {resetError && <p className="status-error">{resetError}</p>}
         </section>
 
-        {/* ── Danger Zone ── */}
+        {/* ── Delete Account ── */}
         <section className="settings-card settings-card--danger">
-          <h2 className="settings-section-title settings-section-title--danger">Danger Zone</h2>
+          <h2 className="settings-section-title settings-section-title--danger">Delete Account</h2>
 
           {!deleteConfirm ? (
             <div className="danger-idle">
