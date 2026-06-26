@@ -146,6 +146,11 @@ p { margin: 0; }
   to   { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes blur-in {
+  from { opacity: 0; filter: blur(4px); transform: translateY(12px); }
+  to   { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
 /* Hero children animate on load */
 .hero-text {
   animation: fade-up 0.9s cubic-bezier(0.22,1,0.36,1) 0.05s both;
@@ -173,9 +178,14 @@ p { margin: 0; }
 [data-reveal][data-reveal-delay="3"] { transition-delay: 0.30s; }
 [data-reveal][data-reveal-delay="4"] { transition-delay: 0.40s; }
 
+.reveal-blur.is-visible {
+  animation: blur-in 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-text, .hero-img { animation: none; }
   [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .reveal-blur.is-visible { animation: none; }
 }
 
 /* ── Hero ── */
@@ -210,6 +220,48 @@ p { margin: 0; }
   font-size: 18px;
   color: var(--teal-light);
   line-height: 1.7;
+}
+
+/* Scoped hero heading styles (bold Bebas Neue + gradients) */
+.hero-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--teal-light) 0%, var(--white) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+.hero-heading .hero-heading-highlight {
+  display: block;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-cta-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+
+.hero-cta-row .btn-primary {
+  font-size: 16px;
+  padding: 14px 34px;
+  border-radius: 12px;
+}
+
+.hero-cta-row .btn-secondary {
+  font-size: 16px;
+  padding: 14px 34px;
+  border-radius: 12px;
 }
 
 .hero-visual {
@@ -763,11 +815,18 @@ p { margin: 0; }
   margin-top: 36px;
   background: var(--gold);
   color: var(--navy-dark);
-  font-size: 17px;
-  padding: 14px 44px;
+  font-size: 18px;
+  padding: 18px 56px;
   border-radius: 12px;
 }
 .cta .btn-primary:hover { background: #d4aa50; }
+
+.cta-trust {
+  margin-top: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.3px;
+}
 
 /* ── Reviews Carousel ── */
 .reviews-carousel {

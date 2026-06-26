@@ -284,10 +284,18 @@ function App() {
       {/* ── Hero / Inspiration ── */}
       <section className="hero">
         <div className="hero-text">
-          <h1>Train Smarter.<br />Swim Faster.</h1>
+          <h1 className="hero-heading">
+            Train Smarter.<br />
+            <span className="hero-heading-highlight">Swim Faster.</span>
+          </h1>
           <p className="hero-sub">
             The planning tool built for swimmers who are serious about the sport.
+            Track your times, compare against qualifying cuts, and know exactly where you stand.
           </p>
+          <div className="hero-cta-row">
+            <button className="btn-primary" onClick={() => navigate('/create-account')}>Get Started Free</button>
+            <button className="btn-secondary" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>See How It Works</button>
+          </div>
         </div>
         <div className="hero-visual">
           <img src="/Hero.jpg" alt="Swimmer in pool" className="hero-img" />
@@ -546,7 +554,8 @@ function App() {
         <img src="/logo.svg" alt="SwimSCPlan brand mark with stylized wave and the text SwimSCPlan" className="cta-logo" data-reveal />
         <h2 data-reveal data-reveal-delay="1">Ready to get started?</h2>
         <p data-reveal data-reveal-delay="2">Create a free account and take control of your training.</p>
-        <button className="btn-primary btn-large" data-reveal data-reveal-delay="3" onClick={() => navigate('/create-account')}>Create Account</button>
+        <button className="btn-primary btn-large reveal-blur" data-reveal data-reveal-delay="5" onClick={() => navigate('/create-account')}>Create Account</button>
+        <p className="cta-trust" data-reveal data-reveal-delay="4">No credit card required. Free forever.</p>
       </section>
 
       <footer className="footer">
