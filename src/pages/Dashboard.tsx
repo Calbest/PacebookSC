@@ -311,6 +311,9 @@ export default function Dashboard() {
     try { return new Set(JSON.parse(localStorage.getItem('sw_read_notifs') ?? '[]')) }
     catch { return new Set() }
   })
+  const [importBannerDismissed, setImportBannerDismissed] = useState(
+    () => localStorage.getItem('sw_import_banner_dismissed') === '1'
+  )
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -570,6 +573,37 @@ export default function Dashboard() {
                 })}
               </ul>
             )}
+          </div>
+        )}
+
+        {/* ── Import warning ── */}
+        {!importBannerDismissed && Object.keys(timeHistory).length < 3 && (
+          <div className="dash-import-banner">
+            <div className="dash-import-banner-body">
+              <strong>Set up your swim history to unlock all features</strong>
+              <p>
+                Features like the <strong>Progress Tracker</strong> only work if your full career history is imported.
+                Without it, charts and trends will be empty or incomplete.
+                Sign into <strong>Swimcloud</strong> or <strong>USA Swimming</strong>, copy your full times history,
+                and paste it in <strong>Import Times</strong> — it will automatically fill in Progress and everywhere else.
+              </p>
+              <button
+                className="dash-import-banner-btn"
+                onClick={() => { playNavigate(); navigate('/import') }}
+              >
+                Import Times →
+              </button>
+            </div>
+            <button
+              className="dash-import-banner-close"
+              onClick={() => {
+                setImportBannerDismissed(true)
+                localStorage.setItem('sw_import_banner_dismissed', '1')
+              }}
+              aria-label="Dismiss"
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
 

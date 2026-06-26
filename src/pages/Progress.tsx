@@ -341,6 +341,21 @@ export default function Progress() {
 
         <div className="prog-body">
 
+          {/* ── No history notice ── */}
+          {Object.keys(history).length === 0 && (
+            <div className="prog-import-notice">
+              <strong>No swim history imported yet</strong>
+              <p>
+                This page needs your full career history to show charts and trends.
+                Sign into <strong>Swimcloud</strong> or <strong>USA Swimming</strong>, copy your full times history,
+                and use <strong>Import Times</strong> — it will automatically fill in this page.
+              </p>
+              <button className="prog-import-btn" onClick={() => navigate('/import')}>
+                Go to Import Times →
+              </button>
+            </div>
+          )}
+
           {/* ── Top row: controls + specialty chart ── */}
           <div className="prog-top-row">
             <div className="prog-controls-wrap">
