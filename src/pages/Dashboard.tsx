@@ -472,7 +472,7 @@ export default function Dashboard() {
               }
             </div>
             <div className="dash-profile-meta">
-              <h1 className="dash-welcome">{fullName || username || '…'}</h1>
+              <h1 className="dash-welcome">Welcome, {fullName || username || '…'}</h1>
               <p className="dash-profile-sub">
                 {[
                   age !== null ? `Age ${age}` : null,
