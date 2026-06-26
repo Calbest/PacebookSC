@@ -83,13 +83,14 @@ export default function Settings() {
 
   // Notifications
   const [notifPrefs, setNotifPrefs] = useState({
-    personalBests:    true,
-    swimMeetReminder: true,
-    weeklyProgress:   true,
-    goalAchieved:     true,
-    streakMilestone:  true,
-    trainingTips:     false,
-    newFeatures:      true,
+    personalBests:       true,
+    swimMeetReminder:    true,
+    weeklyProgress:      true,
+    goalAchieved:        true,
+    streakMilestone:     true,
+    trainingTips:        false,
+    newFeatures:         true,
+    motivationalQuotes:  true,
   })
   const [notifStatus, setNotifStatus] = useState<SaveStatus>('idle')
 
@@ -806,6 +807,7 @@ export default function Settings() {
               { key: 'streakMilestone',  label: 'Streak milestones',          desc: 'Recognition when you hit login or training streaks' },
               { key: 'trainingTips',     label: 'Training tips',              desc: 'Occasional tips on technique and race strategy' },
               { key: 'newFeatures',      label: 'New features & updates',     desc: 'Know when SwimSCPlan adds something new' },
+              { key: 'motivationalQuotes', label: 'Motivational quotes',       desc: 'Get an inspiring quote once or twice a week to keep you going' },
             ] as { key: keyof typeof notifPrefs; label: string; desc: string }[]).map(({ key, label, desc }) => (
               <div key={key} className="notif-row">
                 <div className="notif-row-text">

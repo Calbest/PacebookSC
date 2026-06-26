@@ -697,3 +697,16 @@
   .ep-row-goal        { display: none; }
   .ep-stroke-heading  { padding: 8px 16px; }
 }
+
+.ep-cal-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #002855; color: #ffffff;
+  border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  padding: 9px 16px; cursor: pointer;
+  margin-bottom: 14px;
+  transition: background 0.15s;
+}
+.ep-cal-btn:hover { background: #1d4ed8; }
+.ep-cal-btn--saved { background: #059669; }
+.ep-cal-btn--saved:hover { background: #047857; }

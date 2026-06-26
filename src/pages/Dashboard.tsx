@@ -124,9 +124,37 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 interface AppNotif {
   id: string
-  type: 'pb' | 'standard' | 'stale' | 'tip' | 'goal'
+  type: 'pb' | 'standard' | 'stale' | 'tip' | 'goal' | 'motivational'
   title: string
   message: string
+}
+
+const MOTIVATIONAL_QUOTES = [
+  { title: 'Keep pushing', message: '"The water doesn\'t care how tired you are. Get in and swim." — Unknown' },
+  { title: 'One stroke at a time', message: '"The race is long, but so is the lane. Trust your training." — Unknown' },
+  { title: 'Champions are made at practice', message: '"You don\'t rise to the level of competition, you fall to the level of your training." — Unknown' },
+  { title: 'Motivation for the week', message: '"Pain is temporary. Glory lasts forever. And PRs last until you drop another one." — Unknown' },
+  { title: 'Believe in yourself', message: '"The only swimmer you need to beat is the one you were yesterday." — Unknown' },
+  { title: 'Stay consistent', message: '"Showing up to practice on the days you don\'t want to is what separates good from great." — Unknown' },
+  { title: 'Race to your potential', message: '"Swim fast, rest later. You\'ve got a lifetime for sleep — only a few years to race your best." — Unknown' },
+  { title: 'Trust the process', message: '"Every lap, every rep, every early morning is a deposit in the bank of race day." — Unknown' },
+]
+
+const MOTIVATIONAL_KEY = 'sw_last_motivational'
+
+function getMotivationalQuote(): AppNotif | null {
+  try {
+    const stored = JSON.parse(localStorage.getItem(MOTIVATIONAL_KEY) ?? '{}') as { lastShown?: string; idx?: number }
+    const now = Date.now()
+    const last = stored.lastShown ? new Date(stored.lastShown).getTime() : 0
+    const daysSince = (now - last) / 86400000
+    if (daysSince < 3.5) return null
+    const idx = ((stored.idx ?? 0) + 1) % MOTIVATIONAL_QUOTES.length
+    localStorage.setItem(MOTIVATIONAL_KEY, JSON.stringify({ lastShown: new Date().toISOString(), idx }))
+    return { id: 'motivational', type: 'motivational', ...MOTIVATIONAL_QUOTES[idx] }
+  } catch {
+    return null
+  }
 }
 
 function parseSeconds(t: string): number {
@@ -138,6 +166,7 @@ function parseSeconds(t: string): number {
 function generateNotifications(
   times: Times,
   timeHistory: Record<string, { date: string; time: string }[]>,
+  notifPrefs: Record<string, boolean>,
 ): AppNotif[] {
   const notifs: AppNotif[] = []
   const today = new Date()
@@ -199,23 +228,31 @@ function generateNotifications(
     })
   }
 
+  // Motivational quote (every 3-4 days if enabled)
+  if (notifPrefs.motivationalQuotes !== false) {
+    const quote = getMotivationalQuote()
+    if (quote) notifs.unshift(quote)
+  }
+
   return notifs.slice(0, 15)
 }
 
 const NOTIF_ICONS: Record<AppNotif['type'], typeof Bell> = {
-  pb:       Zap,
-  standard: Star,
-  stale:    Clock,
-  tip:      Bell,
-  goal:     Target,
+  pb:           Zap,
+  standard:     Star,
+  stale:        Clock,
+  tip:          Bell,
+  goal:         Target,
+  motivational: Star,
 }
 
 const NOTIF_COLORS: Record<AppNotif['type'], string> = {
-  pb:       '#059669',
-  standard: '#d97706',
-  stale:    '#ea580c',
-  tip:      '#0891b2',
-  goal:     '#7c3aed',
+  pb:           '#059669',
+  standard:     '#d97706',
+  stale:        '#ea580c',
+  tip:          '#0891b2',
+  goal:         '#7c3aed',
+  motivational: '#0369a1',
 }
 
 function calcAge(dob: string): number | null {
@@ -269,6 +306,7 @@ export default function Dashboard() {
   const [showNotifs,  setShowNotifs]  = useState(false)
   const [timeHistory, setTimeHistory] = useState<Record<string, { date: string; time: string }[]>>({})
   const [timeDate,    setTimeDate]    = useState(new Date().toISOString().slice(0, 10))
+  const [notifPrefs,  setNotifPrefs]  = useState<Record<string, boolean>>({ motivationalQuotes: true })
   const [readIds,     setReadIds]     = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('sw_read_notifs') ?? '[]')) }
     catch { return new Set() }
@@ -289,10 +327,11 @@ export default function Dashboard() {
       setBannerValue(user.user_metadata?.bannerValue || '')
       setTimes(user.user_metadata?.times || {})
       setTimeHistory(user.user_metadata?.timeHistory || {})
+      if (user.user_metadata?.notifPrefs) setNotifPrefs(user.user_metadata.notifPrefs)
     })
   }, [navigate])
 
-  const notifications = generateNotifications(times, timeHistory)
+  const notifications = generateNotifications(times, timeHistory, notifPrefs)
   const unreadCount = notifications.filter(n => !readIds.has(n.id)).length
 
   function markAllRead() {
@@ -531,6 +570,10 @@ export default function Dashboard() {
 
         {/* ── Times Panel ── */}
         <section className="times-panel">
+          <div className="times-panel-header">
+            <h2 className="times-panel-title">Personal Bests</h2>
+            <span className="times-panel-subtitle">Your fastest times by event</span>
+          </div>
           <div className="times-toolbar">
             <div className="times-tabs">
               <button

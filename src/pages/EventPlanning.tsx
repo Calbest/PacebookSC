@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Clock, Star, Copy, Check, BookOpen } from 'lucide-react'
+import { LayoutDashboard, Clock, Star, Copy, Check, BookOpen, CalendarCheck } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { SCS_STANDARDS, getAgeGroup, getCut, type StdLevel } from '../lib/scsStandards'
 import ColorLegend from '../components/ColorLegend'
@@ -227,6 +227,7 @@ export default function EventPlanning() {
   const [course,        setCourse]        = useState<Course>('SCY')
   const [entryDeadline, setEntryDeadline] = useState('')
   const [standard,      setStandard]      = useState<StdLevel>('a')
+  const [calSaved,      setCalSaved]      = useState(false)
 
   // Event selection
   const [selMode,        setSelMode]        = useState<'paste' | 'manual'>('paste')
@@ -251,6 +252,20 @@ export default function EventPlanning() {
       setGender(m.gender ?? '')
     })
   }, [navigate])
+
+  async function saveToCalendar() {
+    if (!meetName.trim() || !meetDate) return
+    const { data } = await supabase.auth.getSession()
+    const user = data.session?.user
+    if (!user) return
+    const existing: { id: string; name: string; date: string }[] = user.user_metadata?.calMeets ?? []
+    const alreadyExists = existing.some(m => m.name === meetName.trim() && m.date === meetDate)
+    if (alreadyExists) { setCalSaved(true); setTimeout(() => setCalSaved(false), 2500); return }
+    const next = [...existing, { id: crypto.randomUUID(), name: meetName.trim(), date: meetDate }]
+    await supabase.auth.updateUser({ data: { calMeets: next } })
+    setCalSaved(true)
+    setTimeout(() => setCalSaved(false), 2500)
+  }
 
   // Age/standard setup (same pattern as Compare)
   const age       = calcAge(dob)
@@ -457,6 +472,15 @@ export default function EventPlanning() {
                 )}
               </div>
             </div>
+
+            {meetName.trim() && meetDate && (
+              <button
+                className={`ep-cal-btn${calSaved ? ' ep-cal-btn--saved' : ''}`}
+                onClick={saveToCalendar}
+              >
+                {calSaved ? <><Check size={14} /> Saved to Calendar</> : <><CalendarCheck size={14} /> Save to Calendar</>}
+              </button>
+            )}
 
             <div className="ep-setup-row2">
               {/* Course */}
