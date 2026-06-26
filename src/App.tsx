@@ -90,7 +90,6 @@ interface Review { id: number; comment: string; created_at: string }
 
 function ReviewsCarousel({ refresh }: { refresh: number }) {
   const [reviews, setReviews] = useState<Review[]>([])
-  const [idx,     setIdx]     = useState(0)
 
   useEffect(() => {
     supabase
@@ -98,42 +97,31 @@ function ReviewsCarousel({ refresh }: { refresh: number }) {
       .select('id, comment, created_at')
       .eq('stars', 5)
       .not('comment', 'is', null)
-      .neq('comment', '')
       .order('created_at', { ascending: false })
-      .then(({ data }) => { if (data) setReviews(data as Review[]) })
+      .then(({ data }) => {
+        if (data) {
+          const filtered = (data as Review[]).filter(r => r.comment && r.comment.length > 25)
+          setReviews(filtered)
+        }
+      })
   }, [refresh])
 
   if (reviews.length === 0) return null
 
-  const prev = () => setIdx(i => (i - 1 + reviews.length) % reviews.length)
-  const next = () => setIdx(i => (i + 1) % reviews.length)
-  const r = reviews[idx]
-
   return (
-    <div className="reviews-carousel">
+    <div className="reviews-section">
       <h3 className="reviews-title">★★★★★ What People Are Saying</h3>
-      <div className="reviews-track">
-        <button className="reviews-arrow" onClick={prev} aria-label="Previous">&#8592;</button>
-        <div className="reviews-bubble">
-          <p className="reviews-comment">"{r.comment}"</p>
-          <span className="reviews-date">
-            {new Date(r.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          </span>
-        </div>
-        <button className="reviews-arrow" onClick={next} aria-label="Next">&#8594;</button>
+      <div className="reviews-scroll">
+        {reviews.map(r => (
+          <div key={r.id} className="reviews-card">
+            <div className="reviews-card-stars">★★★★★</div>
+            <p className="reviews-comment">"{r.comment}"</p>
+            <span className="reviews-date">
+              {new Date(r.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </span>
+          </div>
+        ))}
       </div>
-      {reviews.length > 1 && (
-        <div className="reviews-dots">
-          {reviews.map((_, i) => (
-            <button
-              key={i}
-              className={`reviews-dot${i === idx ? ' active' : ''}`}
-              onClick={() => setIdx(i)}
-              aria-label={`Review ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   )
 }
