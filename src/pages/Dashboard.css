@@ -780,8 +780,9 @@ button:active { transform: scale(0.96) !important; }
   height: 44px;
   width: auto;
   object-fit: contain;
-  opacity: 0.85;
+  opacity: 0.9;
   flex-shrink: 0;
+  filter: brightness(0) invert(1);
 }
 
 .dash-welcome {
