@@ -532,6 +532,7 @@ p { margin: 0; }
 
 .bento-span-tall { grid-column: span 2; grid-row: span 2; }
 .bento-span-wide { grid-column: span 2; }
+.bento-span-rows { grid-row: span 2; }
 
 .bento-card {
   background: rgba(255, 255, 255, 0.04);

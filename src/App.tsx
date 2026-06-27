@@ -228,12 +228,11 @@ const fadeRight = {
 
 // Directional slide-in per bento card: left cards from left, right cards from right
 const BENTO_DIRS: [number, number][] = [
-  [-80, 10],  // Compare Times  — big left card, slides in from left
-  [ 80, -10], // Qualifications — right column, from right
-  [ 80,  10], // Progress       — right column, from right
-  [-70,   0], // Import Times   — left cell, from left
-  [  0,  50], // Event Planning — center cell, rises from below
-  [ 70,   0], // Goals          — right cell, from right
+  [-80, 10],  // Compare Times        — big left card, slides in from left
+  [ 80, -10], // Qualifications       — right column, from right
+  [ 80,   0], // Goals                — right column, from right
+  [-70,   0], // Store & Share Media  — left cell, from left
+  [  0,  50], // Event Planning       — center cell, rises from below
 ]
 
 const bentoVariant = (i: number) => {
@@ -279,26 +278,23 @@ const FEATURES: { title: string; blurb: string; svg?: boolean; spanClass?: strin
     blurb: 'See which meets (WAG, JAG, Elite Ch, SAG) you qualify for across every event, side by side.',
   },
   {
-    title: 'Progress Tracker',
-    blurb: 'SVG chart per event. Import from USA Swimming or log manually to track improvement over the season.',
+    title: 'Goals',
+    blurb: 'Set target times with optional deadlines. Goals appear next to your bests across the entire app.',
+    spanClass: 'bento-span-rows',
   },
   {
-    title: 'Import Times',
-    blurb: 'Paste from USA Swimming or Swimcloud — events, courses, and times parsed automatically.',
+    title: 'Store & Share Media',
+    blurb: 'Import your swim photos and pull images from an associated Instagram or Facebook handle — such as your league\'s official account — for a specific date range to collect and review meet-day content.',
   },
   {
     title: 'Event Planning',
     blurb: 'Paste a meet schedule and instantly get Enter / Consider / Skip for every event. Includes an entry deadline countdown.',
   },
-  {
-    title: 'Goals',
-    blurb: 'Set target times with optional deadlines. Goals appear next to your bests across the entire app.',
-  },
 ]
 
 const NAV_SECTIONS = [
   { label: 'Home',     id: 'hero',     customScroll: null as null | (() => void) },
-  { label: 'What',    id: 'what',     customScroll: () => {
+  { label: 'Why',    id: 'what',     customScroll: () => {
       const hero = document.getElementById('hero')
       if (hero) window.scrollTo({ top: hero.offsetTop + window.innerHeight * 1.3, behavior: 'smooth' })
     }
@@ -455,8 +451,8 @@ function App() {
               <h2 className="underwater-heading">Why Use SwimSCPlan?</h2>
               <div className="uw-images">
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwLeftX }}>
-                  <p className="uw-img-caption">Compare Times</p>
-                  <img src={compareTimesImg} alt="Compare Times" className="uw-img-photo" />
+                  <p className="uw-img-caption">Check Times</p>
+                  <img src={compareTimesImg} alt="Import Times" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale }}>
                   <p className="uw-img-caption">Track Progress</p>
