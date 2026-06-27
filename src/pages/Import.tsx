@@ -104,11 +104,15 @@ function parseRawText(raw: string, targetName?: string): ParsedRow[] {
       if (re.test(line)) { stickyEvent = [id, label]; break }
     }
 
-    // Update sticky course if this line mentions one
-    const courseMatch = line.match(COURSE_RE)
+    // Update sticky course — but on data rows (lines that contain a time),
+    // only check the content before the first tab. This prevents course
+    // abbreviations inside meet names (e.g. "2025 SCM JAG Qualifier") from
+    // overriding the course set by the section header ("100 FREE SCY:").
+    const timeMatch = line.match(TIME_RE)
+    const courseSearch = timeMatch ? line.split('\t')[0] : line
+    const courseMatch  = courseSearch.match(COURSE_RE)
     if (courseMatch) stickyCourse = courseMatch[1].toUpperCase() as Course
 
-    const timeMatch = line.match(TIME_RE)
     if (!timeMatch) continue
 
     // Skip header / column-label rows that happen to contain a number
@@ -223,11 +227,15 @@ export default function Import() {
 
   function handleParse() {
     setParseError('')
-    const rows = parseRawText(rawText, swimmerName.trim() || undefined)
+    // Text-paste sources (SwimCloud, SwimStandards, USA Swimming) are personal
+    // profile exports — all rows already belong to this swimmer, so no name
+    // filter is needed (and would break SwimCloud's section-header format).
+    const rows = parseRawText(rawText)
     if (rows.length === 0) {
       setParseError(
-        'No times found. Make sure your copied text includes an event name, ' +
-        'a course (SCY / LCM / SCM), and a time on each row. See the instructions above.'
+        'No times found. Make sure your pasted text includes an event header ' +
+        '(e.g. "100 FREE SCY:") and time rows below it, or that each row has ' +
+        'an event name, a course (SCY / LCM / SCM), and a time.'
       )
       return
     }
@@ -389,10 +397,11 @@ export default function Import() {
           {source === 'swimcloud' && (
             <ol className="import-steps">
               <li>Go to <strong>swimcloud.com</strong> and find your swimmer profile.</li>
-              <li>Click the <strong>Times</strong> tab (the full meet-by-meet list, not the Best Times summary).</li>
-              <li>Select all text in the times table (Ctrl+A / Cmd+A inside the table).</li>
-              <li>Copy (Ctrl+C / Cmd+C), then paste in the box below.</li>
-              <li className="import-step-note"><AlertTriangle size={13} /><span>Use the individual Times tab — the Best Times comparison table puts SCY and LCM on the same row and confuses the parser.</span></li>
+              <li>Click the <strong>Times</strong> tab, then open an individual event (e.g. <em>100 FREE SCY</em>).</li>
+              <li>Select and copy the table — including the event header line (e.g. <code>100 FREE SCY:</code>) and all the rows below it showing Time, Meet, and Date.</li>
+              <li>Paste below. You can paste multiple events at once — just copy each event's section one after the other.</li>
+              <li className="import-step-note"><Info size={13} /><span>The parser reads the event header line to know which event and course each row belongs to — no event name is needed on individual rows.</span></li>
+              <li className="import-step-note"><AlertTriangle size={13} /><span>Use the per-event Times tab, not the Best Times comparison table (which mixes courses on the same row).</span></li>
             </ol>
           )}
 
