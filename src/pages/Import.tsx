@@ -762,6 +762,13 @@ Each row should contain an event name (e.g. '100 Freestyle'), a course (SCY / LC
             })}
           </div>
 
+          {parseError && (
+            <p className="import-error">
+              <AlertTriangle size={14} />
+              {parseError}
+            </p>
+          )}
+
           <div className="import-actions import-actions--review">
             <button className="import-cancel-btn" onClick={() => setStep('paste')}>
               ← Edit
