@@ -1452,6 +1452,63 @@ button:active { transform: scale(0.96) !important; }
   line-height: 1.5;
 }
 
+/* ── Improvement banner ── */
+.dash-improve-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-left: 5px solid #16a34a;
+  border-radius: 12px;
+  padding: 14px 16px 14px 18px;
+  margin-bottom: 20px;
+}
+.dash-improve-icon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+.dash-improve-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dash-improve-body strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #14532d;
+}
+.dash-improve-body span {
+  font-size: 12px;
+  color: #166534;
+}
+.dash-improve-view {
+  flex-shrink: 0;
+  background: #16a34a;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.dash-improve-view:hover { background: #15803d; }
+.dash-improve-close {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: #16a34a;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.dash-improve-close:hover { opacity: 1; }
+
 /* ── Import warning banner ── */
 .dash-import-banner {
   display: flex;

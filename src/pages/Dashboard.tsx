@@ -402,6 +402,27 @@ function calcAge(dob: string): number | null {
   return age
 }
 
+const STROKE_LABELS: Record<string, string> = { free: 'Free', back: 'Back', breast: 'Breast', fly: 'Fly', im: 'IM' }
+
+function getBestImprovement(history: Record<string, { date: string; time: string }[]>) {
+  let best: { label: string; improveSec: number } | null = null
+  for (const [key, entries] of Object.entries(history)) {
+    if (!entries || entries.length < 2) continue
+    const parts = key.split('-')
+    if (parts[1] === 'relay') continue
+    const valid = entries.filter(e => parseSeconds(e.time) > 0)
+    if (valid.length < 2) continue
+    const sorted = [...valid].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    const oldest = parseSeconds(sorted[0].time)
+    const fastest = Math.min(...sorted.map(e => parseSeconds(e.time)))
+    const improveSec = oldest - fastest
+    if (improveSec > 0.05 && (!best || improveSec > best.improveSec)) {
+      const strokeLabel = STROKE_LABELS[parts.slice(2).join('-')] || parts.slice(2).join(' ')
+      best = { label: `${parts[1]} ${strokeLabel} (${parts[0]})`, improveSec }
+    }
+  }
+  return best
+}
 
 
 export default function Dashboard() {
@@ -435,6 +456,7 @@ export default function Dashboard() {
   const [importBannerDismissed, setImportBannerDismissed] = useState(
     () => localStorage.getItem('sw_import_banner_dismissed') === '1'
   )
+  const [improveBannerDismissed, setImproveBannerDismissed] = useState(false)
   const [showTC,          setShowTC]          = useState(false)
   const [avatarSheet,     setAvatarSheet]     = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
@@ -568,6 +590,8 @@ export default function Dashboard() {
   function timeKey(c: Course, eventId: string) {
     return `${c}-${eventId}`
   }
+
+  const bestImprovement = getBestImprovement(timeHistory)
 
   return (
     <>
@@ -866,6 +890,23 @@ export default function Dashboard() {
               }}
               aria-label="Dismiss"
             >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
+        {/* ── Improvement Banner ── */}
+        {bestImprovement && !improveBannerDismissed && (
+          <div className="dash-improve-banner">
+            <TrendingUp className="dash-improve-icon" size={22} />
+            <div className="dash-improve-body">
+              <strong>You've improved {bestImprovement.improveSec.toFixed(2)}s in {bestImprovement.label}</strong>
+              <span>Your biggest career drop — keep it up!</span>
+            </div>
+            <button className="dash-improve-view" onClick={() => { playNavigate(); navigate('/progress') }}>
+              View Progress →
+            </button>
+            <button className="dash-improve-close" onClick={() => setImproveBannerDismissed(true)} aria-label="Dismiss">
               <X size={14} />
             </button>
           </div>
