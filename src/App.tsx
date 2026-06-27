@@ -141,24 +141,6 @@ function RatingSection() {
   )
 }
 
-function XIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.75l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-    </svg>
-  )
-}
-
-
-
-function YoutubeIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
-      <polygon fill="white" points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02"/>
-    </svg>
-  )
-}
 
 const QUOTES = [
   { text: "The water is your friend. You don't have to fight with water, just share the same spirit as the water, and it will help you move.", author: "Aleksandr Popov" },
@@ -491,27 +473,6 @@ function App() {
       {/* ── Star Rating + Reviews ── */}
       <RatingSection />
 
-      {/* ── Connect / Socials ── */}
-      <section className="connect">
-        <div className="connect-inner">
-          <motion.h2 {...fadeUp}>Connect</motion.h2>
-          <motion.p className="connect-sub" {...fadeUpDelayed(0.1)}>
-            Follow the journey and share your swimming progress.
-          </motion.p>
-          <motion.div className="connect-grid" {...staggerContainer}>
-            {[
-              { icon: <XIcon />, platform: 'X (Twitter)', handle: '@your_handle' },
-              { icon: <YoutubeIcon />, platform: 'YouTube', handle: 'your channel' },
-            ].map((link, i) => (
-              <motion.a key={link.platform} href="#" className="connect-card" {...staggerItem(i * 0.1)}>
-                <span className="connect-icon">{link.icon}</span>
-                <span className="connect-platform">{link.platform}</span>
-                <span className="connect-handle">{link.handle}</span>
-              </motion.a>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
       {/* ── Call to Action ── */}
       <section id="cta" className="cta">
