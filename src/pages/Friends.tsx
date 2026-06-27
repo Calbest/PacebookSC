@@ -439,7 +439,7 @@ export default function Friends() {
           {!loading && tab !== 'discover' && listToShow.length === 0 && (
             <div className="fr-list-empty">
               <p>{emptyMsg}</p>
-              {tab === 'followers' && <p className="fr-list-hint">Share your SwimSync profile to get followers.</p>}
+              {tab === 'followers' && <p className="fr-list-hint">Share your PaceBook profile to get followers.</p>}
               {tab === 'following' && (
                 <button className="fr-discover-cta" onClick={() => setTab('discover')}>
                   Find people to follow

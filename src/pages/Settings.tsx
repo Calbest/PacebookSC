@@ -11,7 +11,7 @@ type ResetStatus = 'idle' | 'loading' | 'success' | 'error'
 type BannerType  = 'default' | 'gradient' | 'color' | 'canvas' | 'photo'
 
 const GRADIENT_PRESETS = [
-  { label: 'SwimSync (Default)', value: 'radial-gradient(ellipse at 10% 80%, rgba(99,102,241,0.7) 0%, transparent 45%), radial-gradient(ellipse at 55% 30%, rgba(14,165,233,0.65) 0%, transparent 50%), radial-gradient(ellipse at 95% 10%, rgba(6,182,212,0.8) 0%, transparent 45%), linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0284c7 100%)' },
+  { label: 'PaceBook (Default)', value: 'radial-gradient(ellipse at 10% 80%, rgba(99,102,241,0.7) 0%, transparent 45%), radial-gradient(ellipse at 55% 30%, rgba(14,165,233,0.65) 0%, transparent 50%), radial-gradient(ellipse at 95% 10%, rgba(6,182,212,0.8) 0%, transparent 45%), linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0284c7 100%)' },
   { label: 'Ocean',          value: 'linear-gradient(135deg, #0369a1 0%, #001a3d 100%)' },
   { label: 'Sunset',         value: 'linear-gradient(135deg, #f97316 0%, #dc2626 55%, #9333ea 100%)' },
   { label: 'Forest',         value: 'linear-gradient(135deg, #166534 0%, #052e16 100%)' },
@@ -897,7 +897,7 @@ export default function Settings() {
               { key: 'goalAchieved',     label: 'Goal achieved',              desc: 'Celebrate when you hit a cut or target time' },
               { key: 'streakMilestone',  label: 'Streak milestones',          desc: 'Recognition when you hit login or training streaks' },
               { key: 'trainingTips',     label: 'Training tips',              desc: 'Occasional tips on technique and race strategy' },
-              { key: 'newFeatures',      label: 'New features & updates',     desc: 'Know when SwimSync adds something new' },
+              { key: 'newFeatures',      label: 'New features & updates',     desc: 'Know when PaceBook adds something new' },
               { key: 'motivationalQuotes', label: 'Motivational quotes',       desc: 'Get an inspiring quote once or twice a week to keep you going' },
             ] as { key: keyof typeof notifPrefs; label: string; desc: string }[]).map(({ key, label, desc }) => (
               <div key={key} className="notif-row">
@@ -994,7 +994,7 @@ export default function Settings() {
             {/* ── Replay onboarding ── */}
             <div className="tut-replay-row">
               <div className="tut-replay-text">
-                <strong>New to SwimSync?</strong> Relaunch the interactive walkthrough.
+                <strong>New to PaceBook?</strong> Relaunch the interactive walkthrough.
               </div>
               <button
                 className="tut-replay-btn"

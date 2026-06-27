@@ -35,7 +35,7 @@ function StarRating({ onDone }: { onDone?: () => void }) {
         <div className="rating-card">
           <div className="rating-thanks-icon">★</div>
           <h3 className="rating-thanks-title">Thanks for the feedback!</h3>
-          <p className="rating-thanks-sub">Your rating helps us improve SwimSync.</p>
+          <p className="rating-thanks-sub">Your rating helps us improve PaceBook.</p>
         </div>
       </section>
     )
@@ -45,7 +45,7 @@ function StarRating({ onDone }: { onDone?: () => void }) {
   return (
     <section className="rating-section">
       <div className="rating-card">
-        <h2 className="rating-heading">Rate SwimSync</h2>
+        <h2 className="rating-heading">Rate PaceBook</h2>
         <p className="rating-sub">How useful has this app been for your swimming?</p>
         <div className="rating-stars" onMouseLeave={() => setHovered(0)}>
           {[1, 2, 3, 4, 5].map(n => (
@@ -402,8 +402,8 @@ function App() {
       <header className="navbar">
         <div className="nav-left">
           <div className="nav-brand">
-            <img src="/logo.svg" alt="SwimSync logo" className="nav-logo-img" />
-            <span className="nav-logo">SwimSync</span>
+            <img src="/logo.svg" alt="PaceBook logo" className="nav-logo-img" />
+            <span className="nav-logo">PaceBook</span>
           </div>
           <nav className="nav-links">
             {NAV_SECTIONS.map(s => (
@@ -544,7 +544,7 @@ function App() {
             ))}
             <div className="scene-overlay scene-overlay--underwater" />
             <div id="what" className="underwater-content">
-              <h2 className="underwater-heading">Why Use SwimSync?</h2>
+              <h2 className="underwater-heading">Why Use PaceBook?</h2>
               <div className="uw-images">
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwLeftX }}>
                   <p className="uw-img-caption">Check Times</p>
@@ -617,7 +617,7 @@ function App() {
             <span className="about-badge">Our Story</span>
             <h2>Built by a swimmer,<br />for swimmers.</h2>
             <p className="about-body">
-              SwimSync was created out of frustration with scattered spreadsheets and PDF
+              PaceBook was created out of frustration with scattered spreadsheets and PDF
               standards sheets. I wanted one place that knew my times, knew the SCS cuts, and
               told me exactly where I stood — without digging through documents before every meet.
             </p>
@@ -657,7 +657,7 @@ function App() {
 
       {/* ── Creators ── */}
       <section id="creators" className="creators">
-        <motion.h2 className="creators-heading" {...fadeUp}>Meet the People Behind SwimSync</motion.h2>
+        <motion.h2 className="creators-heading" {...fadeUp}>Meet the People Behind PaceBook</motion.h2>
         <motion.div className="creators-tabs" {...fadeUpDelayed(0.1)}>
           <button className={`creators-tab${creatorTab === 'caleb' ? ' active' : ''}`} onClick={() => setCreatorTab('caleb')}>
             Caleb Pang &mdash; Creator
@@ -714,7 +714,7 @@ function App() {
       <section id="cta" className="cta cta--immersive">
         <div className="cta-spotlight" />
         <div className="cta-glass-card">
-          <motion.img src="/logo.svg" alt="SwimSync logo" className="cta-logo" {...fadeUp} />
+          <motion.img src="/logo.svg" alt="PaceBook logo" className="cta-logo" {...fadeUp} />
           <motion.h2 {...fadeUpDelayed(0.1)}>Ready to get started?</motion.h2>
           <motion.p {...fadeUpDelayed(0.2)}>Create a free account and take control of your training.</motion.p>
           <motion.button
@@ -729,8 +729,8 @@ function App() {
       </section>
 
       <footer className="footer">
-        <img src="/logo.svg" alt="SwimSync logo" className="footer-logo" />
-        <span>© 2026 SwimSync</span>
+        <img src="/logo.svg" alt="PaceBook logo" className="footer-logo" />
+        <span>© 2026 PaceBook</span>
       </footer>
     </div>
   )

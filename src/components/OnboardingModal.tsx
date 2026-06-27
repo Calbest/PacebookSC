@@ -10,7 +10,7 @@ const SLIDES = [
   {
     emoji: '👋',
     title: (name: string) => `Welcome, ${name || 'swimmer'}!`,
-    body: 'SwimSync is your personal training hub. Let\'s take 30 seconds to show you around so you can hit the water running.',
+    body: 'PaceBook is your personal training hub. Let\'s take 30 seconds to show you around so you can hit the water running.',
     visual: 'welcome',
   },
   {
@@ -54,7 +54,7 @@ function SlideVisual({ type, activeNav }: { type: string; activeNav: number }) {
     return (
       <div className="ob-visual ob-visual--welcome">
         <div className="ob-pool-lane"><span /><span /><span /><span /><span /></div>
-        <div className="ob-welcome-badge">🏊 SwimSync</div>
+        <div className="ob-welcome-badge">🏊 PaceBook</div>
         <div className="ob-welcome-rings">
           <div className="ob-ring ob-ring--1" />
           <div className="ob-ring ob-ring--2" />

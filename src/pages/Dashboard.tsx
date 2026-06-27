@@ -358,7 +358,7 @@ function generateNotifications(
       id: 'tip-set-goals',
       type: 'tip',
       title: 'Set your season goals',
-      message: 'Head to Goals and set target times for your key events so SwimSync can track your progress.',
+      message: 'Head to Goals and set target times for your key events so PaceBook can track your progress.',
     })
   }
 

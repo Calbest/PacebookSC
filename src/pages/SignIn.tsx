@@ -129,8 +129,8 @@ export default function SignIn() {
       </div>
       <header className="navbar">
         <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
-          <img src="/logo.svg" alt="SwimSync logo" className="nav-logo-img" />
-          <span className="nav-logo">SwimSync</span>
+          <img src="/logo.svg" alt="PaceBook logo" className="nav-logo-img" />
+          <span className="nav-logo">PaceBook</span>
         </Link>
       </header>
 

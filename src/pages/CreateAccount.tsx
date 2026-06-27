@@ -107,8 +107,8 @@ export default function CreateAccount() {
       </div>
       <header className="navbar">
         <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
-          <img src="/logo.svg" alt="SwimSync logo" className="nav-logo-img" />
-          <span className="nav-logo">SwimSync</span>
+          <img src="/logo.svg" alt="PaceBook logo" className="nav-logo-img" />
+          <span className="nav-logo">PaceBook</span>
         </Link>
         <img src="/logos/scs.svg" alt="Southern California Swimming" className="scs-logo-corner" />
       </header>
