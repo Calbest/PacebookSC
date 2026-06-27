@@ -681,6 +681,60 @@
 }
 .cal-session-remove:hover { color: #ef4444; background: #fee2e2; }
 
+.cal-session-name-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+}
+
+.cal-session-rename-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+.cal-session-rename-btn:hover { color: #002855; background: #e0eaf5; }
+
+.cal-session-name-edit {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+}
+
+.cal-session-name-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1.5px solid #3b82f6;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #002855;
+  font-family: inherit;
+  outline: none;
+  background: #eff6ff;
+}
+
+.cal-session-name-ok {
+  background: #002855;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 /* ─── Status Row ─────────────────────────────────────────────────────────── */
 .cal-status-row { display: flex; gap: 6px; }
 .cal-status-btn {

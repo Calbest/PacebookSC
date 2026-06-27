@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, CalendarCheck, ArrowRightLeft, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
+import { LayoutDashboard, CalendarCheck, ArrowRightLeft, ChevronLeft, ChevronRight, Plus, X, Pencil, Check } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Calendar.css'
@@ -18,6 +18,7 @@ interface SessionData {
   mood:           number | null
   absenceReason:  string
   minutesLate?:   number
+  name?:          string
 }
 
 interface DrylandData {
@@ -321,13 +322,48 @@ function SessionBlock({ session, onChange, label, defaultTime, onRemove }: {
   defaultTime?: string
   onRemove?:   () => void
 }) {
+  const [editingName, setEditingName] = useState(false)
+  const [draftName,   setDraftName]   = useState(session.name ?? '')
+
   const set = <K extends keyof SessionData>(k: K, v: SessionData[K]) =>
     onChange({ ...session, [k]: v })
+
+  function commitName() {
+    set('name', draftName.trim() || undefined)
+    setEditingName(false)
+  }
 
   return (
     <div className="cal-session">
       <div className="cal-session-head">
-        <span className="cal-session-label">{label}</span>
+        {editingName ? (
+          <div className="cal-session-name-edit">
+            <input
+              className="cal-session-name-input"
+              value={draftName}
+              onChange={e => setDraftName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') commitName(); if (e.key === 'Escape') setEditingName(false) }}
+              placeholder={label}
+              autoFocus
+              maxLength={32}
+            />
+            <button className="cal-session-name-ok" type="button" onClick={commitName}>
+              <Check size={13} />
+            </button>
+          </div>
+        ) : (
+          <div className="cal-session-name-row">
+            <span className="cal-session-label">{session.name || label}</span>
+            <button
+              className="cal-session-rename-btn"
+              type="button"
+              title="Rename session"
+              onClick={() => { setDraftName(session.name ?? ''); setEditingName(true) }}
+            >
+              <Pencil size={12} />
+            </button>
+          </div>
+        )}
         {onRemove && (
           <button className="cal-session-remove" type="button" onClick={onRemove}>
             <X size={13} />
