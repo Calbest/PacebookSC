@@ -1515,7 +1515,7 @@ export default function Calendar() {
                 <div className="cal-controls-right">
                   <button
                     className="cal-today-btn"
-                    onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()) }}
+                    onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); setDayModal(todayStr) }}
                   >
                     Today
                   </button>
