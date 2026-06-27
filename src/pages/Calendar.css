@@ -603,11 +603,22 @@
   text-align: center;
 }
 .cal-status-btn--attended  { border-color: #86efac; background: #f0fdf4; color: #15803d; }
+.cal-status-btn--late      { border-color: #fcd34d; background: #fffbeb; color: #b45309; }
 .cal-status-btn--absent    { border-color: #fca5a5; background: #fef2f2; color: #dc2626; }
 .cal-status-btn--cancelled { border-color: #cbd5e1; background: #f8fafc; color: #64748b; }
 .cal-status-btn--attended.sel  { background: #22c55e; border-color: #22c55e; color: #fff; }
+.cal-status-btn--late.sel      { background: #f59e0b; border-color: #f59e0b; color: #fff; }
 .cal-status-btn--absent.sel    { background: #ef4444; border-color: #ef4444; color: #fff; }
 .cal-status-btn--cancelled.sel { background: #94a3b8; border-color: #94a3b8; color: #fff; }
+
+/* ─── Late input ─────────────────────────────────────────────────────────── */
+.cal-late-field { margin-top: 4px; }
+.cal-late-input-row { display: flex; align-items: center; gap: 6px; }
+.cal-late-input { width: 80px !important; }
+.cal-late-unit { font-size: 13px; color: #64748b; font-weight: 600; }
+
+/* ─── Dryland late row ───────────────────────────────────────────────────── */
+.cal-dryland-late-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 0; }
 
 /* ─── Add 2nd session button ─────────────────────────────────────────────── */
 .cal-add-session-btn {
@@ -743,8 +754,110 @@
   font-size: 16px;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
 }
+
+/* ─── Report tabs ────────────────────────────────────────────────────────── */
+.cal-report-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.cal-report-tab {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.cal-report-tab:hover { border-color: #002855; color: #002855; }
+.cal-report-tab.active { background: #002855; border-color: #002855; color: #fff; }
+.cal-report-panel { animation: cal-fade-in 0.2s ease; }
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+.cal-report-empty {
+  font-size: 13.5px;
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center;
+  padding: 24px 0 8px;
+  line-height: 1.6;
+}
+
+/* ─── Late stats section ─────────────────────────────────────────────────── */
+.cal-late-section { margin-top: 20px; }
+.cal-late-stats {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0 14px;
+  flex-wrap: wrap;
+}
+.cal-late-stat-card {
+  flex: 1;
+  min-width: 140px;
+  background: #fffbeb;
+  border: 1.5px solid #fcd34d;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.cal-late-stat-val {
+  font-size: 28px;
+  font-weight: 900;
+  color: #b45309;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.cal-late-stat-unit { font-size: 14px; font-weight: 600; }
+.cal-late-stat-label { font-size: 12px; color: #92400e; }
+
+.cal-excuse-row--late .cal-excuse-text { color: #b45309; }
+.cal-late-badge {
+  background: #fef3c7;
+  color: #b45309;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* ─── Dryland summary ────────────────────────────────────────────────────── */
+.cal-dry-summary {
+  display: flex;
+  gap: 12px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+.cal-dry-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 18px;
+  min-width: 100px;
+}
+.cal-dry-stat-num { font-size: 24px; font-weight: 900; color: #0f172a; }
+.cal-dry-stat-lbl { font-size: 11px; color: #64748b; text-align: center; }
+
+/* ─── Meet scale bars ────────────────────────────────────────────────────── */
+.cal-meet-scales { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
+.cal-meet-scale-row { display: flex; align-items: center; gap: 10px; }
+.cal-meet-scale-lbl { font-size: 12px; font-weight: 700; color: #475569; width: 80px; flex-shrink: 0; }
+.cal-meet-scale-bar { display: flex; align-items: center; gap: 4px; }
+.cal-scale-pip {
+  width: 20px; height: 10px; border-radius: 3px;
+  background: #e2e8f0;
+  transition: background 0.15s;
+}
+.cal-scale-pip.filled { }
+.cal-meet-scale-label { font-size: 12px; color: #0f172a; font-weight: 600; margin-left: 6px; }
 
 /* ─── Donut Charts Row ───────────────────────────────────────────────────── */
 .cal-charts-row {

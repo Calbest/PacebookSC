@@ -8,7 +8,7 @@ import './Calendar.css'
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type DrylandType  = 'gym' | 'stretching' | 'yoga' | 'cardio' | 'core' | 'other'
-type SessionStatus = 'attended' | 'absent' | 'cancelled'
+type SessionStatus = 'attended' | 'absent' | 'cancelled' | 'late'
 type CalView      = 'month' | 'year' | 'career'
 
 interface SessionData {
@@ -16,11 +16,13 @@ interface SessionData {
   status:         SessionStatus
   mood:           number | null
   absenceReason:  string
+  minutesLate?:   number
 }
 
 interface DrylandData {
-  type: DrylandType
-  mood: number | null
+  type:         DrylandType
+  mood:         number | null
+  minutesLate?: number
 }
 
 interface DayData {
@@ -319,7 +321,7 @@ function SessionBlock({ session, onChange, label, defaultTime, onRemove }: {
       </div>
 
       <div className="cal-status-row">
-        {(['attended', 'absent', 'cancelled'] as SessionStatus[]).map(st => (
+        {(['attended', 'late', 'absent', 'cancelled'] as SessionStatus[]).map(st => (
           <button
             key={st} type="button"
             className={`cal-status-btn cal-status-btn--${st}${session.status === st ? ' sel' : ''}`}
@@ -332,6 +334,26 @@ function SessionBlock({ session, onChange, label, defaultTime, onRemove }: {
 
       {session.status === 'attended' && (
         <MoodPicker value={session.mood} onChange={v => set('mood', v)} label="How was it?" />
+      )}
+      {session.status === 'late' && (
+        <>
+          <div className="cal-field cal-late-field">
+            <label className="cal-field-lbl">How many minutes late?</label>
+            <div className="cal-late-input-row">
+              <input
+                className="cal-field-input cal-late-input"
+                type="number"
+                min={1}
+                max={120}
+                placeholder="e.g. 10"
+                value={session.minutesLate ?? ''}
+                onChange={e => set('minutesLate', e.target.value ? parseInt(e.target.value) : undefined)}
+              />
+              <span className="cal-late-unit">min</span>
+            </div>
+          </div>
+          <MoodPicker value={session.mood} onChange={v => set('mood', v)} label="How was it?" />
+        </>
       )}
       {session.status === 'absent' && (
         <div className="cal-field">
@@ -436,6 +458,42 @@ function DayModal({ dateStr, initial, schedule, onSave, onClose }: {
                       {t.label}
                     </button>
                   ))}
+                </div>
+                <div className="cal-dryland-late-row">
+                  <span className="cal-field-lbl">Late to dryland?</span>
+                  <button
+                    className={`cal-toggle${d.dryland.minutesLate != null ? ' on' : ''}`}
+                    type="button"
+                    onClick={() => setD(p => ({
+                      ...p,
+                      dryland: {
+                        ...p.dryland!,
+                        minutesLate: p.dryland!.minutesLate != null ? undefined : 0,
+                      },
+                    }))}
+                  >
+                    {d.dryland.minutesLate != null ? 'Yes' : 'No'}
+                  </button>
+                  {d.dryland.minutesLate != null && (
+                    <div className="cal-late-input-row">
+                      <input
+                        className="cal-field-input cal-late-input"
+                        type="number"
+                        min={1}
+                        max={120}
+                        placeholder="min"
+                        value={d.dryland.minutesLate || ''}
+                        onChange={e => setD(p => ({
+                          ...p,
+                          dryland: {
+                            ...p.dryland!,
+                            minutesLate: e.target.value ? parseInt(e.target.value) : 0,
+                          },
+                        }))}
+                      />
+                      <span className="cal-late-unit">min late</span>
+                    </div>
+                  )}
                 </div>
                 <MoodPicker
                   value={d.dryland.mood}
@@ -576,6 +634,8 @@ function MeetModal({ meet, onSave, onDelete, onClose }: {
 
 // ─── Month Report ─────────────────────────────────────────────────────────────
 
+type ReportTab = 'practice' | 'mood' | 'dryland' | 'meets'
+
 function MonthReport({ year, month, attendance, meets, schedule }: {
   year:       number
   month:      number
@@ -583,6 +643,8 @@ function MonthReport({ year, month, attendance, meets, schedule }: {
   meets:      Meet[]
   schedule:   ScheduleTemplate
 }) {
+  const [tab, setTab] = useState<ReportTab>('practice')
+
   const prefix = `${year}-${String(month + 1).padStart(2, '0')}`
   const dim    = daysInMonth(year, month)
 
@@ -592,18 +654,27 @@ function MonthReport({ year, month, attendance, meets, schedule }: {
     if (schedule.days.includes(new Date(ds + 'T12:00:00').getDay())) practiceDates.push(ds)
   }
 
-  let attended = 0, absent = 0, cancelled = 0
-  const moodCount = [0, 0, 0, 0, 0, 0]
+  let attended = 0, late = 0, absent = 0, cancelled = 0
+  const moodCount    = [0, 0, 0, 0, 0, 0]
+  const dryMoodCount = [0, 0, 0, 0, 0, 0]
   const excuses: { date: string; session: string; reason: string }[] = []
+  const lateEntries: { date: string; session: string; minutes: number }[] = []
 
   for (const ds of practiceDates) {
     const day = attendance[ds]
     for (const { key, label } of SESSION_KEYS) {
       const s = day?.[key] ?? null
       if (!s) continue
-      if (s.status === 'attended')  { attended++;  if (s.mood) moodCount[s.mood]++ }
-      else if (s.status === 'cancelled') cancelled++
-      else {
+      if (s.status === 'attended') {
+        attended++
+        if (s.mood) moodCount[s.mood]++
+      } else if (s.status === 'late') {
+        late++
+        if (s.mood) moodCount[s.mood]++
+        if (s.minutesLate) lateEntries.push({ date: ds, session: label, minutes: s.minutesLate })
+      } else if (s.status === 'cancelled') {
+        cancelled++
+      } else {
         absent++
         if (s.absenceReason.trim())
           excuses.push({ date: ds, session: label, reason: s.absenceReason.trim() })
@@ -614,15 +685,36 @@ function MonthReport({ year, month, attendance, meets, schedule }: {
   const dryCount: Record<DrylandType, number> = {
     gym: 0, stretching: 0, yoga: 0, cardio: 0, core: 0, other: 0,
   }
+  const dryLateEntries: { date: string; minutes: number }[] = []
+  let dryTotal = 0
   for (const ds of practiceDates) {
     const dry = attendance[ds]?.dryland
-    if (dry) dryCount[dry.type]++
+    if (dry) {
+      dryCount[dry.type]++
+      dryTotal++
+      if (dry.mood) dryMoodCount[dry.mood]++
+      if (dry.minutesLate) dryLateEntries.push({ date: ds, minutes: dry.minutesLate })
+    }
   }
 
   const monthMeets = meets.filter(m => m.date.startsWith(prefix))
-  const hasData    = attended + absent + cancelled > 0
+  const hasData    = attended + late + absent + cancelled > 0
+
+  const avgLateMin = lateEntries.length > 0
+    ? Math.round(lateEntries.reduce((s, e) => s + e.minutes, 0) / lateEntries.length)
+    : null
+  const avgDryLateMin = dryLateEntries.length > 0
+    ? Math.round(dryLateEntries.reduce((s, e) => s + e.minutes, 0) / dryLateEntries.length)
+    : null
 
   if (!hasData && monthMeets.length === 0) return null
+
+  const REPORT_TABS: { id: ReportTab; label: string }[] = [
+    { id: 'practice', label: '🏊 Practice' },
+    { id: 'mood',     label: '😊 Mood' },
+    { id: 'dryland',  label: '💪 Dryland' },
+    { id: 'meets',    label: '🏆 Meets' },
+  ]
 
   return (
     <div className="cal-report-section">
@@ -630,72 +722,218 @@ function MonthReport({ year, month, attendance, meets, schedule }: {
         {MONTH_NAMES[month]} {year} — Analysis
       </h2>
 
-      {hasData && (
-        <div className="cal-charts-row">
-          <div className="cal-chart-card">
-            <div className="cal-chart-title">Attendance</div>
-            <DonutChart segs={[
-              { label: 'Attended',  value: attended,  color: '#22c55e' },
-              { label: 'Absent',    value: absent,    color: '#ef4444' },
-              { label: 'Cancelled', value: cancelled, color: '#94a3b8' },
-            ]} />
+      {/* Tab bar */}
+      <div className="cal-report-tabs">
+        {REPORT_TABS.map(t => (
+          <button
+            key={t.id}
+            className={`cal-report-tab${tab === t.id ? ' active' : ''}`}
+            onClick={() => setTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Practice tab ── */}
+      {tab === 'practice' && hasData && (
+        <div className="cal-report-panel">
+          <div className="cal-charts-row">
+            <div className="cal-chart-card">
+              <div className="cal-chart-title">Attendance</div>
+              <DonutChart segs={[
+                { label: 'Attended',  value: attended,  color: '#22c55e' },
+                { label: 'Late',      value: late,      color: '#f59e0b' },
+                { label: 'Absent',    value: absent,    color: '#ef4444' },
+                { label: 'Cancelled', value: cancelled, color: '#94a3b8' },
+              ]} />
+            </div>
           </div>
 
-          <div className="cal-chart-card">
-            <div className="cal-chart-title">Practice Mood</div>
-            <DonutChart segs={[1, 2, 3, 4, 5].map(n => ({
-              label: MOOD.labels[n], value: moodCount[n], color: MOOD.colors[n],
-            }))} />
-          </div>
-
-          <div className="cal-chart-card">
-            <div className="cal-chart-title">Dryland Types</div>
-            <DonutChart segs={DRYLAND_TYPES.map(t => ({
-              label: t.label, value: dryCount[t.id], color: t.color,
-            }))} />
-          </div>
-        </div>
-      )}
-
-      {excuses.length > 0 && (
-        <div className="cal-excuses">
-          <h3 className="cal-excuses-title">Absence Reasons</h3>
-          <div className="cal-excuses-list">
-            {excuses.map((e, i) => (
-              <div key={i} className="cal-excuse-row">
-                <span className="cal-excuse-date">{fmtShort(e.date)}</span>
-                <span className="cal-excuse-session">{e.session}</span>
-                <span className="cal-excuse-text">"{e.reason}"</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {monthMeets.some(m => m.mood || m.confidence || m.weather || m.injuries || m.performanceNotes) && (
-        <div className="cal-meet-analysis">
-          <h3 className="cal-excuses-title">Meet Analysis</h3>
-          {monthMeets.map(m => {
-            const hasInfo = m.mood || m.confidence || m.weather || m.injuries || m.performanceNotes
-            if (!hasInfo) return null
-            return (
-              <div key={m.id} className="cal-meet-an-card">
-                <div className="cal-meet-an-head">
-                  <strong>{m.name}</strong>
-                  <span className="cal-meet-an-date">{fmtShort(m.date)}</span>
-                </div>
-                <div className="cal-meet-an-chips">
-                  {m.mood       && <span className="cal-ma-chip">{MOOD.emojis[m.mood]} {MOOD.labels[m.mood]}</span>}
-                  {m.confidence && <span className="cal-ma-chip">Confidence {m.confidence}/5</span>}
-                  {m.weather    && <span className="cal-ma-chip">Weather: {WEATHER_LABELS[m.weather]}</span>}
-                  {m.injuries   && <span className="cal-ma-chip cal-ma-chip--warn">⚠ {m.injuries}</span>}
-                </div>
-                {m.performanceNotes && (
-                  <p className="cal-meet-an-notes">"{m.performanceNotes}"</p>
+          {/* Late arrivals stats */}
+          {(lateEntries.length > 0 || dryLateEntries.length > 0) && (
+            <div className="cal-late-section">
+              <h3 className="cal-excuses-title">Late Arrivals</h3>
+              <div className="cal-late-stats">
+                {lateEntries.length > 0 && (
+                  <div className="cal-late-stat-card">
+                    <div className="cal-late-stat-val">{avgLateMin}<span className="cal-late-stat-unit"> min avg</span></div>
+                    <div className="cal-late-stat-label">Avg late to swim ({lateEntries.length} time{lateEntries.length !== 1 ? 's' : ''})</div>
+                  </div>
+                )}
+                {dryLateEntries.length > 0 && (
+                  <div className="cal-late-stat-card">
+                    <div className="cal-late-stat-val">{avgDryLateMin}<span className="cal-late-stat-unit"> min avg</span></div>
+                    <div className="cal-late-stat-label">Avg late to dryland ({dryLateEntries.length} time{dryLateEntries.length !== 1 ? 's' : ''})</div>
+                  </div>
                 )}
               </div>
-            )
-          })}
+              <div className="cal-excuses-list">
+                {lateEntries.map((e, i) => (
+                  <div key={i} className="cal-excuse-row cal-excuse-row--late">
+                    <span className="cal-excuse-date">{fmtShort(e.date)}</span>
+                    <span className="cal-excuse-session">{e.session}</span>
+                    <span className="cal-excuse-text cal-late-badge">{e.minutes} min late</span>
+                  </div>
+                ))}
+                {dryLateEntries.map((e, i) => (
+                  <div key={`dry-${i}`} className="cal-excuse-row cal-excuse-row--late">
+                    <span className="cal-excuse-date">{fmtShort(e.date)}</span>
+                    <span className="cal-excuse-session">Dryland</span>
+                    <span className="cal-excuse-text cal-late-badge">{e.minutes} min late</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {excuses.length > 0 && (
+            <div className="cal-excuses">
+              <h3 className="cal-excuses-title">Absence Reasons</h3>
+              <div className="cal-excuses-list">
+                {excuses.map((e, i) => (
+                  <div key={i} className="cal-excuse-row">
+                    <span className="cal-excuse-date">{fmtShort(e.date)}</span>
+                    <span className="cal-excuse-session">{e.session}</span>
+                    <span className="cal-excuse-text">"{e.reason}"</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Mood tab ── */}
+      {tab === 'mood' && (
+        <div className="cal-report-panel">
+          {(attended + late) > 0 ? (
+            <div className="cal-charts-row">
+              <div className="cal-chart-card">
+                <div className="cal-chart-title">Swim Practice Mood</div>
+                <DonutChart segs={[1, 2, 3, 4, 5].map(n => ({
+                  label: MOOD.labels[n], value: moodCount[n], color: MOOD.colors[n],
+                }))} />
+              </div>
+              {dryTotal > 0 && (
+                <div className="cal-chart-card">
+                  <div className="cal-chart-title">Dryland Mood</div>
+                  <DonutChart segs={[1, 2, 3, 4, 5].map(n => ({
+                    label: MOOD.labels[n], value: dryMoodCount[n], color: MOOD.colors[n],
+                  }))} />
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="cal-report-empty">No mood data logged this month. Tap a practice day and rate how the session felt.</p>
+          )}
+        </div>
+      )}
+
+      {/* ── Dryland tab ── */}
+      {tab === 'dryland' && (
+        <div className="cal-report-panel">
+          {dryTotal > 0 ? (
+            <>
+              <div className="cal-charts-row">
+                <div className="cal-chart-card">
+                  <div className="cal-chart-title">Dryland Types</div>
+                  <DonutChart segs={DRYLAND_TYPES.map(t => ({
+                    label: t.label, value: dryCount[t.id], color: t.color,
+                  }))} />
+                </div>
+              </div>
+              <div className="cal-dry-summary">
+                <div className="cal-dry-stat"><span className="cal-dry-stat-num">{dryTotal}</span><span className="cal-dry-stat-lbl">total sessions</span></div>
+                {avgDryLateMin !== null && (
+                  <div className="cal-dry-stat"><span className="cal-dry-stat-num">{avgDryLateMin}<span style={{fontSize:12}}> min</span></span><span className="cal-dry-stat-lbl">avg late ({dryLateEntries.length}×)</span></div>
+                )}
+              </div>
+              {dryLateEntries.length > 0 && (
+                <div className="cal-excuses">
+                  <h3 className="cal-excuses-title">Late to Dryland</h3>
+                  <div className="cal-excuses-list">
+                    {dryLateEntries.map((e, i) => (
+                      <div key={i} className="cal-excuse-row cal-excuse-row--late">
+                        <span className="cal-excuse-date">{fmtShort(e.date)}</span>
+                        <span className="cal-excuse-text cal-late-badge">{e.minutes} min late</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="cal-report-empty">No dryland sessions logged this month. Toggle "Dryland" on when logging a practice day.</p>
+          )}
+        </div>
+      )}
+
+      {/* ── Meets tab ── */}
+      {tab === 'meets' && (
+        <div className="cal-report-panel">
+          {monthMeets.length === 0 ? (
+            <p className="cal-report-empty">No meets this month. Add a meet using "+ Add Meet" above the calendar.</p>
+          ) : (
+            <>
+              {monthMeets.map(m => (
+                <div key={m.id} className="cal-meet-an-card">
+                  <div className="cal-meet-an-head">
+                    <strong>{m.name}</strong>
+                    <span className="cal-meet-an-date">{fmtShort(m.date)}</span>
+                  </div>
+                  {(m.mood || m.confidence || m.weather) && (
+                    <div className="cal-meet-scales">
+                      {m.mood && (
+                        <div className="cal-meet-scale-row">
+                          <span className="cal-meet-scale-lbl">Overall Mood</span>
+                          <div className="cal-meet-scale-bar">
+                            {[1,2,3,4,5].map(n => (
+                              <div key={n} className={`cal-scale-pip${n <= (m.mood ?? 0) ? ' filled' : ''}`} style={n <= (m.mood ?? 0) ? {background: MOOD.colors[n]} : {}}/>
+                            ))}
+                            <span className="cal-meet-scale-label">{MOOD.emojis[m.mood]} {MOOD.labels[m.mood]}</span>
+                          </div>
+                        </div>
+                      )}
+                      {m.confidence && (
+                        <div className="cal-meet-scale-row">
+                          <span className="cal-meet-scale-lbl">Confidence</span>
+                          <div className="cal-meet-scale-bar">
+                            {[1,2,3,4,5].map(n => (
+                              <div key={n} className={`cal-scale-pip${n <= (m.confidence ?? 0) ? ' filled' : ''}`} style={n <= (m.confidence ?? 0) ? {background:'#3b82f6'} : {}}/>
+                            ))}
+                            <span className="cal-meet-scale-label">{m.confidence}/5</span>
+                          </div>
+                        </div>
+                      )}
+                      {m.weather && (
+                        <div className="cal-meet-scale-row">
+                          <span className="cal-meet-scale-lbl">Conditions</span>
+                          <div className="cal-meet-scale-bar">
+                            {[1,2,3,4,5].map(n => (
+                              <div key={n} className={`cal-scale-pip${n <= (m.weather ?? 0) ? ' filled' : ''}`} style={n <= (m.weather ?? 0) ? {background:'#0891b2'} : {}}/>
+                            ))}
+                            <span className="cal-meet-scale-label">{WEATHER_LABELS[m.weather]}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {m.injuries && (
+                    <div className="cal-meet-an-chips">
+                      <span className="cal-ma-chip cal-ma-chip--warn">⚠ {m.injuries}</span>
+                    </div>
+                  )}
+                  {m.performanceNotes && (
+                    <p className="cal-meet-an-notes">"{m.performanceNotes}"</p>
+                  )}
+                  {!m.mood && !m.confidence && !m.weather && !m.injuries && !m.performanceNotes && (
+                    <p className="cal-report-empty" style={{margin:'8px 0 0'}}>No analysis logged. Tap the meet chip on the calendar to add details.</p>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>
@@ -724,7 +962,7 @@ function YearView({ year, setYear, attendance, meets, schedule, onSelectMonth }:
         const s = day[key]
         if (!s || s.status === 'cancelled') continue
         tot++
-        if (s.status === 'attended') att++
+        if (s.status === 'attended' || s.status === 'late') att++
       }
     }
     const pct = tot > 0 ? Math.round(att / tot * 100) : null
@@ -818,7 +1056,7 @@ function CareerView({ attendance, meets, schedule }: {
         const s = day[key]
         if (!s || s.status === 'cancelled') continue
         tot++
-        if (s.status === 'attended') att++
+        if (s.status === 'attended' || s.status === 'late') att++
       }
     }
     return {
@@ -1194,6 +1432,7 @@ export default function Calendar() {
                             const s = dayDat?.[key] ?? null
                             const color = !s ? '#e2e8f0'
                               : s.status === 'attended'  ? (s.mood ? MOOD.colors[s.mood] : '#22c55e')
+                              : s.status === 'late'      ? '#f59e0b'
                               : s.status === 'cancelled' ? '#94a3b8'
                               : '#ef4444'
                             return (
@@ -1225,6 +1464,9 @@ export default function Calendar() {
               <div className="cal-legend">
                 <span className="cal-legend-item">
                   <span className="cal-dot" style={{ background: '#22c55e' }} /> Attended
+                </span>
+                <span className="cal-legend-item">
+                  <span className="cal-dot" style={{ background: '#f59e0b' }} /> Late
                 </span>
                 <span className="cal-legend-item">
                   <span className="cal-dot" style={{ background: '#ef4444' }} /> Absent
