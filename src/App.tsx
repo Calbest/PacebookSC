@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { supabase } from './lib/supabase'
 import compareTimesImg from './Assets/CompareTimes.png'
-import trackProgressImg from './Assets/TrackProgress.png'
-import planEventsImg from './Assets/PlanEvents.png'
 import './App.css'
 
 // ── Star Rating ───────────────────────────────────────────────────────────────
@@ -124,30 +122,27 @@ function RatingSection() {
 // ── Quotes ────────────────────────────────────────────────────────────────────
 
 const QUOTES = [
-  { text: "The water is your friend. You don't have to fight with water, just share the same spirit as the water, and it will help you move.", author: "Aleksandr Popov" },
-  { text: "I don't do it for the medals. I do it because I love it.", author: "Katie Ledecky" },
+  { text: "The water is your friend. Just share the same spirit as the water, and it will help you move.", author: "Aleksandr Popov" },
   { text: "You can't put a limit on anything. The more you dream, the farther you get.", author: "Michael Phelps" },
-  { text: "Gold medals aren't really made of gold. They're made of sweat, determination, and a hard-to-find alloy called guts.", author: "Dan Gable" },
-  { text: "Swimming is normal for me. I'm relaxed. I'm comfortable, and I know my surroundings.", author: "Michael Phelps" },
-  { text: "The more I practice, the luckier I get.", author: "Gary Player" },
-  { text: "You have to expect things of yourself before you can do them.", author: "Michael Jordan" },
   { text: "I try to beat myself every time I get in the water. Whatever I did in my last race, I try to do better.", author: "Katie Ledecky" },
-  { text: "There may be people that have more talent than you, but there's no excuse for anyone to work harder than you do.", author: "Derek Jeter" },
-  { text: "Champions keep playing until they get it right.", author: "Billie Jean King" },
   { text: "Persistence can change failure into extraordinary achievement.", author: "Matt Biondi" },
-  { text: "The secret to success is to start before you are ready.", author: "Marie Forleo" },
-  { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
-  { text: "You can't win unless you learn how to lose.", author: "Kareem Abdul-Jabbar" },
-  { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+  { text: "Champions keep playing until they get it right.", author: "Billie Jean King" },
 ]
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
 function QuotesCarousel() {
   const [idx, setIdx] = useState(0)
-  const prev = () => setIdx(i => (i - 1 + QUOTES.length) % QUOTES.length)
-  const next = () => setIdx(i => (i + 1) % QUOTES.length)
+  const [paused, setPaused] = useState(false)
+
+  useEffect(() => {
+    if (paused) return
+    const t = setInterval(() => setIdx(i => (i + 1) % QUOTES.length), 2500)
+    return () => clearInterval(t)
+  }, [paused])
+
   const q = QUOTES[idx]
+
   return (
     <motion.section
       className="quotes-section"
@@ -155,21 +150,45 @@ function QuotesCarousel() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.7, ease: easeOut }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
-      <h2 className="quotes-heading">Fuel for the Pool</h2>
-      <div className="quotes-carousel">
-        <button className="quotes-arrow" onClick={prev} aria-label="Previous quote">&#8592;</button>
-        <div className="quotes-card">
-          <span className="quotes-mark">&ldquo;</span>
-          <p className="quotes-text">{q.text}</p>
-          <p className="quotes-author">— {q.author}</p>
-          <div className="quotes-dots">
-            {QUOTES.map((_, i) => (
-              <button key={i} className={`quotes-dot${i === idx ? ' active' : ''}`} onClick={() => setIdx(i)} aria-label={`Go to quote ${i + 1}`} />
-            ))}
-          </div>
-        </div>
-        <button className="quotes-arrow" onClick={next} aria-label="Next quote">&#8594;</button>
+      <div className="quotes-rays" aria-hidden="true">
+        {[14, 30, 50, 68, 84].map((left, i) => (
+          <div key={i} className="quotes-ray" style={{ left: `${left}%`, animationDelay: `${i * 1.1}s` }} />
+        ))}
+      </div>
+
+      <p className="quotes-eyebrow">Fuel for the Pool</p>
+
+      <div className="quotes-inner">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={idx}
+            className="quotes-quote"
+            initial={{ opacity: 0, y: 22, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -14, scale: 0.97 }}
+            transition={{ duration: 0.65, ease: easeOut }}
+          >
+            <div className="quotes-mark-large" aria-hidden="true">&ldquo;</div>
+            <p className="quotes-text-large">{q.text}</p>
+            <p className="quotes-author-large">— {q.author}</p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="quotes-progress" role="tablist" aria-label="Quote navigation">
+        {QUOTES.map((_, i) => (
+          <button
+            key={i}
+            role="tab"
+            aria-selected={i === idx}
+            className={`quotes-pip${i === idx ? ' active' : ''}`}
+            onClick={() => setIdx(i)}
+            aria-label={`Quote ${i + 1}`}
+          />
+        ))}
       </div>
     </motion.section>
   )
@@ -211,9 +230,8 @@ const BENTO_DIRS: [number, number][] = [
   [ 80, -10], // Qualifications — right column, from right
   [ 80,  10], // Progress       — right column, from right
   [-70,   0], // Import Times   — left cell, from left
-  [  0,  60], // Event Planning — wide, rises from below
-  [-70,   0], // Goals          — left cell, from left
-  [ 70,   0], // Mobile         — wide right, from right
+  [  0,  50], // Event Planning — center cell, rises from below
+  [ 70,   0], // Goals          — right cell, from right
 ]
 
 const bentoVariant = (i: number) => {
@@ -269,16 +287,10 @@ const FEATURES: { title: string; blurb: string; svg?: boolean; spanClass?: strin
   {
     title: 'Event Planning',
     blurb: 'Paste a meet schedule and instantly get Enter / Consider / Skip for every event. Includes an entry deadline countdown.',
-    spanClass: 'bento-span-wide',
   },
   {
     title: 'Goals',
     blurb: 'Set target times with optional deadlines. Goals appear next to your bests across the entire app.',
-  },
-  {
-    title: 'Mobile Friendly',
-    blurb: 'Fully responsive on any device with a bottom nav bar — every page adapts cleanly to your phone.',
-    spanClass: 'bento-span-wide',
   },
 ]
 
@@ -323,8 +335,6 @@ function App() {
   // Underwater parallax
   const tilesY     = useTransform(scrollYProgress, [0.12, 0.90], [0, -60])
   const uwImgScale = useTransform(scrollYProgress, [0.18, 0.70], [0.88, 1.04])
-  const uwLeftX    = useTransform(scrollYProgress, [0.18, 0.70], [32, -24])
-  const uwRightX   = useTransform(scrollYProgress, [0.18, 0.70], [-32, 24])
 
   // Scroll-animated gradients for lower sections
   const aboutRef = useRef<HTMLElement>(null)
@@ -424,7 +434,7 @@ function App() {
           </motion.div>
 
           {/* Scene 2 — Underwater */}
-          <motion.div className="scene" style={{ opacity: scene2Opacity }}>
+          <motion.div className="scene" style={{ opacity: scene2Opacity, pointerEvents: 'none' }}>
             <motion.div className="pool-tiles-bg" style={{ y: tilesY }} />
             {RAY_LEFTS.map((left, i) => (
               <div key={i} className={`light-ray lr-${i + 1}`} style={{ left: `${left}%` }} />
@@ -438,21 +448,11 @@ function App() {
             ))}
             <div className="scene-overlay scene-overlay--underwater" />
             <div id="what" className="underwater-content">
-              <h2 className="underwater-heading">What is SwimSCPlan?</h2>
-              <div className="uw-images">
-                <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwLeftX }}>
-                  <p className="uw-img-caption">Compare Times</p>
-                  <img src={compareTimesImg} alt="Compare Times" className="uw-img-photo" />
-                </motion.div>
-                <motion.div className="uw-img-item" style={{ scale: uwImgScale }}>
-                  <p className="uw-img-caption">Track Progress</p>
-                  <img src={trackProgressImg} alt="Track Progress" className="uw-img-photo" />
-                </motion.div>
-                <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwRightX }}>
-                  <p className="uw-img-caption">Plan Events</p>
-                  <img src={planEventsImg} alt="Plan Events" className="uw-img-photo" />
-                </motion.div>
-              </div>
+              <h2 className="underwater-heading">Why Use SwimSCPlan?</h2>
+              <p className="uw-single-caption">Compare Times</p>
+              <motion.div className="uw-single-frame" style={{ scale: uwImgScale }}>
+                <img src={compareTimesImg} alt="Compare Times" className="uw-img-photo" />
+              </motion.div>
             </div>
           </motion.div>
 
@@ -466,7 +466,7 @@ function App() {
             Everything you need in one place
           </motion.h2>
           <motion.p className="section-sub-dark" {...fadeUpDelayed(0.2)}>
-            From qualifying cuts to race planning — every tool a competitive swimmer needs.
+            
           </motion.p>
         </div>
         <div className="bento-grid">
@@ -587,10 +587,9 @@ function App() {
               </p>
             ) : (
               <p className="creators-bio">
-                My name is Mason Jung and I helped create this website as my friend, Caleb, encouraged
-                me to solve some problems he had faced while making this website. I am 15 as a freshman
-                in Sunny Hills High School and even though I have never tried swimming as a sport,
-                I still played tennis and love to bike.
+                My name is Mason Jung and I helped create this website as my friend, Caleb, needed 
+                help with the more complex features of the site.. I am 15 as a freshman in Sunny Hills 
+                High School, and have never swam before, though I do play tennis.
               </p>
             )}
           </div>
