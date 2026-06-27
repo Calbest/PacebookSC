@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { supabase } from './lib/supabase'
 import compareTimesImg from './Assets/CompareTimes.png'
+import trackProgressImg from './Assets/TrackProgress.png'
+import planEventsImg from './Assets/PlanEvents.png'
 import './App.css'
 
 // ── Star Rating ───────────────────────────────────────────────────────────────
@@ -335,6 +337,8 @@ function App() {
   // Underwater parallax
   const tilesY     = useTransform(scrollYProgress, [0.12, 0.90], [0, -60])
   const uwImgScale = useTransform(scrollYProgress, [0.18, 0.70], [0.88, 1.04])
+  const uwLeftX    = useTransform(scrollYProgress, [0.18, 0.70], [32, -24])
+  const uwRightX   = useTransform(scrollYProgress, [0.18, 0.70], [-32, 24])
 
   // Scroll-animated gradients for lower sections
   const aboutRef = useRef<HTMLElement>(null)
@@ -449,10 +453,20 @@ function App() {
             <div className="scene-overlay scene-overlay--underwater" />
             <div id="what" className="underwater-content">
               <h2 className="underwater-heading">Why Use SwimSCPlan?</h2>
-              <p className="uw-single-caption">Compare Times</p>
-              <motion.div className="uw-single-frame" style={{ scale: uwImgScale }}>
-                <img src={compareTimesImg} alt="Compare Times" className="uw-img-photo" />
-              </motion.div>
+              <div className="uw-images">
+                <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwLeftX }}>
+                  <p className="uw-img-caption">Compare Times</p>
+                  <img src={compareTimesImg} alt="Compare Times" className="uw-img-photo" />
+                </motion.div>
+                <motion.div className="uw-img-item" style={{ scale: uwImgScale }}>
+                  <p className="uw-img-caption">Track Progress</p>
+                  <img src={trackProgressImg} alt="Track Progress" className="uw-img-photo" />
+                </motion.div>
+                <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwRightX }}>
+                  <p className="uw-img-caption">Plan Events</p>
+                  <img src={planEventsImg} alt="Plan Events" className="uw-img-photo" />
+                </motion.div>
+              </div>
             </div>
           </motion.div>
 
