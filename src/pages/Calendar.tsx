@@ -48,15 +48,21 @@ interface Meet {
   performanceNotes: string
 }
 
+interface DayConfig {
+  practice:  boolean
+  s1Start:   string
+  s1End:     string
+  s2:        boolean
+  s2Start:   string
+  s2End:     string
+  dryland:   boolean
+  dryStart:  string
+  dryEnd:    string
+}
+
 interface ScheduleTemplate {
-  days:             number[]
-  twoSessionDays:   number[]
-  drylandDays:      number[]
-  session1Time:     string
-  session1EndTime:  string
-  session2Time:     string
-  session2EndTime:  string
-  practiceNote:     string
+  days:         Record<number, DayConfig>   // 0=Sun … 6=Sat
+  practiceNote: string
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -84,15 +90,49 @@ const DRYLAND_TYPES: { id: DrylandType; label: string; color: string }[] = [
 
 const WEATHER_LABELS = ['','Terrible','Bad','OK','Good','Perfect']
 
+function defaultDayConfig(practice = false): DayConfig {
+  return { practice, s1Start: '', s1End: '', s2: false, s2Start: '', s2End: '', dryland: false, dryStart: '', dryEnd: '' }
+}
+
 const DEFAULT_SCHEDULE: ScheduleTemplate = {
-  days:             [1, 2, 3, 4, 5],
-  twoSessionDays:   [],
-  drylandDays:      [],
-  session1Time:     '',
-  session1EndTime:  '',
-  session2Time:     '',
-  session2EndTime:  '',
-  practiceNote:     '',
+  days: {
+    0: defaultDayConfig(false),
+    1: defaultDayConfig(true),
+    2: defaultDayConfig(true),
+    3: defaultDayConfig(true),
+    4: defaultDayConfig(true),
+    5: defaultDayConfig(true),
+    6: defaultDayConfig(false),
+  },
+  practiceNote: '',
+}
+
+function migrateSchedule(raw: Record<string, unknown>): ScheduleTemplate {
+  if (raw.days && typeof raw.days === 'object' && !Array.isArray(raw.days)) {
+    return raw as unknown as ScheduleTemplate
+  }
+  const oldDays = (raw.days as number[]) ?? [1,2,3,4,5]
+  const oldTwo  = (raw.twoSessionDays as number[]) ?? []
+  const oldDry  = (raw.drylandDays as number[]) ?? []
+  const s1t = (raw.session1Time as string) ?? ''
+  const s1e = (raw.session1EndTime as string) ?? ''
+  const s2t = (raw.session2Time as string) ?? ''
+  const s2e = (raw.session2EndTime as string) ?? ''
+  const days: Record<number, DayConfig> = {}
+  for (let i = 0; i <= 6; i++) {
+    days[i] = {
+      practice:  oldDays.includes(i),
+      s1Start:   oldDays.includes(i) ? s1t : '',
+      s1End:     oldDays.includes(i) ? s1e : '',
+      s2:        oldTwo.includes(i),
+      s2Start:   oldTwo.includes(i) ? s2t : '',
+      s2End:     oldTwo.includes(i) ? s2e : '',
+      dryland:   oldDry.includes(i),
+      dryStart:  '',
+      dryEnd:    '',
+    }
+  }
+  return { days, practiceNote: (raw.practiceNote as string) ?? '' }
 }
 
 const SESSION_KEYS: Array<{ key: 's1' | 's2'; label: string }> = [
@@ -455,12 +495,13 @@ function DayModal({ dateStr, initial, schedule, isPrac, onSave, onClose }: {
   onClose:  () => void
 }) {
   const dow          = new Date(dateStr + 'T12:00:00').getDay()
-  const hasTwoDefault = schedule.twoSessionDays.includes(dow)
-  const hasDryDefault = schedule.drylandDays.includes(dow)
+  const dowCfg = schedule.days[dow] ?? defaultDayConfig(false)
+  const hasTwoDefault = dowCfg.s2
+  const hasDryDefault = dowCfg.dryland
 
   const [d, setD] = useState<DayData>(() => initial ?? {
-    s1:      defaultSession(schedule.session1Time, schedule.session1EndTime),
-    s2:      hasTwoDefault ? defaultSession(schedule.session2Time, schedule.session2EndTime) : null,
+    s1:      defaultSession(dowCfg.s1Start, dowCfg.s1End),
+    s2:      hasTwoDefault ? defaultSession(dowCfg.s2Start, dowCfg.s2End) : null,
     dryland: hasDryDefault ? { type: 'other', mood: null } : null,
   })
 
@@ -490,7 +531,7 @@ function DayModal({ dateStr, initial, schedule, isPrac, onSave, onClose }: {
               session={d.s1}
               onChange={s1 => setD(p => ({ ...p, s1 }))}
               label="Session 1"
-              defaultTime={schedule.session1Time}
+              defaultTime={dowCfg.s1Start}
             />
           )}
 
@@ -499,13 +540,13 @@ function DayModal({ dateStr, initial, schedule, isPrac, onSave, onClose }: {
               session={d.s2}
               onChange={s2 => setD(p => ({ ...p, s2 }))}
               label="Session 2"
-              defaultTime={schedule.session2Time}
+              defaultTime={dowCfg.s2Start}
               onRemove={() => setD(p => ({ ...p, s2: null }))}
             />
           ) : (
             <button
               className="cal-add-session-btn" type="button"
-              onClick={() => setD(p => ({ ...p, s2: defaultSession(schedule.session2Time, schedule.session2EndTime) }))}
+              onClick={() => setD(p => ({ ...p, s2: defaultSession(dowCfg.s2Start, dowCfg.s2End) }))}
             >
               <Plus size={13} /> Add 2nd Session
             </button>
@@ -751,7 +792,8 @@ function MonthReport({ year, month, attendance, meets, schedule }: {
   const practiceDates: string[] = []
   for (let d = 1; d <= dim; d++) {
     const ds = iso(year, month, d)
-    if (schedule.days.includes(new Date(ds + 'T12:00:00').getDay())) practiceDates.push(ds)
+    const dow = new Date(ds + 'T12:00:00').getDay()
+    if (schedule.days[dow]?.practice ?? false) practiceDates.push(ds)
   }
 
   let attended = 0, late = 0, absent = 0, cancelled = 0
@@ -1055,7 +1097,8 @@ function YearView({ year, setYear, attendance, meets, schedule, onSelectMonth }:
     let att = 0, tot = 0
     for (let d = 1; d <= dim; d++) {
       const ds = iso(year, m, d)
-      if (!schedule.days.includes(new Date(ds + 'T12:00:00').getDay())) continue
+      const dow = new Date(ds + 'T12:00:00').getDay()
+      if (!(schedule.days[dow]?.practice ?? false)) continue
       const day = attendance[ds]
       if (!day?.s1) { tot++; continue }
       for (const { key } of SESSION_KEYS) {
@@ -1150,7 +1193,8 @@ function CareerView({ attendance, meets, schedule }: {
     let att = 0, tot = 0
     for (const [ds, day] of Object.entries(attendance)) {
       if (!ds.startsWith(String(yr))) continue
-      if (!schedule.days.includes(new Date(ds + 'T12:00:00').getDay())) continue
+      const dowC = new Date(ds + 'T12:00:00').getDay()
+      if (!(schedule.days[dowC]?.practice ?? false)) continue
       if (!day.s1) { tot++; continue }
       for (const { key } of SESSION_KEYS) {
         const s = day[key]
@@ -1232,8 +1276,15 @@ export default function Calendar() {
   const [showTC,    setShowTC]    = useState(false)
   const [saving,    setSaving]    = useState(false)
 
+  const [schedDay,    setSchedDay]    = useState(1)
+  const [s1Saved,     setS1Saved]     = useState(false)
+  const [s2dSaved,    setS2dSaved]    = useState(false)
+  const [repeatMode,  setRepeatMode]  = useState<'every' | 'next'>('every')
+
   const [dayModal,  setDayModal]  = useState<string | null>(null)
-  const dayModalIsPrac = dayModal ? sched.days.includes(new Date(dayModal + 'T12:00:00').getDay()) : false
+  const dayModalIsPrac = dayModal
+    ? (sched.days[new Date(dayModal + 'T12:00:00').getDay()]?.practice ?? false)
+    : false
   const [meetModal, setMeetModal] = useState<Meet | null | 'new'>(null)
 
   useEffect(() => {
@@ -1243,7 +1294,7 @@ export default function Calendar() {
       const m = user.user_metadata ?? {}
       setMeets(migrateMeets(m.calMeets ?? []))
       setAttn(migrateAttendance(m.calAttendance ?? {}))
-      if (m.calSchedule) setSched({ ...DEFAULT_SCHEDULE, ...m.calSchedule })
+      if (m.calSchedule) setSched(migrateSchedule(m.calSchedule))
     })
   }, [navigate])
 
@@ -1276,6 +1327,40 @@ export default function Calendar() {
   function handleSchedSave(s: ScheduleTemplate) {
     setSched(s)
     persist({ calSchedule: s })
+  }
+
+  function updateSchedDay(update: Partial<DayConfig>) {
+    const dc = sched.days[schedDay] ?? defaultDayConfig(false)
+    const newDays = { ...sched.days, [schedDay]: { ...dc, ...update } }
+    setSched({ ...sched, days: newDays })
+  }
+
+  function applyDayToNextOccurrence(part: 's1' | 's2dry') {
+    const today2 = new Date()
+    const daysUntil = (schedDay - today2.getDay() + 7) % 7
+    const d2 = new Date(today2)
+    d2.setDate(today2.getDate() + daysUntil)
+    const dateStr = iso(d2.getFullYear(), d2.getMonth(), d2.getDate())
+    const dc = sched.days[schedDay] ?? defaultDayConfig(false)
+    const existing = attn[dateStr]
+    if (part === 's1') {
+      const s1 = { ...(existing?.s1 ?? defaultSession()), startTime: dc.s1Start, endTime: dc.s1End }
+      handleDaySave(dateStr, { ...(existing ?? { s1, s2: null, dryland: null, note: '', weather: null }), s1 })
+    }
+  }
+
+  function saveS1ForDay() {
+    handleSchedSave(sched)
+    setS1Saved(true)
+    setTimeout(() => setS1Saved(false), 2000)
+    if (repeatMode === 'next') applyDayToNextOccurrence('s1')
+  }
+
+  function saveS2DryForDay() {
+    handleSchedSave(sched)
+    setS2dSaved(true)
+    setTimeout(() => setS2dSaved(false), 2000)
+    if (repeatMode === 'next') applyDayToNextOccurrence('s2dry')
   }
 
   function prevMonth() {
@@ -1380,126 +1465,210 @@ export default function Calendar() {
             <div className="cal-card cal-fade-in">
               <h2 className="cal-card-title">Practice Schedule</h2>
 
-              <p className="cal-card-desc">Practice days</p>
-              <div className="cal-day-grid">
-                {DAY_LABELS.map((lbl, i) => (
-                  <button
-                    key={i}
-                    className={`cal-day-toggle${sched.days.includes(i) ? ' active' : ''}`}
-                    onClick={() => handleSchedSave({
-                      ...sched,
-                      days: sched.days.includes(i)
-                        ? sched.days.filter(d => d !== i)
-                        : [...sched.days, i],
-                    })}
-                  >{lbl}</button>
-                ))}
+              {/* Day tabs */}
+              <div className="cal-sched-day-tabs">
+                {DAY_LABELS.map((lbl, i) => {
+                  const hasPrac = sched.days[i]?.practice ?? false
+                  return (
+                    <button
+                      key={i}
+                      className={`cal-sched-day-tab${schedDay === i ? ' active' : ''}${hasPrac ? ' has-prac' : ''}`}
+                      onClick={() => setSchedDay(i)}
+                    >
+                      {lbl}
+                      {hasPrac && <span className="cal-sched-day-dot" />}
+                    </button>
+                  )
+                })}
               </div>
 
-              <p className="cal-card-desc" style={{ marginTop: 14 }}>Two-session days</p>
-              <div className="cal-day-grid">
-                {DAY_LABELS.map((lbl, i) => (
-                  <button
-                    key={i}
-                    className={`cal-day-toggle cal-day-toggle--two${sched.twoSessionDays.includes(i) ? ' active' : ''}`}
-                    onClick={() => handleSchedSave({
-                      ...sched,
-                      twoSessionDays: sched.twoSessionDays.includes(i)
-                        ? sched.twoSessionDays.filter(d => d !== i)
-                        : [...sched.twoSessionDays, i],
-                    })}
-                  >{lbl}</button>
-                ))}
-              </div>
+              {/* Per-day panel */}
+              {(() => {
+                const dc = sched.days[schedDay] ?? defaultDayConfig(false)
+                const dayName = DAY_LABELS[schedDay]
+                return (
+                  <div className="cal-sched-day-panel">
 
-              <p className="cal-card-desc" style={{ marginTop: 14 }}>Dryland days</p>
-              <div className="cal-day-grid">
-                {DAY_LABELS.map((lbl, i) => (
-                  <button
-                    key={i}
-                    className={`cal-day-toggle cal-day-toggle--dryland${sched.drylandDays.includes(i) ? ' active' : ''}`}
-                    onClick={() => handleSchedSave({
-                      ...sched,
-                      drylandDays: sched.drylandDays.includes(i)
-                        ? sched.drylandDays.filter(d => d !== i)
-                        : [...sched.drylandDays, i],
-                    })}
-                  >{lbl}</button>
-                ))}
-              </div>
+                    {/* ── Session 1 area ── */}
+                    <div className="cal-sched-section">
+                      <div className="cal-sched-section-head">
+                        <label className="cal-sched-check-label">
+                          <input
+                            type="checkbox"
+                            checked={dc.practice}
+                            onChange={e => updateSchedDay({ practice: e.target.checked })}
+                            className="cal-sched-checkbox"
+                          />
+                          <span className="cal-sched-check-text">Practice on {dayName}s</span>
+                        </label>
+                      </div>
 
-              <div className="cal-sched-times-block">
-                <div className="cal-sched-times-label">Session 1 times</div>
-                <div className="cal-sched-times-row">
-                  <div className="cal-field">
-                    <label className="cal-field-lbl">Start</label>
-                    <input
-                      className="cal-field-input" type="time"
-                      value={sched.session1Time}
-                      onChange={e => handleSchedSave({ ...sched, session1Time: e.target.value })}
-                    />
+                      <div className={`cal-sched-times-row${!dc.practice ? ' cal-sched-times-row--disabled' : ''}`}>
+                        <div className="cal-field">
+                          <label className="cal-field-lbl">Start</label>
+                          <input
+                            className="cal-field-input" type="time"
+                            value={dc.s1Start}
+                            disabled={!dc.practice}
+                            onChange={e => updateSchedDay({ s1Start: e.target.value })}
+                          />
+                        </div>
+                        <span className="cal-sched-times-arrow">→</span>
+                        <div className="cal-field">
+                          <label className="cal-field-lbl">End</label>
+                          <input
+                            className="cal-field-input" type="time"
+                            value={dc.s1End}
+                            disabled={!dc.practice}
+                            onChange={e => updateSchedDay({ s1End: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="cal-sched-save-row">
+                        <select
+                          className="cal-sched-repeat-select"
+                          value={repeatMode}
+                          onChange={e => setRepeatMode(e.target.value as 'every' | 'next')}
+                        >
+                          <option value="every">Every {dayName}</option>
+                          <option value="next">Next {dayName} only</option>
+                        </select>
+                        <button
+                          className={`cal-sched-save-btn${s1Saved ? ' saved' : ''}`}
+                          onClick={saveS1ForDay}
+                        >
+                          {s1Saved ? '✓ Saved' : 'Save Session 1'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* ── Session 2 (optional) area ── */}
+                    <div className="cal-sched-section cal-sched-section--optional">
+                      <div className="cal-sched-section-head">
+                        <label className="cal-sched-check-label">
+                          <input
+                            type="checkbox"
+                            checked={dc.s2}
+                            disabled={!dc.practice}
+                            onChange={e => updateSchedDay({ s2: e.target.checked })}
+                            className="cal-sched-checkbox"
+                          />
+                          <span className="cal-sched-check-text">Swim Practice 2</span>
+                          <span className="cal-sched-optional-badge">optional</span>
+                        </label>
+                      </div>
+
+                      <div className={`cal-sched-times-row${(!dc.practice || !dc.s2) ? ' cal-sched-times-row--disabled' : ''}`}>
+                        <div className="cal-field">
+                          <label className="cal-field-lbl">Start</label>
+                          <input
+                            className="cal-field-input" type="time"
+                            value={dc.s2Start}
+                            disabled={!dc.practice || !dc.s2}
+                            onChange={e => updateSchedDay({ s2Start: e.target.value })}
+                          />
+                        </div>
+                        <span className="cal-sched-times-arrow">→</span>
+                        <div className="cal-field">
+                          <label className="cal-field-lbl">End</label>
+                          <input
+                            className="cal-field-input" type="time"
+                            value={dc.s2End}
+                            disabled={!dc.practice || !dc.s2}
+                            onChange={e => updateSchedDay({ s2End: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── Dryland area ── */}
+                    <div className="cal-sched-section">
+                      <div className="cal-sched-section-head">
+                        <label className="cal-sched-check-label">
+                          <input
+                            type="checkbox"
+                            checked={dc.dryland}
+                            disabled={!dc.practice}
+                            onChange={e => updateSchedDay({ dryland: e.target.checked })}
+                            className="cal-sched-checkbox"
+                          />
+                          <span className="cal-sched-check-text">Dryland</span>
+                        </label>
+                      </div>
+
+                      <div className={`cal-sched-times-row${(!dc.practice || !dc.dryland) ? ' cal-sched-times-row--disabled' : ''}`}>
+                        <div className="cal-field">
+                          <label className="cal-field-lbl">Start</label>
+                          <input
+                            className="cal-field-input" type="time"
+                            value={dc.dryStart}
+                            disabled={!dc.practice || !dc.dryland}
+                            onChange={e => updateSchedDay({ dryStart: e.target.value })}
+                          />
+                        </div>
+                        <span className="cal-sched-times-arrow">→</span>
+                        <div className="cal-field">
+                          <label className="cal-field-lbl">End</label>
+                          <input
+                            className="cal-field-input" type="time"
+                            value={dc.dryEnd}
+                            disabled={!dc.practice || !dc.dryland}
+                            onChange={e => updateSchedDay({ dryEnd: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="cal-sched-save-row">
+                        <select
+                          className="cal-sched-repeat-select"
+                          value={repeatMode}
+                          onChange={e => setRepeatMode(e.target.value as 'every' | 'next')}
+                        >
+                          <option value="every">Every {dayName}</option>
+                          <option value="next">Next {dayName} only</option>
+                        </select>
+                        <button
+                          className={`cal-sched-save-btn${s2dSaved ? ' saved' : ''}`}
+                          onClick={saveS2DryForDay}
+                        >
+                          {s2dSaved ? '✓ Saved' : 'Save Practice 2 & Dryland'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* ── Practice note ── */}
+                    <div className="cal-field" style={{ marginTop: 4 }}>
+                      <label className="cal-field-lbl">Practice note (optional)</label>
+                      <input
+                        className="cal-field-input"
+                        value={sched.practiceNote}
+                        onChange={e => handleSchedSave({ ...sched, practiceNote: e.target.value })}
+                        placeholder="e.g. 6:00–8:00 AM at Rosemead Aquatics"
+                      />
+                    </div>
+
+                    {/* ── Reset ── */}
+                    <div className="cal-sched-reset-wrap">
+                      {!confirmReset ? (
+                        <button className="cal-sched-reset-btn" onClick={() => setConfirmReset(true)}>
+                          Reset to default
+                        </button>
+                      ) : (
+                        <div className="cal-sched-reset-confirm">
+                          <span>Clear all schedule settings?</span>
+                          <button className="cal-sched-reset-yes" onClick={() => {
+                            handleSchedSave(DEFAULT_SCHEDULE)
+                            setConfirmReset(false)
+                          }}>Reset</button>
+                          <button className="cal-sched-reset-no" onClick={() => setConfirmReset(false)}>Cancel</button>
+                        </div>
+                      )}
+                    </div>
+
                   </div>
-                  <span className="cal-sched-times-arrow">→</span>
-                  <div className="cal-field">
-                    <label className="cal-field-lbl">End</label>
-                    <input
-                      className="cal-field-input" type="time"
-                      value={sched.session1EndTime}
-                      onChange={e => handleSchedSave({ ...sched, session1EndTime: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="cal-sched-times-block">
-                <div className="cal-sched-times-label">Session 2 times</div>
-                <div className="cal-sched-times-row">
-                  <div className="cal-field">
-                    <label className="cal-field-lbl">Start</label>
-                    <input
-                      className="cal-field-input" type="time"
-                      value={sched.session2Time}
-                      onChange={e => handleSchedSave({ ...sched, session2Time: e.target.value })}
-                    />
-                  </div>
-                  <span className="cal-sched-times-arrow">→</span>
-                  <div className="cal-field">
-                    <label className="cal-field-lbl">End</label>
-                    <input
-                      className="cal-field-input" type="time"
-                      value={sched.session2EndTime}
-                      onChange={e => handleSchedSave({ ...sched, session2EndTime: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="cal-field" style={{ marginTop: 12 }}>
-                <label className="cal-field-lbl">Practice note (optional)</label>
-                <input
-                  className="cal-field-input"
-                  value={sched.practiceNote}
-                  onChange={e => handleSchedSave({ ...sched, practiceNote: e.target.value })}
-                  placeholder="e.g. 6:00–8:00 AM at Rosemead Aquatics"
-                />
-              </div>
-
-              <div className="cal-sched-reset-wrap">
-                {!confirmReset ? (
-                  <button className="cal-sched-reset-btn" onClick={() => setConfirmReset(true)}>
-                    Reset to default
-                  </button>
-                ) : (
-                  <div className="cal-sched-reset-confirm">
-                    <span>Clear all schedule settings?</span>
-                    <button className="cal-sched-reset-yes" onClick={() => {
-                      handleSchedSave(DEFAULT_SCHEDULE)
-                      setConfirmReset(false)
-                    }}>Reset</button>
-                    <button className="cal-sched-reset-no" onClick={() => setConfirmReset(false)}>Cancel</button>
-                  </div>
-                )}
-              </div>
+                )
+              })()}
             </div>
           )}
 
@@ -1539,12 +1708,12 @@ export default function Calendar() {
                   const day    = i + 1
                   const ds     = iso(year, month, day)
                   const dow    = new Date(year, month, day).getDay()
-                  const isPrac = sched.days.includes(dow)
+                  const isPrac = sched.days[dow]?.practice ?? false
                   const meet   = meetsByDate.get(ds)
                   const dayDat = attn[ds]
                   const isToday = ds === todayStr
 
-                  const hasTwoSched = sched.twoSessionDays.includes(dow)
+                  const hasTwoSched = sched.days[dow]?.s2 ?? false
                   const showS2Dot   = !!(dayDat?.s2 || hasTwoSched)
 
                   return (
