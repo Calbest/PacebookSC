@@ -23,7 +23,37 @@ function toSeconds(t: string): number | null {
   if (!t) return null
   const parts = t.split(':')
   if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1])
-  return parseFloat(t)
+  const n = parseFloat(t)
+  return isNaN(n) ? null : n
+}
+
+function fmtSec(s: number): string {
+  if (s < 60) return s.toFixed(2)
+  const m = Math.floor(s / 60)
+  return `${m}:${(s - m * 60).toFixed(2).padStart(5, '0')}`
+}
+
+function GoalSlider({ startSec, currentSec, targetSec, achieved }: {
+  startSec: number; currentSec: number; targetSec: number; achieved: boolean
+}) {
+  // Faster = lower seconds. Slider: left=slow (start), right=fast (target)
+  // We clamp so currentSec never goes past the target (visually)
+  const range = Math.max(startSec - targetSec, 0.01)
+  const progress = achieved ? 100 : Math.min(100, Math.max(0, ((startSec - currentSec) / range) * 100))
+
+  return (
+    <div className="goal-slider-wrap">
+      <div className="goal-slider-track">
+        <div className="goal-slider-fill" style={{ width: `${progress}%` }} />
+        <div className="goal-slider-marker" style={{ left: `${progress}%` }} />
+      </div>
+      <div className="goal-slider-labels">
+        <span className="goal-slider-lbl goal-slider-lbl--start" title="Starting time">{fmtSec(startSec)}</span>
+        <span className="goal-slider-pct">{Math.round(progress)}% there</span>
+        <span className="goal-slider-lbl goal-slider-lbl--target" title="Goal time">{fmtSec(targetSec)}</span>
+      </div>
+    </div>
+  )
 }
 
 function formatDeadline(iso: string): string {
@@ -231,6 +261,15 @@ export default function Goals() {
                         </span>
                       </div>
                     </div>
+
+                    {targetSec !== null && (liveSec !== null || toSeconds(goal.currentTime) !== null) && (
+                      <GoalSlider
+                        startSec={Math.max(toSeconds(goal.currentTime) ?? 0, liveSec ?? 0)}
+                        currentSec={liveSec ?? toSeconds(goal.currentTime) ?? targetSec}
+                        targetSec={targetSec}
+                        achieved={achieved}
+                      />
+                    )}
 
                     <div className="goal-footer">
                       {goal.deadline ? (

@@ -1,3 +1,4 @@
+/* ── Overlay ── */
 .tcp-overlay {
   position: fixed;
   inset: 0;
@@ -8,14 +9,32 @@
   justify-content: center;
 }
 
+/* When minimized, anchor to bottom-right */
+.tcp-overlay--minimized {
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0 24px 24px 0;
+}
+
+/* ── Panel ── */
 .tcp-panel {
   pointer-events: all;
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.1);
-  width: 280px;
+  width: 300px;
   overflow: hidden;
   animation: tcp-in 0.15s ease;
+}
+
+.tcp-panel--expanded {
+  width: 400px;
+}
+
+.tcp-panel--minimized {
+  width: 260px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 @keyframes tcp-in {
@@ -23,34 +42,127 @@
   to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
+/* ── Header ── */
 .tcp-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   background: #002855;
   color: #fff;
-  padding: 12px 14px;
+  padding: 10px 12px;
+  user-select: none;
 }
+
+.tcp-header--clickable { cursor: pointer; }
+.tcp-header--clickable:hover { background: #003b7a; }
+
+/* macOS-style window control circles */
+.tcp-win-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.tcp-win-btn {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  padding: 0;
+}
+.tcp-win-btn:hover { opacity: 0.8; }
+
+.tcp-win-btn--close  { background: #ff5f57; }
+.tcp-win-btn--min    { background: #ffbd2e; }
+.tcp-win-btn--expand { background: #28ca41; }
+
 .tcp-title {
-  font-size: 13px;
+  flex: 1;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.3px;
+  text-align: center;
 }
-.tcp-close {
-  background: rgba(255,255,255,0.15);
+
+.tcp-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tcp-hist-btn {
+  background: rgba(255,255,255,0.12);
   border: none;
-  border-radius: 6px;
-  color: #fff;
+  border-radius: 5px;
+  color: rgba(255,255,255,0.7);
   width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background 0.12s, color 0.12s;
 }
-.tcp-close:hover { background: rgba(255,255,255,0.28); }
+.tcp-hist-btn:hover,
+.tcp-hist-btn.active { background: rgba(255,255,255,0.24); color: #fff; }
 
+.tcp-min-hint,
+.tcp-win-hint { color: rgba(255,255,255,0.5); }
+
+/* ── History panel ── */
+.tcp-history {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tcp-history-empty {
+  font-size: 12px;
+  color: #94a3b8;
+  padding: 12px 14px;
+  margin: 0;
+  text-align: center;
+}
+
+.tcp-history-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.tcp-history-row:last-child { border-bottom: none; }
+.tcp-history-row:hover { background: #eff6ff; }
+
+.tcp-history-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #002855;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tcp-history-results {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Controls ── */
 .tcp-controls {
   display: flex;
   gap: 6px;
@@ -71,6 +183,7 @@
 }
 .tcp-select:focus { border-color: #002855; }
 
+/* ── Input row ── */
 .tcp-input-row {
   display: flex;
   gap: 6px;
@@ -126,6 +239,7 @@
 }
 .tcp-cycle:hover { background: #e0eafb; color: #002855; }
 
+/* ── Results ── */
 .tcp-results {
   display: flex;
   flex-direction: column;
@@ -157,6 +271,61 @@
   letter-spacing: -0.3px;
 }
 
+/* ── Expanded — all results ── */
+.tcp-all-results {
+  margin: 0 12px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tcp-all-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 8px 12px 4px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tcp-all-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.tcp-all-row:last-child { border-bottom: none; }
+.tcp-all-row--source { background: #eff6ff; }
+
+.tcp-all-course {
+  font-size: 12px;
+  font-weight: 800;
+  color: #64748b;
+  width: 38px;
+  flex-shrink: 0;
+}
+
+.tcp-all-time {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 800;
+  color: #002855;
+  font-variant-numeric: tabular-nums;
+}
+
+.tcp-all-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── Note ── */
 .tcp-note {
   font-size: 10px;
   color: #94a3b8;

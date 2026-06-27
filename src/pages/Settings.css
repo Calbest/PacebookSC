@@ -902,9 +902,11 @@
 .mock-cal-cell { min-height: 24px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0; padding: 2px 3px; display: flex; flex-direction: column; align-items: center; position: relative; }
 .mock-cal-cell--meet { border-color: #f59e0b; background: #fffbeb; }
 .mock-cal-num { font-size: 8px; color: #94a3b8; align-self: flex-end; }
-.mock-dot-green { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
-.mock-dot-red   { width: 7px; height: 7px; border-radius: 50%; background: #ef4444; display: inline-block; }
-.mock-dot-gold  { font-size: 10px; color: #f59e0b; }
+.mock-dot-green  { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
+.mock-dot-red    { width: 7px; height: 7px; border-radius: 50%; background: #ef4444; display: inline-block; }
+.mock-dot-amber  { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; display: inline-block; }
+.mock-dot-gray   { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block; }
+.mock-dot-gold   { font-size: 10px; color: #f59e0b; }
 .mock-meet-chip { font-size: 7px; background: #f59e0b; color: #fff; border-radius: 3px; padding: 1px 3px; white-space: nowrap; font-weight: 700; margin-top: 1px; }
 .mock-cal-legend { font-size: 10px; color: #64748b; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
 
@@ -960,6 +962,11 @@
 .mock-time-arrow { font-size: 14px; color: #cbd5e1; flex-shrink: 0; }
 .mock-goal-bar-wrap { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
 .mock-goal-bar { height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 3px; }
+
+.mock-goal-slider-wrap { position: relative; height: 6px; background: #e2e8f0; border-radius: 20px; margin: 6px 0 3px; overflow: visible; }
+.mock-goal-slider-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #00b4d8, #0077b6); border-radius: 20px; }
+.mock-goal-slider-marker { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; background: #fff; border: 2px solid #0077b6; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transform: translate(-50%, -50%); z-index: 1; }
+.mock-goal-slider-labels { display: flex; justify-content: space-between; font-size: 8px; color: #94a3b8; margin-bottom: 4px; }
 .mock-goal-gap { font-size: 10px; color: #64748b; }
 
 /* ── Qualifications mockup ── */

@@ -913,7 +913,7 @@ export default function Settings() {
                   <div className="tut-mockup-body mock-dash-layout">
                     <div className="mock-rail">
                       <div className="mock-rail-logo"/>
-                      {['🏠','📅','📚','📈','🎯','🏆'].map((ic,i) => <div key={i} className={`mock-rail-btn${i===0?' active':''}`}>{ic}</div>)}
+                      {['⇌ Compare','🏆 Quals','🎯 Goals','📈 Progress','📅 Calendar','📚 Media','👥 Friends'].map((ic,i) => <div key={i} className={`mock-rail-btn${i===0?' active':''}`} style={{fontSize:'9px',padding:'3px 4px'}}>{ic}</div>)}
                     </div>
                     <div className="mock-dash-main">
                       <div className="mock-banner">
@@ -988,7 +988,9 @@ export default function Settings() {
                     </div>
                     <div className="mock-cal-legend">
                       <span className="mock-dot-green"/> Attended &nbsp;
+                      <span className="mock-dot-amber"/> Late &nbsp;
                       <span className="mock-dot-red"/> Absent &nbsp;
+                      <span className="mock-dot-gray"/> Cancelled &nbsp;
                       <span className="mock-dot-gold">★</span> Meet
                     </div>
                   </div>
@@ -996,8 +998,8 @@ export default function Settings() {
 
                 <h4 className="tut-sub">Logging a Practice</h4>
                 <ul className="tut-list">
-                  <li>Tap any <strong>blue practice day</strong> on the calendar grid. A sheet slides up from the bottom.</li>
-                  <li>Choose a <strong>session status</strong>: <em>Attended</em> (green), <em>Absent</em> (red), or <em>Cancelled</em> (gray).</li>
+                  <li>Tap any practice day on the calendar grid. A panel slides up from the bottom.</li>
+                  <li>Choose a <strong>session status</strong>: <em>Attended</em> (green dot), <em>Late</em> (amber dot — enter how many minutes late), <em>Absent</em> (red dot), or <em>Cancelled</em> (gray).</li>
                   <li>If attended, rate your <strong>mood</strong> from 😣 (1) to 😄 (5) — this feeds the monthly mood chart.</li>
                   <li>If absent, enter a <strong>reason</strong> (e.g., "sick", "school event") — it appears in your monthly Absence Reasons list so you can spot patterns.</li>
                   <li>Tap <strong>"Add 2nd Session"</strong> if you had both morning and afternoon practice that day.</li>
@@ -1098,7 +1100,7 @@ export default function Settings() {
                   <li>Each card shows a thumbnail, the event/title, time or category, and tags.</li>
                   <li>Tap any card to open the full detail view. Tap <strong>Edit</strong> to update any field.</li>
                 </ul>
-                <div className="tut-tip">⚠️ Photos require a Supabase Storage bucket called "race-photos" to be set up. Ask your account administrator or see the bug report in Settings for setup steps.</div>
+                <div className="tut-tip">💡 Photos are stored securely in your account — no extra setup needed. They're linked to the entry and viewable any time you open the entry card.</div>
               </div>
             </div>
 
@@ -1131,7 +1133,17 @@ export default function Settings() {
                         <path d="M10,72 L50,60 L90,50 L130,38 L170,25 L210,14" fill="none" stroke="#0891b2" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
                         <path d="M10,72 L50,60 L90,50 L130,38 L170,25 L210,14 L210,90 L10,90 Z" fill="url(#chartGrad)"/>
                         {[[10,72],[50,60],[90,50],[130,38],[170,25],[210,14]].map(([x,y],i) => (
-                          <circle key={i} cx={x} cy={y} r={i===5?5:3.5} fill={i===5?"#0891b2":"#67e8f9"} stroke="#fff" strokeWidth="1.5"/>
+                          <g key={i}>
+                            {i === 5 ? (
+                              <>
+                                <circle cx={x} cy={y} r="7" fill="#f59e0b" opacity="0.3"/>
+                                <circle cx={x} cy={y} r="5" fill="#f59e0b" stroke="#d97706" strokeWidth="1.5"/>
+                                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize="5" fill="#fff" fontWeight="bold">★</text>
+                              </>
+                            ) : (
+                              <circle cx={x} cy={y} r="3.5" fill="#fff" stroke="#0891b2" strokeWidth="1.5"/>
+                            )}
+                          </g>
                         ))}
                         <rect x="170" y="2" width="66" height="22" rx="4" fill="#0f172a" opacity="0.85"/>
                         <text x="203" y="11" textAnchor="middle" fill="#fff" fontSize="6" fontWeight="bold">47.89</text>
@@ -1150,7 +1162,7 @@ export default function Settings() {
                   <li><strong>Reading the chart:</strong> Time flows left to right (oldest → newest). The vertical axis is speed — <em>lower on the chart = faster time</em>. A dot moving down and to the right means improvement.</li>
                   <li><strong>Hover a dot:</strong> On desktop, hover over any dot to see a tooltip with the exact date, your time, and how old you were at that swim. On mobile, tap the dot.</li>
                   <li><strong>Adding/editing times:</strong> Switch to the <em>Times</em> tab in the sidebar. Enter a date and time, then tap the checkmark to save. Tap any existing time to edit or delete it.</li>
-                  <li><strong>Personal Bests:</strong> The fastest time you've logged is highlighted. Your PB is also shown on the Dashboard.</li>
+                  <li><strong>Personal Bests:</strong> Your fastest entry is highlighted with a <span style={{background:'#f59e0b',color:'#fff',padding:'1px 5px',borderRadius:3,fontSize:'0.85em',fontWeight:800}}>★ PB</span> gold badge on the entry list and a gold star dot on the chart.</li>
                 </ul>
                 <div className="tut-tip">💡 Add times as far back as you can remember — the more history you enter, the better the chart shows your progression over your career.</div>
               </div>
@@ -1179,7 +1191,8 @@ export default function Settings() {
                         <div className="mock-time-arrow">→</div>
                         <div className="mock-time-block"><div className="mock-time-label">Target</div><div className="mock-time-val">48.00</div></div>
                       </div>
-                      <div className="mock-goal-bar-wrap"><div className="mock-goal-bar" style={{width:'100%'}}/></div>
+                      <div className="mock-goal-slider-wrap"><div className="mock-goal-slider-fill" style={{width:'100%'}}/><div className="mock-goal-slider-marker" style={{left:'100%'}}/></div>
+                      <div className="mock-goal-slider-labels"><span>49.20</span><span style={{color:'#059669',fontWeight:700}}>100% there</span><span style={{color:'#059669'}}>48.00</span></div>
                     </div>
                     <div className="mock-goal-card">
                       <div className="mock-goal-top">
@@ -1194,8 +1207,8 @@ export default function Settings() {
                         <div className="mock-time-arrow">→</div>
                         <div className="mock-time-block"><div className="mock-time-label">Target</div><div className="mock-time-val">1:45.00</div></div>
                       </div>
-                      <div className="mock-goal-bar-wrap"><div className="mock-goal-bar" style={{width:'62%'}}/></div>
-                      <div className="mock-goal-gap">3.33s to go</div>
+                      <div className="mock-goal-slider-wrap"><div className="mock-goal-slider-fill" style={{width:'62%'}}/><div className="mock-goal-slider-marker" style={{left:'62%'}}/></div>
+                      <div className="mock-goal-slider-labels"><span>1:51.20</span><span style={{color:'#0077b6',fontWeight:700}}>62% there</span><span style={{color:'#0077b6'}}>1:45.00</span></div>
                     </div>
                   </div>
                 </div>

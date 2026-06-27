@@ -101,7 +101,7 @@ function calcAgeAtDate(dob: string, dateStr: string): number | null {
   return age >= 0 ? age : null
 }
 
-function LineChart({ entries, dob }: { entries: TimeEntry[]; dob: string }) {
+function LineChart({ entries, dob, fastest }: { entries: TimeEntry[]; dob: string; fastest: TimeEntry | null }) {
   const [hovIdx, setHovIdx] = useState<number | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -215,21 +215,33 @@ function LineChart({ entries, dob }: { entries: TimeEntry[]; dob: string }) {
       )}
 
       {/* Data points with hover */}
-      {sorted.map((e, i) => (
-        <g key={`${e.date}|${e.time}|${i}`}
-          onMouseEnter={() => setHovIdx(i)}
-          style={{ cursor: 'pointer' }}
-        >
-          {/* Larger invisible hit area */}
-          <circle cx={xOf(dms[i]).toFixed(1)} cy={yOf(secs[i]).toFixed(1)} r="12" fill="transparent" />
-          <circle
-            cx={xOf(dms[i]).toFixed(1)} cy={yOf(secs[i]).toFixed(1)}
-            r={hovIdx === i ? 6 : 5}
-            fill={hovIdx === i ? '#00b4d8' : '#ffffff'}
-            stroke="#00b4d8" strokeWidth="2.5"
-          />
-        </g>
-      ))}
+      {sorted.map((e, i) => {
+        const isPB = fastest !== null && toSec(e.time) === toSec(fastest.time)
+        const cx = xOf(dms[i]).toFixed(1)
+        const cy = yOf(secs[i]).toFixed(1)
+        return (
+          <g key={`${e.date}|${e.time}|${i}`}
+            onMouseEnter={() => setHovIdx(i)}
+            style={{ cursor: 'pointer' }}
+          >
+            <circle cx={cx} cy={cy} r="12" fill="transparent" />
+            {isPB ? (
+              <>
+                <circle cx={cx} cy={cy} r={hovIdx === i ? 9 : 8} fill="#f59e0b" opacity="0.25" />
+                <circle cx={cx} cy={cy} r={hovIdx === i ? 6 : 5} fill="#f59e0b" stroke="#d97706" strokeWidth="2" />
+                <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontSize="7" fill="#fff" fontWeight="800">★</text>
+              </>
+            ) : (
+              <circle
+                cx={cx} cy={cy}
+                r={hovIdx === i ? 6 : 5}
+                fill={hovIdx === i ? '#00b4d8' : '#ffffff'}
+                stroke="#00b4d8" strokeWidth="2.5"
+              />
+            )}
+          </g>
+        )
+      })}
 
       {/* Axes */}
       <line x1={MG.l} y1={MG.t} x2={MG.l} y2={MG.t + CH + 1} stroke="#cbd5e1" strokeWidth="1.5" />
@@ -531,7 +543,19 @@ export default function Progress() {
           {/* ── Chart ── */}
           <div className="prog-chart-card">
             <div className="prog-chart-head">{displayLabel} · {course}</div>
-            <LineChart entries={entries.filter(e => e.date !== 'unknown')} dob={dob} />
+            <LineChart entries={entries.filter(e => e.date !== 'unknown')} dob={dob} fastest={fastest} />
+            {entries.length > 0 && (
+              <div className="prog-chart-legend">
+                <span className="prog-legend-item">
+                  <span className="prog-legend-dot prog-legend-dot--regular" />
+                  Entry
+                </span>
+                <span className="prog-legend-item">
+                  <span className="prog-legend-dot prog-legend-dot--pb">★</span>
+                  Personal Best
+                </span>
+              </div>
+            )}
           </div>
 
           {/* ── Add entry form ── */}
@@ -583,11 +607,11 @@ export default function Progress() {
                   const fastSec = fastest ? toSec(fastest.time) : null
                   const isBest = s !== null && fastSec !== null && s === fastSec
                   return (
-                    <div key={`${e.date}|${e.time}|${origIdx}`} className="prog-entry">
+                    <div key={`${e.date}|${e.time}|${origIdx}`} className={`prog-entry${isBest ? ' prog-entry--pb' : ''}`}>
                       <span className="prog-entry-date">{fmtDate(e.date)}</span>
                       <span className={`prog-entry-time${isBest ? ' prog-entry-time--best' : ''}`}>
                         {e.time}
-                        {isBest && <span className="prog-best-tag">best</span>}
+                        {isBest && <span className="prog-best-tag">★ PB</span>}
                       </span>
                       <button
                         className="prog-entry-del"
