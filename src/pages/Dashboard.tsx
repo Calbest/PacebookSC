@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, Bell, Star, Clock, Zap, Film } from 'lucide-react'
+import { User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, Bell, Star, Clock, Zap, Film } from 'lucide-react'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import OnboardingModal from '../components/OnboardingModal'
 import { supabase } from '../lib/supabase'
 import {
   upsertProfile, getFollowCounts, getFollowing, getFeedNotifications,
-  markFeedNotifsRead, writePRNotificationsForFollowers,
+  markFeedNotifsRead,
 } from '../lib/friends'
 import type { Profile as SwimProfile, FeedNotif } from '../lib/friends'
 import type { Goal } from './Goals'
-import { playClick, playSave, playNavigate } from '../lib/sounds'
+import { playClick, playNavigate } from '../lib/sounds'
 import './Dashboard.css'
 
 type EventEntry = { id: string; label: string }
@@ -128,7 +128,6 @@ const SCY_EVENTS: StrokeGroup[] = [
 
 type Course = 'SCY' | 'LCM' | 'SCM'
 type Times = Record<string, string>
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 interface AppNotif {
   id: string
@@ -440,13 +439,8 @@ export default function Dashboard() {
   const [course,      setCourse]      = useState<Course>('SCY')
   const [times,       setTimes]       = useState<Times>({})
   const [timeMeta,    setTimeMeta]    = useState<Record<string, { date: string; meet: string }>>({})
-  const [saveStatus,  setSaveStatus]  = useState<SaveStatus>('idle')
   const [showNotifs,  setShowNotifs]  = useState(false)
   const [timeHistory, setTimeHistory] = useState<Record<string, { date: string; time: string }[]>>({})
-  const [logModal,    setLogModal]    = useState<{ eventId: string; label: string } | null>(null)
-  const [logTime,     setLogTime]     = useState('')
-  const [logDate,     setLogDate]     = useState(new Date().toISOString().slice(0, 10))
-  const [logMeet,     setLogMeet]     = useState('')
   const [dob,         setDob]         = useState('')
   const [notifPrefs,     setNotifPrefs]     = useState<Record<string, boolean>>({ motivationalQuotes: true })
   const [goals,          setGoals]          = useState<Goal[]>([])
@@ -587,82 +581,6 @@ export default function Dashboard() {
     localStorage.setItem('sw_read_notifs', JSON.stringify([...next]))
   }
 
-  async function handleLogTime() {
-    if (!logModal || !logTime || !isValidTime(logTime)) return
-    const key = timeKey(course, logModal.eventId)
-    const prevBest = times[key]
-    const isNewBest = !prevBest || parseSeconds(logTime) < parseSeconds(prevBest)
-
-    const nextTimes    = isNewBest ? { ...times, [key]: logTime } : times
-    const nextMeta     = isNewBest
-      ? { ...timeMeta, [key]: { date: logDate, meet: logMeet } }
-      : timeMeta
-
-    const arr = [...(timeHistory[key] ?? [])]
-    const existingIdx = arr.findIndex(e => e.date === logDate)
-    if (existingIdx >= 0) arr[existingIdx] = { date: logDate, time: logTime }
-    else arr.push({ date: logDate, time: logTime })
-    const nextHistory = { ...timeHistory, [key]: arr }
-
-    setTimes(nextTimes)
-    setTimeMeta(nextMeta)
-    setTimeHistory(nextHistory)
-    setLogModal(null)
-    setLogTime('')
-    setLogMeet('')
-    setLogDate(new Date().toISOString().slice(0, 10))
-
-    setSaveStatus('saving')
-    const { error } = await supabase.auth.updateUser({
-      data: { times: nextTimes, timeMeta: nextMeta, timeHistory: nextHistory },
-    })
-    if (error) { setSaveStatus('error'); return }
-    setSaveStatus('saved')
-    playSave()
-    setTimeout(() => setSaveStatus('idle'), 2000)
-
-    if (userIdRef.current) {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const meta = user.user_metadata ?? {}
-        const myProfile = {
-          id:           user.id,
-          username:     meta.username    || user.email || '',
-          full_name:    meta.full_name   || null,
-          avatar_url:   meta.avatar_url  || null,
-          gender:       meta.gender      || null,
-          club_team:    meta.club_team   || null,
-          high_school:  meta.high_school || null,
-          times:        nextTimes,
-          dob:          meta.dob         || null,
-          banner_type:  meta.bannerType  || null,
-          banner_value: meta.bannerValue || null,
-          updated_at:   new Date().toISOString(),
-        }
-        upsertProfile(myProfile)
-        if (isNewBest && prevBest) {
-          const EVENT_LABEL: Record<string, string> = {
-            'SCY-50-free':'50 Free SCY','SCY-100-free':'100 Free SCY','SCY-200-free':'200 Free SCY',
-            'SCY-500-free':'500 Free SCY','SCY-1000-free':'1000 Free SCY','SCY-1650-free':'1650 Free SCY',
-            'SCY-100-back':'100 Back SCY','SCY-200-back':'200 Back SCY',
-            'SCY-100-breast':'100 Breast SCY','SCY-200-breast':'200 Breast SCY',
-            'SCY-100-fly':'100 Fly SCY','SCY-200-fly':'200 Fly SCY',
-            'SCY-200-im':'200 IM SCY','SCY-400-im':'400 IM SCY',
-            'LCM-50-free':'50 Free LCM','LCM-100-free':'100 Free LCM','LCM-200-free':'200 Free LCM',
-            'LCM-400-free':'400 Free LCM','LCM-800-free':'800 Free LCM','LCM-1500-free':'1500 Free LCM',
-            'LCM-100-back':'100 Back LCM','LCM-200-back':'200 Back LCM',
-            'LCM-100-breast':'100 Breast LCM','LCM-200-breast':'200 Breast LCM',
-            'LCM-100-fly':'100 Fly LCM','LCM-200-fly':'200 Fly LCM',
-            'LCM-200-im':'200 IM LCM','LCM-400-im':'400 IM LCM',
-          }
-          writePRNotificationsForFollowers(myProfile, [{
-            key, label: EVENT_LABEL[key] ?? key, newTime: logTime, oldTime: prevBest,
-          }])
-        }
-      }
-    }
-  }
-
   async function handleSignOut() {
     await supabase.auth.signOut()
     navigate('/')
@@ -706,63 +624,6 @@ export default function Dashboard() {
           <button className="dash-avatar-sheet-btn" onClick={() => setAvatarSheet(false)}>
             Cancel
           </button>
-        </div>
-      </div>
-    )}
-
-    {/* ── Log Time Modal ── */}
-    {logModal && (
-      <div className="log-modal-overlay" onClick={() => setLogModal(null)}>
-        <div className="log-modal" onClick={e => e.stopPropagation()}>
-          <div className="log-modal-header">
-            <h3 className="log-modal-title">Log Time — {logModal.label} ({course})</h3>
-            <button className="log-modal-close" onClick={() => setLogModal(null)}>
-              <X size={16} />
-            </button>
-          </div>
-          <div className="log-modal-body">
-            <label className="log-modal-label">Time</label>
-            <input
-              className={`log-modal-time-input${logTime && !isValidTime(logTime) ? ' log-modal-time-input--error' : ''}`}
-              placeholder="Type digits, e.g. 10234 → 1:02.34"
-              value={logTime}
-              onChange={e => setLogTime(formatTimeDigits(e.target.value))}
-              autoFocus
-            />
-            <label className="log-modal-label">Date achieved</label>
-            <input
-              type="date"
-              className="log-modal-date-input"
-              value={logDate}
-              onChange={e => setLogDate(e.target.value)}
-            />
-            <label className="log-modal-label">Meet name</label>
-            <input
-              type="text"
-              className="log-modal-meet-input"
-              placeholder="e.g. SCS JAG Championships"
-              value={logMeet}
-              onChange={e => setLogMeet(e.target.value)}
-            />
-            {logTime && times[timeKey(course, logModal.eventId)] && (
-              <p className="log-modal-hint">
-                {parseSeconds(logTime) < parseSeconds(times[timeKey(course, logModal.eventId)])
-                  ? '🏆 This is a new personal best!'
-                  : `Current best: ${times[timeKey(course, logModal.eventId)]}`
-                }
-              </p>
-            )}
-          </div>
-          <div className="log-modal-footer">
-            <button className="log-modal-cancel" onClick={() => setLogModal(null)}>Cancel</button>
-            <button
-              className="log-modal-save"
-              onClick={handleLogTime}
-              disabled={!logTime || !isValidTime(logTime) || saveStatus === 'saving'}
-            >
-              {saveStatus === 'saving' ? 'Saving…' : 'Save'}
-            </button>
-          </div>
         </div>
       </div>
     )}
@@ -1060,15 +921,6 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div className="toolbar-right">
-              {saveStatus !== 'idle' && (
-                <span className={`save-status save-status--${saveStatus}`}>
-                  {saveStatus === 'saving' && 'Saving…'}
-                  {saveStatus === 'saved'  && '✓ Saved'}
-                  {saveStatus === 'error'  && 'Error saving'}
-                </span>
-              )}
-            </div>
           </div>
 
           <div className="times-grid">
@@ -1083,29 +935,18 @@ export default function Dashboard() {
                   const key = timeKey(course, id)
                   const best = times[key]
                   const meta = timeMeta[key]
+                  const tip = best && meta
+                    ? [meta.date, meta.meet].filter(Boolean).join(' · ')
+                    : undefined
                   return (
                     <div key={id} className="event-row">
                       <span className="event-label">{label}</span>
-                      <div className="event-time-block">
-                        <span className="time-value">{best || '—'}</span>
-                        {best && meta && (
-                          <span className="time-meta">
-                            {meta.date}{meta.meet ? ` · ${meta.meet}` : ''}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        className="time-log-btn"
-                        onClick={() => {
-                          setLogModal({ eventId: id, label: `${label} ${stroke}` })
-                          setLogTime(best ?? '')
-                          setLogDate(meta?.date ?? new Date().toISOString().slice(0, 10))
-                          setLogMeet(meta?.meet ?? '')
-                        }}
-                        title="Log a time"
+                      <span
+                        className={`time-value${tip ? ' time-value--tip' : ''}`}
+                        data-tip={tip}
                       >
-                        <Pencil size={13} />
-                      </button>
+                        {best || '—'}
+                      </span>
                     </div>
                   )
                 })}
