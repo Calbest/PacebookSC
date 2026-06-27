@@ -202,12 +202,26 @@ const fadeRight = {
   transition: { duration: 0.7, ease: easeOut },
 }
 
-const staggerItem = (delay: number) => ({
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-60px' as const },
-  transition: { duration: 0.6, ease: easeOut, delay },
-})
+// Directional slide-in per bento card: left cards from left, right cards from right
+const BENTO_DIRS: [number, number][] = [
+  [-80, 10],  // Compare Times  — big left card, slides in from left
+  [ 80, -10], // Qualifications — right column, from right
+  [ 80,  10], // Progress       — right column, from right
+  [-70,   0], // Import Times   — left cell, from left
+  [  0,  60], // Event Planning — wide, rises from below
+  [-70,   0], // Goals          — left cell, from left
+  [ 70,   0], // Mobile         — wide right, from right
+]
+
+const bentoVariant = (i: number) => {
+  const [dx, dy] = BENTO_DIRS[i] ?? [0, 40]
+  return {
+    initial: { opacity: 0, x: dx, y: dy, scale: 0.93 },
+    whileInView: { opacity: 1, x: 0, y: 0, scale: 1 },
+    viewport: { once: true, margin: '-50px' as const },
+    transition: { type: 'spring' as const, stiffness: 65, damping: 16, delay: i * 0.07 },
+  }
+}
 
 // ── Static particle positions (no Math.random in render) ──────────────────────
 
@@ -425,11 +439,11 @@ function App() {
               <div className="uw-images">
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwLeftX }}>
                   <p className="uw-img-caption">Compare Times</p>
-                  <div className="uw-img-placeholder" />
+                  <img src="/photos/IMG_0942.jpeg" alt="Compare Times" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale }}>
                   <p className="uw-img-caption">Track Progress</p>
-                  <div className="uw-img-placeholder" />
+                  <img src="/photos/IMG_4189.jpeg" alt="Track Progress" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwRightX }}>
                   <p className="uw-img-caption">Plan Events</p>
@@ -457,7 +471,7 @@ function App() {
             <motion.div
               key={card.title}
               className={`bento-card${card.spanClass ? ' ' + card.spanClass : ''}`}
-              {...staggerItem(i * 0.08)}
+              {...bentoVariant(i)}
             >
               <div className="bento-icon-wrap">
                 {card.svg ? (

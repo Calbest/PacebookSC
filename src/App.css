@@ -251,7 +251,7 @@ p { margin: 0; }
 
 .hero-title-new {
   font-family: 'Bebas Neue', system-ui, sans-serif;
-  font-size: clamp(60px, 9.5vw, 128px);
+  font-size: clamp(46px, 7vw, 96px);
   line-height: 0.95;
   font-weight: 400;
   letter-spacing: 2px;
@@ -269,8 +269,8 @@ p { margin: 0; }
 }
 
 .hero-subtitle-new {
-  max-width: 580px;
-  font-size: clamp(15px, 1.8vw, 19px);
+  max-width: 560px;
+  font-size: clamp(13px, 1.4vw, 16px);
   line-height: 1.75;
   color: rgba(255, 255, 239, 0.72);
   margin: 0 0 40px;
@@ -440,12 +440,22 @@ p { margin: 0; }
 
 .uw-img-placeholder {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 3 / 4;
   background: rgba(10, 37, 64, 0.7);
   border: 1px solid rgba(0, 194, 255, 0.15);
-  border-radius: 14px;
+  border-radius: 18px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+.uw-img-photo {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 194, 255, 0.15);
+  display: block;
 }
 
 /* Scene 3 — Deep */
