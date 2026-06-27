@@ -396,37 +396,24 @@ export default function Import() {
     const user = sessionData.session?.user
     if (!user) { navigate('/'); return }
 
-    // Read existing history for these events so we can merge without losing data
-    const { data: existingRows } = await supabase
-      .from('swim_data')
-      .select('event_key, history')
-      .eq('user_id', user.id)
-      .in('event_key', toSave.map(r => r.key))
+    const mergedTimes: Record<string, string> = { ...(user.user_metadata?.times ?? {}) }
+    const mergedHistory: Record<string, SwimEntry[]> = { ...(user.user_metadata?.timeHistory ?? {}) }
 
-    const existingMap: Record<string, SwimEntry[]> = {}
-    for (const row of existingRows ?? []) {
-      existingMap[row.event_key] = row.history as SwimEntry[]
-    }
-
-    const upsertRows = toSave.map(row => {
-      const merged = [...(existingMap[row.key] ?? [])]
+    for (const row of toSave) {
+      mergedTimes[row.key] = row.bestTime
+      const hist = [...(mergedHistory[row.key] ?? [])]
       for (const entry of row.entries) {
-        if (!merged.some(e => e.date === entry.date && e.time === entry.time)) {
-          merged.push(entry)
+        if (!hist.some(e => e.date === entry.date && e.time === entry.time)) {
+          hist.push(entry)
         }
       }
-      const bestTime = merged.reduce((b, e) => toSec(e.time) < toSec(b.time) ? e : b).time
-      return {
-        user_id:    user.id,
-        event_key:  row.key,
-        best_time:  bestTime,
-        history:    merged,
-        updated_at: new Date().toISOString(),
-      }
-    })
+      mergedHistory[row.key] = hist
+    }
 
     try {
-      const { error } = await supabase.from('swim_data').upsert(upsertRows)
+      const { error } = await supabase.auth.updateUser({
+        data: { times: mergedTimes, timeHistory: mergedHistory },
+      })
       if (error) throw new Error(error.message)
     } catch (err) {
       setSaving(false)

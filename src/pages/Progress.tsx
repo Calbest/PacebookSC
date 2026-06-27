@@ -350,30 +350,15 @@ export default function Progress() {
 
   useEffect(() => {
     setDataLoading(true)
-    supabase.auth.getSession().then(async ({ data: sd }) => {
-      const user = sd.session?.user
+    supabase.auth.getUser().then(({ data }) => {
+      const user = data?.user
       if (!user) { navigate('/'); return }
+      setHistory(user.user_metadata?.timeHistory ?? {})
+      setDashTimes(user.user_metadata?.times ?? {})
       setDob(user.user_metadata?.dob ?? '')
-      const { data: rows } = await supabase
-        .from('swim_data')
-        .select('event_key, best_time, history')
-        .eq('user_id', user.id)
-      const histMap: TimeHistory = {}
-      const timesMap: Times = {}
-      for (const row of rows ?? []) {
-        histMap[row.event_key]  = row.history as TimeEntry[]
-        timesMap[row.event_key] = row.best_time
-      }
-      setHistory(histMap)
-      setDashTimes(timesMap)
       setDataLoading(false)
     })
   }, [navigate])
-
-  async function getUserId(): Promise<string | null> {
-    const { data } = await supabase.auth.getSession()
-    return data.session?.user.id ?? null
-  }
 
   const groups  = course === 'SCY' ? SCY_GROUPS : course === 'LCM' ? LCM_GROUPS : SCM_GROUPS
   const key     = `${course}-${eventId}`
@@ -405,46 +390,21 @@ export default function Progress() {
   async function addEntry() {
     if (!newTime.trim() || !newDate || !isValidTime(newTime)) return
     setNewTime('')
-    const uid = await getUserId()
-    if (!uid) return
-    const { data: existing } = await supabase
-      .from('swim_data').select('history')
-      .eq('user_id', uid).eq('event_key', key).maybeSingle()
-    const merged: TimeEntry[] = [...((existing?.history as TimeEntry[]) ?? []),
-      { date: newDate, time: newTime }]
-    const bestTime = merged.reduce((b, e) =>
-      (toSec(e.time) ?? Infinity) < (toSec(b.time) ?? Infinity) ? e : b).time
-    await supabase.from('swim_data').upsert({
-      user_id: uid, event_key: key, best_time: bestTime,
-      history: merged, updated_at: new Date().toISOString(),
-    })
-    setHistory(prev => ({ ...prev, [key]: merged }))
-    setDashTimes(prev => ({ ...prev, [key]: bestTime }))
+    const { data } = await supabase.auth.getUser()
+    const freshHistory: TimeHistory = data?.user?.user_metadata?.timeHistory ?? {}
+    const next = { ...freshHistory, [key]: [...(freshHistory[key] ?? []), { date: newDate, time: newTime }] }
+    setHistory(next)
+    await supabase.auth.updateUser({ data: { timeHistory: next } })
   }
 
   async function deleteEntry(sortedIdx: number) {
-    const uid = await getUserId()
-    if (!uid) return
-    const { data: existing } = await supabase
-      .from('swim_data').select('history')
-      .eq('user_id', uid).eq('event_key', key).maybeSingle()
-    const sorted = [...((existing?.history as TimeEntry[]) ?? [])]
-      .sort((a, b) => a.date.localeCompare(b.date))
-    sorted.splice(sortedIdx, 1)
-    if (sorted.length === 0) {
-      await supabase.from('swim_data').delete()
-        .eq('user_id', uid).eq('event_key', key)
-      setHistory(prev => { const n = { ...prev }; delete n[key]; return n })
-      setDashTimes(prev => { const n = { ...prev }; delete n[key]; return n })
-      return
-    }
-    const bestTime = sorted.reduce((b, e) =>
-      (toSec(e.time) ?? Infinity) < (toSec(b.time) ?? Infinity) ? e : b).time
-    await supabase.from('swim_data').update({
-      history: sorted, best_time: bestTime, updated_at: new Date().toISOString(),
-    }).eq('user_id', uid).eq('event_key', key)
-    setHistory(prev => ({ ...prev, [key]: sorted }))
-    setDashTimes(prev => ({ ...prev, [key]: bestTime }))
+    const { data } = await supabase.auth.getUser()
+    const freshHistory: TimeHistory = data?.user?.user_metadata?.timeHistory ?? {}
+    const arr = [...(freshHistory[key] ?? [])].sort((a, b) => a.date.localeCompare(b.date))
+    arr.splice(sortedIdx, 1)
+    const next = { ...freshHistory, [key]: arr }
+    setHistory(next)
+    await supabase.auth.updateUser({ data: { timeHistory: next } })
   }
 
   return (
