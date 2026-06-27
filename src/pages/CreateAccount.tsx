@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import '../App.css'
@@ -140,12 +140,12 @@ export default function CreateAccount() {
                     type="button"
                     className={`gender-btn${gender === 'male' ? ' active' : ''}`}
                     onClick={() => setGender('male')}
-                  >â™‚ Male</button>
+                  >♂ Male</button>
                   <button
                     type="button"
                     className={`gender-btn${gender === 'female' ? ' active' : ''}`}
                     onClick={() => setGender('female')}
-                  >â™€ Female</button>
+                  >♀ Female</button>
                 </div>
               </div>
             </div>
@@ -241,7 +241,7 @@ export default function CreateAccount() {
             {error && <p className="auth-error">{error}</p>}
 
             <button className="btn-primary btn-block" type="submit" disabled={loading}>
-              {loading ? 'Creating accountâ€¦' : 'Create Account'}
+              {loading ? 'Creating account…' : 'Create Account'}
             </button>
           </form>
 
@@ -254,4 +254,3 @@ export default function CreateAccount() {
     </div>
   )
 }
-

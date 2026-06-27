@@ -1,10 +1,10 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import '../App.css'
 import './CreateAccount.css'
 
-// â”€â”€ Client-side rate limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Client-side rate limiting ──────────────────────────────────────────────
 const RATE_KEY  = 'sw_login_attempts'
 const MAX_TRIES = 5
 const WINDOW_MS = 15 * 60 * 1000 // 15 minutes
@@ -46,7 +46,7 @@ function fmtMs(ms: number) {
   const m = Math.ceil(ms / 60000)
   return `${m} minute${m !== 1 ? 's' : ''}`
 }
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────────────────────────────────────
 
 export default function SignIn() {
   const navigate = useNavigate()
@@ -77,7 +77,7 @@ export default function SignIn() {
     if (signInError) {
       recordFail()
       setRate(getRateState())
-      // Generic message â€” never reveal which field was wrong
+      // Generic message — never reveal which field was wrong
       setError('Invalid email or password.')
     } else {
       localStorage.removeItem(RATE_KEY)
@@ -169,7 +169,7 @@ export default function SignIn() {
               )}
 
               <button className="btn-primary btn-block" type="submit" disabled={loading}>
-                {loading ? 'Signing inâ€¦' : 'Sign In'}
+                {loading ? 'Signing in…' : 'Sign In'}
               </button>
             </form>
           )}
@@ -183,4 +183,3 @@ export default function SignIn() {
     </div>
   )
 }
-
