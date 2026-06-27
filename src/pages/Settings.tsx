@@ -79,7 +79,7 @@ export default function Settings() {
   const [isEraser,     setIsEraser]     = useState(false)
 
   // Active tab
-  const [settingsTab, setSettingsTab] = useState<'profile' | 'account'>('profile')
+  const [settingsTab, setSettingsTab] = useState<'profile' | 'account' | 'tutorial'>('profile')
 
   // Notifications
   const [notifPrefs, setNotifPrefs] = useState({
@@ -392,6 +392,12 @@ export default function Settings() {
           >
             Account &amp; Security
           </button>
+          <button
+            className={`settings-tab${settingsTab === 'tutorial' ? ' active' : ''}`}
+            onClick={() => setSettingsTab('tutorial')}
+          >
+            Tutorial
+          </button>
         </div>
       </div>
 
@@ -590,12 +596,12 @@ export default function Settings() {
                   type="button"
                   className={`gender-btn${gender === 'male' ? ' active' : ''}`}
                   onClick={() => setGender('male')}
-                >Male</button>
+                >♂ Male</button>
                 <button
                   type="button"
                   className={`gender-btn${gender === 'female' ? ' active' : ''}`}
                   onClick={() => setGender('female')}
-                >Female</button>
+                >♀ Female</button>
               </div>
             </div>
           </div>
@@ -888,6 +894,201 @@ export default function Settings() {
         </section>
 
         </>}
+
+        {settingsTab === 'tutorial' && (
+          <div className="tutorial-wrap">
+            <p className="tutorial-intro">
+              New to SwimSync? This guide walks through every feature so you can get the most out of it right away.
+            </p>
+
+            {/* ── Dashboard ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--blue">🏠 Dashboard — Your Home Screen</div>
+              <div className="tut-body">
+                <p className="tut-desc">The Dashboard is where you land after signing in. It's your personal command center showing everything at a glance.</p>
+                <ul className="tut-list">
+                  <li><strong>Profile Banner:</strong> The colored bar at the top shows your name and profile photo. <em>Tap the photo circle to change your picture</em> — a sheet will appear with "Upload Photo" and "Remove Current Photo" options.</li>
+                  <li><strong>Welcome message:</strong> Below the banner shows your display name and current age (calculated from your birthday in Settings).</li>
+                  <li><strong>Quick Stats:</strong> Your best logged times for your main events appear here. These update automatically when you add times in the Progress page.</li>
+                  <li><strong>Sidebar (left):</strong> On desktop, the left panel has buttons to navigate the entire app. On mobile, a nav bar appears at the bottom of the screen.</li>
+                  <li><strong>Upcoming meets:</strong> Any meets you've added in the Calendar show up as upcoming events.</li>
+                  <li><strong>Motivational quotes:</strong> A new quote rotates every few days to keep you inspired.</li>
+                </ul>
+                <div className="tut-tip">💡 Customize your banner color or paint your own in Settings → Profile tab.</div>
+              </div>
+            </div>
+
+            {/* ── Calendar ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--green">📅 Practice Calendar</div>
+              <div className="tut-body">
+                <p className="tut-desc">Log every practice, track your attendance patterns, and analyze your training trends month by month.</p>
+                <h4 className="tut-sub">Logging a Practice</h4>
+                <ul className="tut-list">
+                  <li>Tap any <strong>blue practice day</strong> on the calendar grid. A sheet slides up from the bottom.</li>
+                  <li>Choose a <strong>session status</strong>: <em>Attended</em> (green), <em>Absent</em> (red), or <em>Cancelled</em> (gray).</li>
+                  <li>If attended, rate your <strong>mood</strong> from 😣 (1) to 😄 (5) — this feeds the monthly mood chart.</li>
+                  <li>If absent, enter a <strong>reason</strong> (e.g., "sick", "school event") — it appears in your monthly Absence Reasons list so you can spot patterns.</li>
+                  <li>Tap <strong>"Add 2nd Session"</strong> if you had both morning and afternoon practice that day.</li>
+                  <li><strong>Dryland:</strong> Toggle On if you did strength training, stretching, yoga, etc. Pick the type — these feed the Dryland Types pie chart.</li>
+                </ul>
+                <h4 className="tut-sub">Adding a Meet</h4>
+                <ul className="tut-list">
+                  <li>Tap <strong>"Add Meet"</strong> in the top-right of the calendar. Enter the meet name and date — it appears as a gold chip on that day.</li>
+                  <li>Tap a meet chip to open its analysis form: overall mood, confidence (1–5), weather/conditions (1–5), any injuries, and performance notes.</li>
+                </ul>
+                <h4 className="tut-sub">Views</h4>
+                <ul className="tut-list">
+                  <li><strong>Month:</strong> Full calendar grid. Colored dots on each day show session status at a glance (green=attended, red=absent, gray=cancelled, purple square=dryland).</li>
+                  <li><strong>Year:</strong> 12 month cards showing attendance rate as a colored bar. Click any month to jump to it.</li>
+                  <li><strong>Career:</strong> All-time attendance percentage and a year-by-year breakdown table.</li>
+                </ul>
+                <h4 className="tut-sub">Monthly Analysis (scroll below the grid)</h4>
+                <ul className="tut-list">
+                  <li>Three donut pie charts: <em>Attendance</em>, <em>Practice Mood</em>, and <em>Dryland Types</em>. Hover (or tap) a slice to see the percentage.</li>
+                  <li><em>Absence Reasons</em> list — all the reasons you entered when marking yourself absent.</li>
+                  <li><em>Meet Analysis</em> cards — a summary of mood, confidence, weather, injuries, and notes for each meet that month.</li>
+                </ul>
+                <h4 className="tut-sub">Edit Schedule</h4>
+                <ul className="tut-list">
+                  <li>Tap <strong>"Edit Schedule"</strong> in the left sidebar to set which days of the week you normally have practice, which days have two sessions by default, and what time practice starts.</li>
+                  <li>Setting this up makes the calendar highlight the right days automatically.</li>
+                </ul>
+                <div className="tut-tip">💡 The dots in each calendar cell use mood color when you rated a practice — a bright green dot means a great session!</div>
+              </div>
+            </div>
+
+            {/* ── Media Library ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--purple">📚 Media Library</div>
+              <div className="tut-body">
+                <p className="tut-desc">Your personal swim scrapbook. Store race results, videos, split sheets, group photos, awards, and certificates — all organized by month.</p>
+                <h4 className="tut-sub">Adding a Race / Swim</h4>
+                <ul className="tut-list">
+                  <li>Tap <strong>"Add Media"</strong> → <strong>"Race / Swim"</strong>.</li>
+                  <li>Choose the event (e.g., 100 Freestyle), course (SCY/LCM/SCM), date, and your final time.</li>
+                  <li><strong>Splits:</strong> Fields appear automatically — one box per 50 yards/meters. Fill them in from your result sheet.</li>
+                  <li><strong>Race video:</strong> Paste a YouTube or Vimeo link to attach the video to this entry.</li>
+                  <li><strong>Notes:</strong> How did the race feel? What went well? What do you want to fix?</li>
+                  <li><strong>Coach Feedback:</strong> What did your coach tell you after the race?</li>
+                  <li><strong>Photos:</strong> Upload photos of your result sheet or the scoreboard.</li>
+                </ul>
+                <h4 className="tut-sub">Adding Photos &amp; Awards</h4>
+                <ul className="tut-list">
+                  <li>Tap <strong>"Add Media"</strong> → <strong>"Photos &amp; Awards"</strong>.</li>
+                  <li>Give it a title, pick a category (Group Photo, Award, Certificate, Team Event, Other), and add a description.</li>
+                  <li>Upload photos and optionally attach a video link.</li>
+                </ul>
+                <h4 className="tut-sub">Browsing Your Library</h4>
+                <ul className="tut-list">
+                  <li>Entries are grouped by <strong>month</strong> — just like the iPhone Photos app — making it easy to find anything by when it happened.</li>
+                  <li>Each card shows a thumbnail, the event/title, time or category, and tags.</li>
+                  <li>Tap any card to open the full detail view. Tap <strong>Edit</strong> to update any field.</li>
+                </ul>
+                <div className="tut-tip">⚠️ Photos require a Supabase Storage bucket called "race-photos" to be set up. Ask your account administrator or see the bug report in Settings for setup steps.</div>
+              </div>
+            </div>
+
+            {/* ── Progress ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--teal">📈 Progress</div>
+              <div className="tut-body">
+                <p className="tut-desc">Track how your times have changed over your career with an interactive chart for every event.</p>
+                <ul className="tut-list">
+                  <li><strong>Select an event:</strong> In the left sidebar, pick a course (SCY/LCM/SCM), then a stroke and distance. The chart updates immediately.</li>
+                  <li><strong>Reading the chart:</strong> Time flows left to right (oldest → newest). The vertical axis is speed — <em>lower on the chart = faster time</em>. A dot moving down and to the right means improvement.</li>
+                  <li><strong>Hover a dot:</strong> On desktop, hover over any dot to see a tooltip with the exact date, your time, and how old you were at that swim. On mobile, tap the dot.</li>
+                  <li><strong>Adding/editing times:</strong> Switch to the <em>Times</em> tab in the sidebar. Enter a date and time, then tap the checkmark to save. Tap any existing time to edit or delete it.</li>
+                  <li><strong>Personal Bests:</strong> The fastest time you've logged is highlighted. Your PB is also shown on the Dashboard.</li>
+                </ul>
+                <div className="tut-tip">💡 Add times as far back as you can remember — the more history you enter, the better the chart shows your progression over your career.</div>
+              </div>
+            </div>
+
+            {/* ── Goals ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--orange">🎯 Goals</div>
+              <div className="tut-body">
+                <p className="tut-desc">Set a target time for any event and watch your progress toward it in real time.</p>
+                <ul className="tut-list">
+                  <li><strong>Create a goal:</strong> Tap "Create your first goal" (or "Add another goal"). Select an event, your starting time, the target time, and an optional deadline.</li>
+                  <li><strong>Goal cards:</strong> Each card shows your current best time (pulled live from your Progress logs) vs. your target, and how many days until your deadline.</li>
+                  <li><strong>Achieved:</strong> When your logged time beats the target, the card turns green with a "✓ Achieved!" badge.</li>
+                  <li><strong>Archive:</strong> When goals are achieved, an "Archive Completed Goals" button appears at the top. Tap it to move finished goals to a history section at the bottom. Use the ▼ chevron to expand and view your archive.</li>
+                  <li><strong>Goal Help:</strong> Tap the <em>Help</em> button in the sidebar for SMART goal-setting advice tailored to swimming.</li>
+                </ul>
+                <div className="tut-tip">💡 Set goals around qualifying cuts (visible in the Qualifications page) — e.g., "hit a BB cut in 100 Free by December".</div>
+              </div>
+            </div>
+
+            {/* ── Qualifications ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--gold">🏆 Qualifications</div>
+              <div className="tut-body">
+                <p className="tut-desc">See where your times stand against USA Swimming qualifying standards for every age group.</p>
+                <ul className="tut-list">
+                  <li>Filter by <strong>age group</strong> (10-Under through Senior) and <strong>course</strong> (SCY or LCM) using the dropdowns at the top.</li>
+                  <li>Your current best times are automatically compared against <strong>B, BB, A, AA, AAA, and Sectional</strong> cuts.</li>
+                  <li>Events where you've made a cut show a colored badge. Events still within reach show the gap to the next cut.</li>
+                  <li>Use this page to figure out which goals to set in the Goals page — aim for the next cut above where you are now.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* ── Event Planning ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--blue">📋 Event Planning</div>
+              <div className="tut-body">
+                <p className="tut-desc">Plan which events you'll swim at an upcoming meet and strategize your race schedule.</p>
+                <ul className="tut-list">
+                  <li>Select the events you plan to enter — they'll show your current best time and the qualifying standard side by side.</li>
+                  <li>See at a glance how far you are from the qualifying cut for each event.</li>
+                  <li>Add notes for your race strategy — what splits to hit, what to focus on mentally, etc.</li>
+                  <li>Access Event Planning from the Calendar page sidebar.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* ── Settings ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--gray">⚙️ Settings</div>
+              <div className="tut-body">
+                <p className="tut-desc">Personalize your account, appearance, and notification preferences.</p>
+                <h4 className="tut-sub">Profile Tab</h4>
+                <ul className="tut-list">
+                  <li><strong>Profile Picture:</strong> Click/tap your avatar to upload a new photo. It's automatically cropped to a square and compressed — no storage setup needed.</li>
+                  <li><strong>Dashboard Banner:</strong> Choose from 10 gradient presets, 8 solid colors, pick any custom color, or tap "Paint Your Own" to draw a custom banner using a brush tool. Your drawing becomes the banner background on your Dashboard.</li>
+                  <li><strong>Profile Info:</strong> Full name, gender (♂/♀), birthday (used to calculate your age on the Dashboard and Qualifications), club team, and high school.</li>
+                  <li>Tap <strong>Save Profile</strong> when done — it confirms with a green "Saved!" message.</li>
+                </ul>
+                <h4 className="tut-sub">Account &amp; Security Tab</h4>
+                <ul className="tut-list">
+                  <li><strong>Username:</strong> Your display name — tap Save after changing it.</li>
+                  <li><strong>Email:</strong> Changing your email sends a confirmation to the new address first. You must click the link in that email to confirm the change.</li>
+                  <li><strong>Phone:</strong> Optional — saved to your profile but not used for authentication.</li>
+                  <li><strong>Password:</strong> Tap "Send Reset Email" to receive a password reset link. After clicking that link, enter and confirm your new password on this page.</li>
+                  <li><strong>Notifications:</strong> Toggle which in-app alerts you receive. Tap "Save Preferences" to apply your choices.</li>
+                  <li><strong>Delete Account:</strong> Permanently erases your account and all data. A confirmation step prevents accidental deletion.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* ── Time Converter ── */}
+            <div className="tut-section">
+              <div className="tut-section-header tut-header--teal">⇄ Time Converter</div>
+              <div className="tut-body">
+                <p className="tut-desc">Instantly convert swimming times between Short Course Yards (SCY), Long Course Meters (LCM), and Short Course Meters (SCM).</p>
+                <ul className="tut-list">
+                  <li>Access it from the sidebar on the <strong>Calendar, Progress, Goals, or Media Library</strong> pages — look for the ⇄ icon.</li>
+                  <li>Select your event, enter a time in one course, and the conversion appears instantly.</li>
+                  <li>Useful when comparing times swum in different courses (e.g., your SCY time vs. what the LCM standard is).</li>
+                </ul>
+              </div>
+            </div>
+
+            <p className="tutorial-footer">That's everything! If something isn't working or a feature is missing, check the Bugs &amp; Requirements section — some features require one-time Supabase setup.</p>
+          </div>
+        )}
 
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Plus, Target, Trash2, ArrowRightLeft, Archive, ChevronDown } from 'lucide-react'
+import { LayoutDashboard, Plus, Target, Trash2, ArrowRightLeft, Archive, ChevronDown, ChevronLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Goals.css'
@@ -45,6 +45,7 @@ export default function Goals() {
   const [times,        setTimes]        = useState<Record<string, string>>({})
   const [showTC,       setShowTC]       = useState(false)
   const [showArchive,  setShowArchive]  = useState(false)
+  const [showSMART,    setShowSMART]    = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -92,12 +93,73 @@ export default function Goals() {
             <ArrowRightLeft size={16} />
             <span>Time Converter</span>
           </button>
+          <button className="goals-nav-btn goals-smart-btn" onClick={() => setShowSMART(true)}>
+            <Target size={16} />
+            <span>Goal Help (SMART)</span>
+          </button>
         </nav>
       </aside>
+
+      {showSMART && (
+        <div className="smart-overlay" onClick={() => setShowSMART(false)}>
+          <div className="smart-panel" onClick={e => e.stopPropagation()}>
+            <div className="smart-header">
+              <span>SMART Goal Planning</span>
+              <button className="smart-close" onClick={() => setShowSMART(false)}>✕</button>
+            </div>
+            <div className="smart-body">
+              <p className="smart-intro">
+                The SMART system turns vague wishes into concrete, achievable targets. Here's how to apply it to your swim goals:
+              </p>
+              <div className="smart-item">
+                <div className="smart-letter">S</div>
+                <div>
+                  <div className="smart-name">Specific</div>
+                  <p>Name the exact event, course, and time standard. Don't say "swim faster" — say "drop to 55.0 in the 100 Freestyle SCY."</p>
+                </div>
+              </div>
+              <div className="smart-item">
+                <div className="smart-letter">M</div>
+                <div>
+                  <div className="smart-name">Measurable</div>
+                  <p>Your goal is already measured in seconds. Track every logged time in Progress so you can see how close you are at any point.</p>
+                </div>
+              </div>
+              <div className="smart-item">
+                <div className="smart-letter">A</div>
+                <div>
+                  <div className="smart-name">Achievable</div>
+                  <p>Look at your Progress chart. Is your trend heading in the right direction? A 1–3% drop per season is realistic. 10% is too ambitious unless you're a new swimmer.</p>
+                </div>
+              </div>
+              <div className="smart-item">
+                <div className="smart-letter">R</div>
+                <div>
+                  <div className="smart-name">Relevant</div>
+                  <p>Focus on your primary events first. If your main event is butterfly, don't spend goal-setting energy on backstroke. Pick events that align with your meets and coach's plan.</p>
+                </div>
+              </div>
+              <div className="smart-item">
+                <div className="smart-letter">T</div>
+                <div>
+                  <div className="smart-name">Time-Bound</div>
+                  <p>Set a deadline tied to a real meet — not a vague "end of season." Add that meet to your Calendar and use the deadline field in the goal card.</p>
+                </div>
+              </div>
+              <div className="smart-tip">
+                <strong>Tip:</strong> Use the Qualifications page to see which USA Swimming cut is just above your current best — that's your next natural goal.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
 
       <div className="goals-page">
         <div className="goals-header">
+          <button className="page-mob-back" onClick={() => navigate('/dashboard')}>
+            <ChevronLeft size={15} /> Dashboard
+          </button>
           <div className="goals-header-info">
             <h1 className="goals-title">My Goals</h1>
             <p className="goals-subtitle">Times you're working toward</p>

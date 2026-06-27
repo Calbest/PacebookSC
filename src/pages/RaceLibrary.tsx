@@ -71,30 +71,48 @@ function formatTimeDigits(raw: string): string {
 
 // ─── Photo uploader hook ─────────────────────────────────────────────────────
 
-function usePhotoUpload(userId: string, entryId: string) {
+function usePhotoUpload(_userId: string, _entryId: string) {
   const ref = useRef<HTMLInputElement>(null)
-  const [photoUrls, setPhotoUrls] = useState<string[]>([])
-  const [uploading,  setUploading] = useState(false)
+  const [photoUrls,   setPhotoUrls]   = useState<string[]>([])
+  const [uploading,   setUploading]   = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
   async function handlePhotos(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
     setUploading(true)
+    setUploadError('')
     const newUrls: string[] = []
     for (const file of files) {
-      const ext  = file.name.split('.').pop()
-      const path = `${userId}/${entryId}/${Date.now()}.${ext}`
-      const { error } = await supabase.storage.from('race-photos').upload(path, file, { upsert: true })
-      if (!error) {
-        const { data: { publicUrl } } = supabase.storage.from('race-photos').getPublicUrl(path)
-        newUrls.push(publicUrl)
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const img = document.createElement('img')
+          img.onload = () => {
+            const MAX = 900
+            let w = img.width, h = img.height
+            if (w > MAX || h > MAX) {
+              if (w > h) { h = Math.round(h * MAX / w); w = MAX }
+              else       { w = Math.round(w * MAX / h); h = MAX }
+            }
+            const canvas = document.createElement('canvas')
+            canvas.width = w; canvas.height = h
+            canvas.getContext('2d')!.drawImage(img, 0, 0, w, h)
+            resolve(canvas.toDataURL('image/jpeg', 0.78))
+          }
+          img.onerror = reject
+          img.src = URL.createObjectURL(file)
+        })
+        newUrls.push(dataUrl)
+      } catch {
+        setUploadError('One or more photos could not be processed. Try a different image.')
       }
     }
     setPhotoUrls(prev => [...prev, ...newUrls])
     setUploading(false)
+    if (e.target) e.target.value = ''
   }
 
-  return { ref, photoUrls, setPhotoUrls, uploading, handlePhotos }
+  return { ref, photoUrls, setPhotoUrls, uploading, uploadError, handlePhotos }
 }
 
 // ─── Race form ───────────────────────────────────────────────────────────────
@@ -106,7 +124,7 @@ function RaceForm({ initial, userId, onSave, onCancel }: {
   onCancel: () => void
 }) {
   const entryId = initial.id ?? 'new'
-  const { ref: photoRef, photoUrls, setPhotoUrls, uploading, handlePhotos } = usePhotoUpload(userId, entryId)
+  const { ref: photoRef, photoUrls, setPhotoUrls, uploading, uploadError, handlePhotos } = usePhotoUpload(userId, entryId)
   const [eventLabel,    setEventLabel]    = useState(initial.eventLabel    ?? '50 Free')
   const [course,        setCourse]        = useState<Course>(initial.course ?? 'SCY')
   const [date,          setDate]          = useState(initial.date          ?? new Date().toISOString().slice(0,10))
@@ -189,9 +207,10 @@ function RaceForm({ initial, userId, onSave, onCancel }: {
       <div className="rl-field">
         <label className="rl-label"><Camera size={13} /> Photos of Times</label>
         <button className="rl-photo-btn" onClick={() => photoRef.current?.click()} disabled={uploading}>
-          <Camera size={15} />{uploading ? 'Uploading…' : 'Add Photos'}
+          <Camera size={15} />{uploading ? 'Processing…' : 'Add Photos'}
         </button>
         <input ref={photoRef} type="file" accept="image/*" multiple style={{display:'none'}} onChange={handlePhotos} />
+        {uploadError && <p className="rl-upload-error">{uploadError}</p>}
         {photoUrls.length > 0 && (
           <div className="rl-photos-grid">
             {photoUrls.map(url => (
@@ -222,7 +241,7 @@ function MediaForm({ initial, userId, onSave, onCancel }: {
   onCancel: () => void
 }) {
   const entryId = initial.id ?? 'new'
-  const { ref: photoRef, photoUrls, setPhotoUrls, uploading, handlePhotos } = usePhotoUpload(userId, entryId)
+  const { ref: photoRef, photoUrls, setPhotoUrls, uploading, uploadError, handlePhotos } = usePhotoUpload(userId, entryId)
   const [title,       setTitle]       = useState(initial.title       ?? '')
   const [category,    setCategory]    = useState(initial.category    ?? 'Group Photo')
   const [date,        setDate]        = useState(initial.date        ?? new Date().toISOString().slice(0,10))
@@ -269,9 +288,10 @@ function MediaForm({ initial, userId, onSave, onCancel }: {
       <div className="rl-field">
         <label className="rl-label"><Image size={13} /> Photos</label>
         <button className="rl-photo-btn" onClick={() => photoRef.current?.click()} disabled={uploading}>
-          <Camera size={15} />{uploading ? 'Uploading…' : 'Add Photos'}
+          <Camera size={15} />{uploading ? 'Processing…' : 'Add Photos'}
         </button>
         <input ref={photoRef} type="file" accept="image/*" multiple style={{display:'none'}} onChange={handlePhotos} />
+        {uploadError && <p className="rl-upload-error">{uploadError}</p>}
         {photoUrls.length > 0 && (
           <div className="rl-photos-grid">
             {photoUrls.map(url => (
@@ -361,6 +381,20 @@ export default function RaceLibrary() {
 
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date))
 
+  // Group by YYYY-MM for iOS Photos-style month headers
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  function monthLabel(key: string) {
+    const [y, m] = key.split('-')
+    return `${MONTH_NAMES[parseInt(m) - 1]} ${y}`
+  }
+  const monthGroups: { key: string; entries: MediaEntry[] }[] = []
+  for (const entry of sorted) {
+    const key = entry.date.slice(0, 7)
+    const last = monthGroups[monthGroups.length - 1]
+    if (last && last.key === key) last.entries.push(entry)
+    else monthGroups.push({ key, entries: [entry] })
+  }
+
   // ── List ──────────────────────────────────────────────────────────────────
 
   if (view === 'list') return (
@@ -369,6 +403,9 @@ export default function RaceLibrary() {
       <Sidebar onTC={() => setShowTC(true)} />
       <div className="rl-page">
         <div className="rl-header">
+          <button className="page-mob-back" onClick={() => navigate('/dashboard')}>
+            <ChevronLeft size={15} /> Dashboard
+          </button>
           <div>
             <h1 className="rl-title">Media Library</h1>
             <p className="rl-subtitle">Races, group photos, awards, and more</p>
@@ -385,29 +422,36 @@ export default function RaceLibrary() {
               <p>Nothing here yet. Add your first entry above.</p>
             </div>
           ) : (
-            <div className="rl-cards">
-              {sorted.map(entry => (
-                <div key={entry.id} className="rl-card" onClick={() => { setSelected(entry); setView('detail') }}>
-                  {entry.photoUrls[0] && <img src={entry.photoUrls[0]} alt="" className="rl-card-thumb" />}
-                  <div className="rl-card-body">
-                    {entry.kind === 'race' ? (
-                      <>
-                        <div className="rl-card-event">{entry.eventLabel} · {entry.course}</div>
-                        <div className="rl-card-time">{entry.time || '—'}</div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="rl-card-event">{entry.title}</div>
-                        <div className="rl-card-category">{entry.category}</div>
-                      </>
-                    )}
-                    <div className="rl-card-date">{entry.date}</div>
-                    <div className="rl-card-tags">
-                      <span className={`rl-tag rl-tag--kind-${entry.kind}`}>{entry.kind === 'race' ? 'Race' : 'Media'}</span>
-                      {entry.videoUrl && <span className="rl-tag rl-tag--video">Video</span>}
-                      {entry.photoUrls.length > 0 && <span className="rl-tag rl-tag--photo">{entry.photoUrls.length} photo{entry.photoUrls.length!==1?'s':''}</span>}
-                      {entry.kind === 'race' && entry.notes && <span className="rl-tag">Notes</span>}
-                    </div>
+            <div className="rl-grouped">
+              {monthGroups.map(({ key, entries: group }) => (
+                <div key={key} className="rl-month-group">
+                  <div className="rl-month-header">{monthLabel(key)}</div>
+                  <div className="rl-cards">
+                    {group.map(entry => (
+                      <div key={entry.id} className="rl-card" onClick={() => { setSelected(entry); setView('detail') }}>
+                        {entry.photoUrls[0] && <img src={entry.photoUrls[0]} alt="" className="rl-card-thumb" />}
+                        <div className="rl-card-body">
+                          {entry.kind === 'race' ? (
+                            <>
+                              <div className="rl-card-event">{entry.eventLabel} · {entry.course}</div>
+                              <div className="rl-card-time">{entry.time || '—'}</div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="rl-card-event">{entry.title}</div>
+                              <div className="rl-card-category">{entry.category}</div>
+                            </>
+                          )}
+                          <div className="rl-card-date">{entry.date}</div>
+                          <div className="rl-card-tags">
+                            <span className={`rl-tag rl-tag--kind-${entry.kind}`}>{entry.kind === 'race' ? 'Race' : 'Media'}</span>
+                            {entry.videoUrl && <span className="rl-tag rl-tag--video">Video</span>}
+                            {entry.photoUrls.length > 0 && <span className="rl-tag rl-tag--photo">{entry.photoUrls.length} photo{entry.photoUrls.length!==1?'s':''}</span>}
+                            {entry.kind === 'race' && entry.notes && <span className="rl-tag">Notes</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}

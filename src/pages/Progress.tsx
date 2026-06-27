@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Plus, Trash2, AlertTriangle, ChevronDown, ArrowRightLeft } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Plus, Trash2, AlertTriangle, ChevronDown, ArrowRightLeft, ChevronLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Progress.css'
@@ -400,6 +400,9 @@ export default function Progress() {
 
       <div className="prog-page">
         <div className="prog-header">
+          <button className="page-mob-back" onClick={() => navigate('/dashboard')}>
+            <ChevronLeft size={15} /> Dashboard
+          </button>
           <div className="prog-header-info">
             <h1 className="prog-title">Time Progression</h1>
             <p className="prog-subtitle">Track how your times improve over the season</p>

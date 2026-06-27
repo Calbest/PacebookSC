@@ -17,6 +17,31 @@ button:active {
   transition: transform 0.07s ease;
 }
 
+/* ── Mobile back button (hidden on desktop, shown on mobile across all pages) ── */
+.page-mob-back {
+  display: none;
+}
+@media (max-width: 640px) {
+  .page-mob-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+    margin-bottom: 10px;
+    align-self: flex-start;
+  }
+  .page-mob-back:hover { background: rgba(255,255,255,0.25); }
+}
+
 /* ── Global card hover lift ── */
 .settings-card:hover,
 .times-panel:hover,

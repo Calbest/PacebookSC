@@ -106,12 +106,12 @@ export default function CreateAccount() {
                     type="button"
                     className={`gender-btn${gender === 'male' ? ' active' : ''}`}
                     onClick={() => setGender('male')}
-                  >Male</button>
+                  >♂ Male</button>
                   <button
                     type="button"
                     className={`gender-btn${gender === 'female' ? ' active' : ''}`}
                     onClick={() => setGender('female')}
-                  >Female</button>
+                  >♀ Female</button>
                 </div>
               </div>
             </div>

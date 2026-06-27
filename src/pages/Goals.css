@@ -397,8 +397,77 @@
   border-radius: 20px;
 }
 
+/* ── SMART panel ─────────────────────────────────────── */
+.goals-smart-btn { margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 12px; }
+
+.smart-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 8000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.smart-panel {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%; max-width: 500px;
+  max-height: 85svh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+  animation: smart-in 0.22s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes smart-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+.smart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px;
+  font-size: 17px; font-weight: 800; color: #002855;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+.smart-close {
+  background: #f1f5f9; border: none; border-radius: 50%;
+  width: 28px; height: 28px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #475569;
+}
+.smart-body {
+  padding: 16px 20px 24px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.smart-intro {
+  font-size: 13.5px; color: #475569; line-height: 1.6; margin: 0;
+}
+.smart-item {
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.smart-letter {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #002855, #1d4ed8);
+  color: #fff; font-size: 20px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.smart-name {
+  font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 3px;
+}
+.smart-item p {
+  font-size: 13px; color: #475569; line-height: 1.55; margin: 0;
+}
+.smart-tip {
+  background: #f0f9ff;
+  border-left: 3px solid #38bdf8;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 13px; color: #0369a1; line-height: 1.5;
+}
+
 @media (max-width: 700px) {
   .goals-sidebar { display: none; }
-  .goals-header  { padding: 20px; }
+  .goals-header  { padding: 20px; flex-direction: column; align-items: flex-start; }
   .goals-body    { padding: 20px 16px 48px; }
+  .smart-panel   { max-height: 90svh; }
 }

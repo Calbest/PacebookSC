@@ -607,13 +607,37 @@
   color: #002855;
 }
 
+/* ─── Month grouping ──────────────────────────────────────── */
+.rl-grouped { display: flex; flex-direction: column; gap: 28px; }
+.rl-month-group { display: flex; flex-direction: column; gap: 12px; }
+.rl-month-header {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.4px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* ─── Upload error ────────────────────────────────────────── */
+.rl-upload-error {
+  font-size: 12px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 4px 0 0;
+}
+
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 640px) {
   .rl-sidebar { display: none; }
-  .rl-header { padding: 16px 20px; }
+  .rl-header { padding: 16px 20px 12px; flex-direction: column; align-items: flex-start; }
   .rl-body { padding: 20px 16px; }
   .rl-form-row { grid-template-columns: 1fr; }
   .rl-cards { grid-template-columns: 1fr; }
   .rl-form-card, .rl-detail { padding: 20px 16px; }
+  .rl-month-header { font-size: 17px; }
 }

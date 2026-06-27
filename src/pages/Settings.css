@@ -718,4 +718,100 @@
   .settings-row    { flex-direction: column; }
   .settings-save   { width: 100%; }
   .notif-row-desc  { display: none; }
+  .tut-section     { margin-bottom: 20px; }
+  .tutorial-wrap   { padding: 0; }
+  .cal-charts-row  { grid-template-columns: 1fr; }
+}
+
+/* ── Tutorial ─────────────────────────────────────────────────────────────── */
+.tutorial-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 760px;
+}
+.tutorial-intro {
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.65;
+  margin: 0 0 20px;
+  background: #fff;
+  border: 1px solid #cddff2;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.tutorial-footer {
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
+.tut-section {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,40,85,0.05);
+}
+.tut-section-header {
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+.tut-header--blue   { background: linear-gradient(90deg, #002855, #1d4ed8); }
+.tut-header--green  { background: linear-gradient(90deg, #065f46, #059669); }
+.tut-header--purple { background: linear-gradient(90deg, #4c1d95, #7c3aed); }
+.tut-header--teal   { background: linear-gradient(90deg, #0c4a6e, #0891b2); }
+.tut-header--orange { background: linear-gradient(90deg, #92400e, #f59e0b); }
+.tut-header--gold   { background: linear-gradient(90deg, #78350f, #d97706); }
+.tut-header--gray   { background: linear-gradient(90deg, #1e293b, #475569); }
+
+.tut-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tut-desc {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+.tut-sub {
+  font-size: 13px;
+  font-weight: 800;
+  color: #002855;
+  margin: 6px 0 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.tut-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tut-list li {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.55;
+}
+.tut-list strong { color: #0f172a; }
+.tut-list em     { color: #64748b; font-style: italic; }
+.tut-tip {
+  background: #f0f9ff;
+  border-left: 3px solid #38bdf8;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #0369a1;
+  font-weight: 600;
+  line-height: 1.5;
 }

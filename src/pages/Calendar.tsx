@@ -1009,6 +1009,9 @@ export default function Calendar() {
       {/* ── Page ── */}
       <div className="cal-page">
         <div className="cal-page-header">
+          <button className="page-mob-back" onClick={() => navigate('/dashboard')}>
+            <ChevronLeft size={15} /> Dashboard
+          </button>
           <div>
             <h1 className="cal-title">Practice Calendar</h1>
             <p className="cal-subtitle">Track attendance, mood, dryland, and meets</p>
