@@ -906,6 +906,39 @@ export default function Settings() {
               <div className="tut-section-header tut-header--blue">🏠 Dashboard — Your Home Screen</div>
               <div className="tut-body">
                 <p className="tut-desc">The Dashboard is where you land after signing in. It's your personal command center showing everything at a glance.</p>
+
+                {/* Dashboard mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Dashboard</span></div>
+                  <div className="tut-mockup-body mock-dash-layout">
+                    <div className="mock-rail">
+                      <div className="mock-rail-logo"/>
+                      {['🏠','📅','📚','📈','🎯','🏆'].map((ic,i) => <div key={i} className={`mock-rail-btn${i===0?' active':''}`}>{ic}</div>)}
+                    </div>
+                    <div className="mock-dash-main">
+                      <div className="mock-banner">
+                        <div className="mock-avatar"/>
+                        <div className="mock-banner-text">
+                          <div className="mock-bar mock-bar--white mock-bar--lg"/>
+                          <div className="mock-bar mock-bar--white mock-bar--sm"/>
+                        </div>
+                      </div>
+                      <div className="mock-stats-row">
+                        {['100 Free','200 Free','100 Fly'].map(ev => (
+                          <div key={ev} className="mock-stat-card">
+                            <div className="mock-bar mock-bar--xs mock-bar--gray"/>
+                            <div className="mock-bar mock-bar--md mock-bar--blue"/>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mock-quote-card">
+                        <div className="mock-bar mock-bar--full mock-bar--gray"/>
+                        <div className="mock-bar mock-bar--75 mock-bar--gray"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="tut-list">
                   <li><strong>Profile Banner:</strong> The colored bar at the top shows your name and profile photo. <em>Tap the photo circle to change your picture</em> — a sheet will appear with "Upload Photo" and "Remove Current Photo" options.</li>
                   <li><strong>Welcome message:</strong> Below the banner shows your display name and current age (calculated from your birthday in Settings).</li>
@@ -923,6 +956,44 @@ export default function Settings() {
               <div className="tut-section-header tut-header--green">📅 Practice Calendar</div>
               <div className="tut-body">
                 <p className="tut-desc">Log every practice, track your attendance patterns, and analyze your training trends month by month.</p>
+
+                {/* Calendar mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Practice Calendar — June 2026</span></div>
+                  <div className="tut-mockup-body mock-cal-layout">
+                    <div className="mock-cal-controls">
+                      <span className="mock-cal-nav">‹</span>
+                      <span className="mock-cal-month">June 2026</span>
+                      <span className="mock-cal-nav">›</span>
+                      <span className="mock-cal-tab active">Month</span>
+                      <span className="mock-cal-tab">Year</span>
+                      <span className="mock-cal-tab">Career</span>
+                      <span className="mock-cal-addbtn">+ Meet</span>
+                    </div>
+                    <div className="mock-cal-grid">
+                      {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="mock-cal-dow">{d}</div>)}
+                      {[
+                        {e:true},{at:true},{at:true},{e:true},{at:true},{m:true},{},
+                        {at:true},{ab:true},{e:true},{at:true},{at:true},{e:true},{at:true},
+                        {at:true},{at:true},{e:true},{at:true},{ab:true},{at:true},{},
+                        {e:true},{at:true},{at:true},{e:true},{at:true},{at:true},{at:true},
+                      ].map((cell,i) => (
+                        <div key={i} className={`mock-cal-cell${cell.m?' mock-cal-cell--meet':''}`}>
+                          <span className="mock-cal-num">{i < 7 ? '' : i - 5}</span>
+                          {cell.at && <span className="mock-dot-green"/>}
+                          {cell.ab && <span className="mock-dot-red"/>}
+                          {cell.m  && <span className="mock-meet-chip">🏊 SCS Invite</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mock-cal-legend">
+                      <span className="mock-dot-green"/> Attended &nbsp;
+                      <span className="mock-dot-red"/> Absent &nbsp;
+                      <span className="mock-dot-gold">★</span> Meet
+                    </div>
+                  </div>
+                </div>
+
                 <h4 className="tut-sub">Logging a Practice</h4>
                 <ul className="tut-list">
                   <li>Tap any <strong>blue practice day</strong> on the calendar grid. A sheet slides up from the bottom.</li>
@@ -963,6 +1034,48 @@ export default function Settings() {
               <div className="tut-section-header tut-header--purple">📚 Media Library</div>
               <div className="tut-body">
                 <p className="tut-desc">Your personal swim scrapbook. Store race results, videos, split sheets, group photos, awards, and certificates — all organized by month.</p>
+
+                {/* Media Library mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Media Library</span></div>
+                  <div className="tut-mockup-body mock-lib-layout">
+                    <div className="mock-lib-header">
+                      <div>
+                        <div className="mock-bar mock-bar--lg mock-bar--white"/>
+                        <div className="mock-bar mock-bar--sm mock-bar--white-60"/>
+                      </div>
+                      <div className="mock-addbtn">+ Add Media</div>
+                    </div>
+                    <div className="mock-lib-body">
+                      <div className="mock-month-label">June 2026</div>
+                      <div className="mock-media-card">
+                        <div className="mock-thumb mock-thumb--race"/>
+                        <div className="mock-card-info">
+                          <div className="mock-bar mock-bar--md mock-bar--dark"/>
+                          <div className="mock-bar mock-bar--sm mock-bar--gray"/>
+                          <div className="mock-tags"><span className="mock-tag mock-tag--race">Race</span><span className="mock-tag mock-tag--video">Video</span></div>
+                        </div>
+                      </div>
+                      <div className="mock-media-card">
+                        <div className="mock-thumb mock-thumb--photo"/>
+                        <div className="mock-card-info">
+                          <div className="mock-bar mock-bar--lg mock-bar--dark"/>
+                          <div className="mock-bar mock-bar--sm mock-bar--gray"/>
+                          <div className="mock-tags"><span className="mock-tag mock-tag--media">Media</span><span className="mock-tag mock-tag--photo">2 photos</span></div>
+                        </div>
+                      </div>
+                      <div className="mock-month-label">May 2026</div>
+                      <div className="mock-media-card mock-media-card--faded">
+                        <div className="mock-thumb mock-thumb--race"/>
+                        <div className="mock-card-info">
+                          <div className="mock-bar mock-bar--md mock-bar--dark"/>
+                          <div className="mock-bar mock-bar--sm mock-bar--gray"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <h4 className="tut-sub">Adding a Race / Swim</h4>
                 <ul className="tut-list">
                   <li>Tap <strong>"Add Media"</strong> → <strong>"Race / Swim"</strong>.</li>
@@ -994,6 +1107,44 @@ export default function Settings() {
               <div className="tut-section-header tut-header--teal">📈 Progress</div>
               <div className="tut-body">
                 <p className="tut-desc">Track how your times have changed over your career with an interactive chart for every event.</p>
+
+                {/* Progress mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Progress — 100 Free SCY</span></div>
+                  <div className="tut-mockup-body mock-prog-layout">
+                    <div className="mock-prog-sidebar">
+                      <div className="mock-bar mock-bar--xs mock-bar--gray" style={{marginBottom:6}}/>
+                      <div className="mock-prog-pill active">100 Free</div>
+                      <div className="mock-prog-pill">200 Free</div>
+                      <div className="mock-prog-pill">100 Fly</div>
+                      <div className="mock-prog-pill">50 Free</div>
+                    </div>
+                    <div className="mock-prog-chart">
+                      <div className="mock-chart-ylabel">slower ↑</div>
+                      <svg className="mock-chart-svg" viewBox="0 0 240 90" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#0891b2" stopOpacity="0.25"/>
+                            <stop offset="100%" stopColor="#0891b2" stopOpacity="0"/>
+                          </linearGradient>
+                        </defs>
+                        <path d="M10,72 L50,60 L90,50 L130,38 L170,25 L210,14" fill="none" stroke="#0891b2" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
+                        <path d="M10,72 L50,60 L90,50 L130,38 L170,25 L210,14 L210,90 L10,90 Z" fill="url(#chartGrad)"/>
+                        {[[10,72],[50,60],[90,50],[130,38],[170,25],[210,14]].map(([x,y],i) => (
+                          <circle key={i} cx={x} cy={y} r={i===5?5:3.5} fill={i===5?"#0891b2":"#67e8f9"} stroke="#fff" strokeWidth="1.5"/>
+                        ))}
+                        <rect x="170" y="2" width="66" height="22" rx="4" fill="#0f172a" opacity="0.85"/>
+                        <text x="203" y="11" textAnchor="middle" fill="#fff" fontSize="6" fontWeight="bold">47.89</text>
+                        <text x="203" y="20" textAnchor="middle" fill="#67e8f9" fontSize="5">Jun 2026 · age 17</text>
+                      </svg>
+                      <div className="mock-chart-xlabel">
+                        <span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span>
+                      </div>
+                      <div className="mock-chart-pb"><span className="mock-pb-badge">★ PB 47.89</span></div>
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="tut-list">
                   <li><strong>Select an event:</strong> In the left sidebar, pick a course (SCY/LCM/SCM), then a stroke and distance. The chart updates immediately.</li>
                   <li><strong>Reading the chart:</strong> Time flows left to right (oldest → newest). The vertical axis is speed — <em>lower on the chart = faster time</em>. A dot moving down and to the right means improvement.</li>
@@ -1010,6 +1161,45 @@ export default function Settings() {
               <div className="tut-section-header tut-header--orange">🎯 Goals</div>
               <div className="tut-body">
                 <p className="tut-desc">Set a target time for any event and watch your progress toward it in real time.</p>
+
+                {/* Goals mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">My Goals</span></div>
+                  <div className="tut-mockup-body mock-goals-layout">
+                    <div className="mock-goal-card mock-goal-card--achieved">
+                      <div className="mock-goal-top">
+                        <div>
+                          <div className="mock-goal-event">100 Free SCY</div>
+                          <div className="mock-goal-course">Short Course Yards</div>
+                        </div>
+                        <div className="mock-goal-badge">✓ Achieved!</div>
+                      </div>
+                      <div className="mock-goal-times">
+                        <div className="mock-time-block"><div className="mock-time-label">Current</div><div className="mock-time-val mock-time-val--green">47.89</div></div>
+                        <div className="mock-time-arrow">→</div>
+                        <div className="mock-time-block"><div className="mock-time-label">Target</div><div className="mock-time-val">48.00</div></div>
+                      </div>
+                      <div className="mock-goal-bar-wrap"><div className="mock-goal-bar" style={{width:'100%'}}/></div>
+                    </div>
+                    <div className="mock-goal-card">
+                      <div className="mock-goal-top">
+                        <div>
+                          <div className="mock-goal-event">200 Free SCY</div>
+                          <div className="mock-goal-course">Short Course Yards</div>
+                        </div>
+                        <div className="mock-goal-days">32 days left</div>
+                      </div>
+                      <div className="mock-goal-times">
+                        <div className="mock-time-block"><div className="mock-time-label">Current</div><div className="mock-time-val">1:48.33</div></div>
+                        <div className="mock-time-arrow">→</div>
+                        <div className="mock-time-block"><div className="mock-time-label">Target</div><div className="mock-time-val">1:45.00</div></div>
+                      </div>
+                      <div className="mock-goal-bar-wrap"><div className="mock-goal-bar" style={{width:'62%'}}/></div>
+                      <div className="mock-goal-gap">3.33s to go</div>
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="tut-list">
                   <li><strong>Create a goal:</strong> Tap "Create your first goal" (or "Add another goal"). Select an event, your starting time, the target time, and an optional deadline.</li>
                   <li><strong>Goal cards:</strong> Each card shows your current best time (pulled live from your Progress logs) vs. your target, and how many days until your deadline.</li>
@@ -1026,6 +1216,37 @@ export default function Settings() {
               <div className="tut-section-header tut-header--gold">🏆 Qualifications</div>
               <div className="tut-body">
                 <p className="tut-desc">See where your times stand against USA Swimming qualifying standards for every age group.</p>
+
+                {/* Qualifications mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Qualifications — 17-18 · SCY</span></div>
+                  <div className="tut-mockup-body mock-quals-layout">
+                    <div className="mock-quals-filters">
+                      <div className="mock-select">17-18 ▾</div>
+                      <div className="mock-select">SCY ▾</div>
+                    </div>
+                    <div className="mock-quals-table">
+                      <div className="mock-quals-head">
+                        <span>Event</span><span>Your PR</span><span>B</span><span>BB</span><span>A</span><span>AA</span>
+                      </div>
+                      {[
+                        { ev:'100 Free', pr:'47.89', cuts:['✓','✓','✓','✓'], next:null },
+                        { ev:'200 Free', pr:'1:48.3', cuts:['✓','✓','✓',''], next:'AA: 1:45.09' },
+                        { ev:'100 Fly',  pr:'51.44', cuts:['✓','✓','',''],  next:'A: 49.79' },
+                        { ev:'50 Free',  pr:'21.80', cuts:['✓','✓','✓',''], next:'AA: 20.69' },
+                      ].map(row => (
+                        <div key={row.ev} className="mock-quals-row">
+                          <span className="mock-quals-event">{row.ev}</span>
+                          <span className="mock-quals-pr">{row.pr}</span>
+                          {row.cuts.map((c,i) => (
+                            <span key={i} className={`mock-cut-badge${c==='✓'?' mock-cut-badge--made':' mock-cut-badge--miss'}`}>{c||'-'}</span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="tut-list">
                   <li>Filter by <strong>age group</strong> (10-Under through Senior) and <strong>course</strong> (SCY or LCM) using the dropdowns at the top.</li>
                   <li>Your current best times are automatically compared against <strong>B, BB, A, AA, AAA, and Sectional</strong> cuts.</li>
@@ -1054,6 +1275,45 @@ export default function Settings() {
               <div className="tut-section-header tut-header--gray">⚙️ Settings</div>
               <div className="tut-body">
                 <p className="tut-desc">Personalize your account, appearance, and notification preferences.</p>
+
+                {/* Settings mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Settings</span></div>
+                  <div className="tut-mockup-body mock-settings-layout">
+                    <div className="mock-settings-header">
+                      <div className="mock-settings-tabs">
+                        <div className="mock-stab active">Profile</div>
+                        <div className="mock-stab">Account &amp; Security</div>
+                        <div className="mock-stab">Tutorial</div>
+                      </div>
+                    </div>
+                    <div className="mock-settings-body">
+                      <div className="mock-settings-card">
+                        <div className="mock-settings-row">
+                          <div className="mock-avatar mock-avatar--sm"/>
+                          <div style={{flex:1}}>
+                            <div className="mock-bar mock-bar--xs mock-bar--gray" style={{marginBottom:4}}/>
+                            <div className="mock-bar mock-bar--full mock-bar--gray"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mock-settings-card">
+                        <div className="mock-bar mock-bar--xs mock-bar--gray" style={{marginBottom:6}}/>
+                        <div className="mock-banner-swatches">
+                          {['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#0891b2'].map(c => (
+                            <div key={c} className="mock-swatch" style={{background:c}}/>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="mock-settings-card">
+                        <div className="mock-field"><div className="mock-bar mock-bar--xs mock-bar--gray"/><div className="mock-input"/></div>
+                        <div className="mock-field"><div className="mock-bar mock-bar--xs mock-bar--gray"/><div className="mock-gender-row"><div className="mock-gbtn active">♂ Male</div><div className="mock-gbtn">♀ Female</div></div></div>
+                        <div className="mock-field"><div className="mock-bar mock-bar--xs mock-bar--gray"/><div className="mock-input"/></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <h4 className="tut-sub">Profile Tab</h4>
                 <ul className="tut-list">
                   <li><strong>Profile Picture:</strong> Click/tap your avatar to upload a new photo. It's automatically cropped to a square and compressed — no storage setup needed.</li>
@@ -1078,6 +1338,35 @@ export default function Settings() {
               <div className="tut-section-header tut-header--teal">⇄ Time Converter</div>
               <div className="tut-body">
                 <p className="tut-desc">Instantly convert swimming times between Short Course Yards (SCY), Long Course Meters (LCM), and Short Course Meters (SCM).</p>
+
+                {/* Time Converter mockup */}
+                <div className="tut-mockup">
+                  <div className="tut-mockup-bar"><span className="tmb-dot r"/><span className="tmb-dot g"/><span className="tmb-dot y"/><span className="tmb-title">Time Converter</span></div>
+                  <div className="tut-mockup-body mock-tc-layout">
+                    <div className="mock-tc-card">
+                      <div className="mock-tc-row">
+                        <div className="mock-tc-field">
+                          <div className="mock-bar mock-bar--xs mock-bar--gray" style={{marginBottom:4}}/>
+                          <div className="mock-select">100 Freestyle ▾</div>
+                        </div>
+                      </div>
+                      <div className="mock-tc-courses">
+                        {[
+                          {course:'SCY', time:'47.89', active:true},
+                          {course:'LCM', time:'51.42', active:false},
+                          {course:'SCM', time:'50.11', active:false},
+                        ].map(({course,time,active}) => (
+                          <div key={course} className={`mock-tc-course${active?' mock-tc-course--active':''}`}>
+                            <span className="mock-tc-label">{course}</span>
+                            <input className="mock-tc-input" readOnly value={time}/>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mock-tc-hint">← Enter a time in any field to convert</div>
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="tut-list">
                   <li>Access it from the sidebar on the <strong>Calendar, Progress, Goals, or Media Library</strong> pages — look for the ⇄ icon.</li>
                   <li>Select your event, enter a time in one course, and the conversion appears instantly.</li>
