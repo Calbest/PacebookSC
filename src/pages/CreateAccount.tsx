@@ -64,6 +64,7 @@ export default function CreateAccount() {
       console.error('Supabase signUp error:', signUpError)
       setError(signUpError.message || JSON.stringify(signUpError))
     } else {
+      localStorage.setItem('sw_new_account', '1')
       navigate('/dashboard')
     }
   }

@@ -456,7 +456,7 @@ export default function Dashboard() {
     catch { return new Set() }
   })
   const [showOnboarding, setShowOnboarding] = useState(
-    () => !localStorage.getItem('sw_onboarded')
+    () => localStorage.getItem('sw_new_account') === '1' && !localStorage.getItem('sw_onboarded')
   )
   const [importBannerDismissed, setImportBannerDismissed] = useState(
     () => localStorage.getItem('sw_import_banner_dismissed') === '1'
@@ -688,6 +688,7 @@ export default function Dashboard() {
         name={fullName.split(' ')[0]}
         onDone={() => {
           localStorage.setItem('sw_onboarded', '1')
+          localStorage.removeItem('sw_new_account')
           setShowOnboarding(false)
         }}
       />
