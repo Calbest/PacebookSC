@@ -346,18 +346,29 @@ export default function Progress() {
   const [newTime,      setNewTime]      = useState('')
   const [showUnknown,  setShowUnknown]  = useState(false)
   const [showTC,       setShowTC]       = useState(false)
+  const [dataLoading,  setDataLoading]  = useState(true)
 
   useEffect(() => {
-    // getUser() hits the server for fresh metadata — avoids stale cached JWT
-    // after an import that updated timeHistory via updateUser().
+    setDataLoading(true)
     supabase.auth.getUser().then(({ data }) => {
       const user = data?.user
       if (!user) { navigate('/'); return }
       setHistory(user.user_metadata?.timeHistory ?? {})
       setDashTimes(user.user_metadata?.times ?? {})
       setDob(user.user_metadata?.dob ?? '')
+      setDataLoading(false)
     })
   }, [navigate])
+
+  // Always fetch fresh server data before writing, so we never overwrite
+  // entries that were saved from another page (e.g. Import) after this
+  // component mounted with stale local state.
+  async function fetchHistory(): Promise<TimeHistory> {
+    const { data } = await supabase.auth.getUser()
+    const h = data?.user?.user_metadata?.timeHistory ?? {}
+    setHistory(h)
+    return h
+  }
 
   const groups  = course === 'SCY' ? SCY_GROUPS : course === 'LCM' ? LCM_GROUPS : SCM_GROUPS
   const key     = `${course}-${eventId}`
@@ -388,16 +399,18 @@ export default function Progress() {
 
   async function addEntry() {
     if (!newTime.trim() || !newDate || !isValidTime(newTime)) return
-    const next = { ...history, [key]: [...(history[key] ?? []), { date: newDate, time: newTime }] }
-    setHistory(next)
     setNewTime('')
+    const fresh = await fetchHistory()
+    const next = { ...fresh, [key]: [...(fresh[key] ?? []), { date: newDate, time: newTime }] }
+    setHistory(next)
     await supabase.auth.updateUser({ data: { timeHistory: next } })
   }
 
   async function deleteEntry(sortedIdx: number) {
-    const arr = [...entries]
+    const fresh = await fetchHistory()
+    const arr = [...(fresh[key] ?? [])].sort((a, b) => a.date.localeCompare(b.date))
     arr.splice(sortedIdx, 1)
-    const next = { ...history, [key]: arr }
+    const next = { ...fresh, [key]: arr }
     setHistory(next)
     await supabase.auth.updateUser({ data: { timeHistory: next } })
   }
@@ -590,7 +603,7 @@ export default function Progress() {
               <button
                 className="prog-add-btn"
                 onClick={addEntry}
-                disabled={!newTime.trim() || !newDate || !isValidTime(newTime)}
+                disabled={dataLoading || !newTime.trim() || !newDate || !isValidTime(newTime)}
               >
                 <Plus size={15} />
                 Add Entry
