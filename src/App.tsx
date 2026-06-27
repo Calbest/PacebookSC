@@ -141,16 +141,6 @@ function RatingSection() {
   )
 }
 
-function InstagramIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-    </svg>
-  )
-}
-
 function XIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -159,13 +149,7 @@ function XIcon() {
   )
 }
 
-function TikTokIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.71a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
-    </svg>
-  )
-}
+
 
 function YoutubeIcon() {
   return (
@@ -516,9 +500,7 @@ function App() {
           </motion.p>
           <motion.div className="connect-grid" {...staggerContainer}>
             {[
-              { icon: <InstagramIcon />, platform: 'Instagram', handle: '@your_handle' },
               { icon: <XIcon />, platform: 'X (Twitter)', handle: '@your_handle' },
-              { icon: <TikTokIcon />, platform: 'TikTok', handle: '@your_handle' },
               { icon: <YoutubeIcon />, platform: 'YouTube', handle: 'your channel' },
             ].map((link, i) => (
               <motion.a key={link.platform} href="#" className="connect-card" {...staggerItem(i * 0.1)}>
