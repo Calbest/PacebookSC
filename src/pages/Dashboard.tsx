@@ -404,8 +404,31 @@ function calcAge(dob: string): number | null {
 
 const STROKE_LABELS: Record<string, string> = { free: 'Free', back: 'Back', breast: 'Breast', fly: 'Fly', im: 'IM' }
 
+const IMPROVE_PHRASES = [
+  'Your biggest career drop — keep pushing!',
+  'That\'s serious time in the water. Keep going.',
+  'The clock doesn\'t lie — you\'re getting faster.',
+  'Proof that the work is paying off.',
+  'Every tenth counts. You\'ve dropped a lot of them.',
+  'That\'s what consistent training looks like.',
+  'The pool is your track record. It shows.',
+  'Progress like this doesn\'t happen by accident.',
+  'You\'re not just swimming faster — you\'re training smarter.',
+  'Drop after drop. That\'s the formula.',
+  'Hard work + time in the water = this.',
+  'The best swimmers track their progress. So do you.',
+  'Improvement like this is what coaches notice.',
+  'Your times don\'t lie — you\'re leveling up.',
+  'Fast swimmers were once slow swimmers who didn\'t quit.',
+]
+
+function pickPhrase(key: string): string {
+  const hash = key.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  return IMPROVE_PHRASES[hash % IMPROVE_PHRASES.length]
+}
+
 function getBestImprovement(history: Record<string, { date: string; time: string }[]>) {
-  let best: { label: string; improveSec: number } | null = null
+  let best: { label: string; improveSec: number; key: string } | null = null
   for (const [key, entries] of Object.entries(history)) {
     if (!entries || entries.length < 2) continue
     const parts = key.split('-')
@@ -418,7 +441,7 @@ function getBestImprovement(history: Record<string, { date: string; time: string
     const improveSec = oldest - fastest
     if (improveSec > 0.05 && (!best || improveSec > best.improveSec)) {
       const strokeLabel = STROKE_LABELS[parts.slice(2).join('-')] || parts.slice(2).join(' ')
-      best = { label: `${parts[1]} ${strokeLabel} (${parts[0]})`, improveSec }
+      best = { label: `${parts[1]} ${strokeLabel} (${parts[0]})`, improveSec, key }
     }
   }
   return best
@@ -901,7 +924,7 @@ export default function Dashboard() {
             <TrendingUp className="dash-improve-icon" size={22} />
             <div className="dash-improve-body">
               <strong>You've improved {bestImprovement.improveSec.toFixed(2)}s in {bestImprovement.label}</strong>
-              <span>Your biggest career drop — keep it up!</span>
+              <span>{pickPhrase(bestImprovement.key)}</span>
             </div>
             <button className="dash-improve-view" onClick={() => { playNavigate(); navigate('/progress') }}>
               View Progress →
