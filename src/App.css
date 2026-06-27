@@ -440,20 +440,18 @@ p { margin: 0; }
 
 .uw-img-placeholder {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 10;
   background: rgba(10, 37, 64, 0.7);
   border: 1px solid rgba(0, 194, 255, 0.15);
-  border-radius: 18px;
+  border-radius: 14px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
 .uw-img-photo {
   width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: center top;
-  border-radius: 18px;
+  height: auto;
+  border-radius: 14px;
   border: 1px solid rgba(0, 194, 255, 0.15);
   display: block;
 }
