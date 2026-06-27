@@ -463,7 +463,7 @@ export default function Dashboard() {
 
         <button className="dash-race-library" onClick={() => { playNavigate(); navigate('/race-library') }}>
           <Film size={16} />
-          <span>Race Library</span>
+          <span>Media Library</span>
         </button>
 
         </nav>

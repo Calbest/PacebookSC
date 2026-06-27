@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, ChevronLeft, ChevronRight, Plus, X, Check, ArrowRightLeft } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, Plus, X, Check, ArrowRightLeft, CalendarCheck } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Calendar.css'
@@ -184,15 +184,16 @@ export default function Calendar() {
             <LayoutDashboard size={16} />
             <span>Dashboard</span>
           </button>
+          <button className="cal-nav-btn" onClick={() => navigate('/event-planning')}>
+            <CalendarCheck size={16} />
+            <span>Event Planning</span>
+          </button>
           <button className="cal-nav-btn" onClick={() => setShowTC(true)}>
             <ArrowRightLeft size={16} />
             <span>Time Converter</span>
           </button>
         </nav>
         <div className="cal-sidebar-actions">
-          <button className="cal-sidebar-action-btn" onClick={() => setShowAddMeet(true)}>
-            <Plus size={14} /> Add Meet
-          </button>
           <button className="cal-sidebar-action-btn" onClick={() => setShowSchedule(v => !v)}>
             {showSchedule ? 'Close Schedule' : 'Edit Schedule'}
           </button>
@@ -279,6 +280,13 @@ export default function Calendar() {
               </div>
             </div>
           )}
+
+          {/* ── Add meet trigger ── */}
+          <div className="cal-add-meet-row">
+            <button className="cal-add-meet-btn" onClick={() => setShowAddMeet(v => !v)}>
+              <Plus size={14} /> {showAddMeet ? 'Cancel' : 'Add Meet'}
+            </button>
+          </div>
 
           {/* ── Month navigation ── */}
           <div className="cal-month-nav">

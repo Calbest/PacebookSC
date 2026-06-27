@@ -122,6 +122,28 @@
 .cal-btn-save:hover { background: #1d4ed8; }
 .cal-btn-save:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* ── Add meet row ── */
+.cal-add-meet-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.cal-add-meet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #002855;
+  border: none;
+  border-radius: 9px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cal-add-meet-btn:hover { background: #003d7a; }
+
 /* ── Month nav ── */
 .cal-month-nav {
   display: flex; align-items: center; gap: 14px;

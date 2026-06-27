@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LayoutDashboard, TrendingUp, Plus, Trash2, AlertTriangle, ChevronDown, ArrowRightLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -79,12 +79,25 @@ function formatTimeDigits(raw: string): string {
 
 // ─── SVG Chart ──────────────────────────────────────────────────────────────
 
-const VW = 640, VH = 260
-const MG = { t: 20, r: 20, b: 48, l: 68 }
+const VW = 640, VH = 280
+const MG = { t: 24, r: 24, b: 52, l: 72 }
 const CW = VW - MG.l - MG.r
 const CH = VH - MG.t - MG.b
 
-function LineChart({ entries }: { entries: TimeEntry[] }) {
+function calcAgeAtDate(dob: string, dateStr: string): number | null {
+  if (!dob || !dateStr || dateStr === 'unknown') return null
+  const birth  = new Date(dob  + 'T12:00:00')
+  const swimDt = new Date(dateStr + 'T12:00:00')
+  let age = swimDt.getFullYear() - birth.getFullYear()
+  const m = swimDt.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && swimDt.getDate() < birth.getDate())) age--
+  return age >= 0 ? age : null
+}
+
+function LineChart({ entries, dob }: { entries: TimeEntry[]; dob: string }) {
+  const [hovIdx, setHovIdx] = useState<number | null>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+
   if (entries.length === 0) {
     return (
       <div className="prog-empty">
@@ -108,14 +121,13 @@ function LineChart({ entries }: { entries: TimeEntry[] }) {
   const dHi  = dms[dms.length - 1]
   const dRng = dHi - dLo || 1
 
-  // Fast times (small seconds) map to TOP of chart (small y in SVG)
   const xOf = (d: number) => MG.l + ((d - dLo) / dRng) * CW
-  const yOf = (s: number) => MG.t + ((s - yLo) / (yHi - yLo)) * CH
+  // Invert: fast (low seconds) → top (low SVG y)
+  const yOf = (s: number) => MG.t + (1 - (s - yLo) / (yHi - yLo)) * CH
 
-  // Y ticks — 5 evenly spaced
-  const yTicks = Array.from({ length: 5 }, (_, i) => yLo + (yHi - yLo) * (i / 4))
+  // Y ticks — 5, from fast (top) to slow (bottom) so we display inverted axis
+  const yTicks = Array.from({ length: 5 }, (_, i) => yHi - (yHi - yLo) * (i / 4))
 
-  // X ticks — show at most 6, always include first and last
   let xTicks = sorted.map((e, i) => ({ ms: dms[i], label: e.date }))
   if (xTicks.length > 6) {
     const step = Math.ceil(xTicks.length / 5)
@@ -125,27 +137,46 @@ function LineChart({ entries }: { entries: TimeEntry[] }) {
   const ptStr   = sorted.map((_, i) => `${xOf(dms[i]).toFixed(1)},${yOf(secs[i]).toFixed(1)}`).join(' ')
   const areaStr = `${xOf(dms[0]).toFixed(1)},${(MG.t + CH).toFixed(1)} ${ptStr} ${xOf(dms[dms.length-1]).toFixed(1)},${(MG.t + CH).toFixed(1)}`
 
+  // Tooltip for hovered point
+  const hov = hovIdx !== null ? sorted[hovIdx] : null
+  const hovX = hovIdx !== null ? xOf(dms[hovIdx]) : 0
+  const hovY = hovIdx !== null ? yOf(secs[hovIdx]) : 0
+  const hovAge = hov ? calcAgeAtDate(dob, hov.date) : null
+
+  // Tooltip box dimensions
+  const TW = 150, TH = hovAge !== null ? 70 : 56, TR = 6
+  // Clamp tooltip so it stays inside SVG
+  const txRaw = hovX - TW / 2
+  const tx = Math.max(MG.l, Math.min(txRaw, VW - MG.r - TW))
+  const ty = hovY - TH - 14 < MG.t ? hovY + 14 : hovY - TH - 14
+
   return (
-    <svg viewBox={`0 0 ${VW} ${VH}`} className="prog-chart-svg" role="img" aria-label="Time progression chart">
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${VW} ${VH}`}
+      className="prog-chart-svg"
+      role="img"
+      aria-label="Time progression chart"
+      onMouseLeave={() => setHovIdx(null)}
+    >
       <defs>
         <linearGradient id="prog-area-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#00b4d8" stopOpacity="0.18" />
+          <stop offset="0%"   stopColor="#00b4d8" stopOpacity="0.15" />
           <stop offset="100%" stopColor="#00b4d8" stopOpacity="0.01" />
         </linearGradient>
       </defs>
 
-      {/* Grid lines */}
+      {/* Horizontal grid lines */}
       {yTicks.map((s, i) => (
         <line key={i}
           x1={MG.l} y1={yOf(s).toFixed(1)}
           x2={MG.l + CW} y2={yOf(s).toFixed(1)}
-          stroke={i === 0 || i === 4 ? '#c8dcf0' : '#e8f2fa'}
-          strokeWidth="1"
-          strokeDasharray={i === 0 || i === 4 ? undefined : '4 4'}
+          stroke="#e2e8f0" strokeWidth="1"
+          strokeDasharray={i === 0 || i === 4 ? undefined : '4 3'}
         />
       ))}
 
-      {/* Y labels */}
+      {/* Y labels (times, top = fast) */}
       {yTicks.map((s, i) => (
         <text key={i}
           x={MG.l - 8} y={(yOf(s) + 4).toFixed(1)}
@@ -158,7 +189,7 @@ function LineChart({ entries }: { entries: TimeEntry[] }) {
       {/* X labels */}
       {xTicks.map(({ ms, label }) => (
         <text key={label}
-          x={xOf(ms).toFixed(1)} y={(MG.t + CH + 20).toFixed(1)}
+          x={xOf(ms).toFixed(1)} y={(MG.t + CH + 18).toFixed(1)}
           textAnchor="middle" fontSize="11" fill="#64748b" fontFamily="inherit"
         >
           {fmtDateShort(label)}
@@ -176,25 +207,53 @@ function LineChart({ entries }: { entries: TimeEntry[] }) {
         />
       )}
 
-      {/* Data points — circle with native tooltip */}
+      {/* Data points with hover */}
       {sorted.map((e, i) => (
-        <g key={`${e.date}|${e.time}|${i}`}>
+        <g key={`${e.date}|${e.time}|${i}`}
+          onMouseEnter={() => setHovIdx(i)}
+          style={{ cursor: 'pointer' }}
+        >
+          {/* Larger invisible hit area */}
+          <circle cx={xOf(dms[i]).toFixed(1)} cy={yOf(secs[i]).toFixed(1)} r="12" fill="transparent" />
           <circle
             cx={xOf(dms[i]).toFixed(1)} cy={yOf(secs[i]).toFixed(1)}
-            r="5" fill="#ffffff" stroke="#00b4d8" strokeWidth="2.5"
+            r={hovIdx === i ? 6 : 5}
+            fill={hovIdx === i ? '#00b4d8' : '#ffffff'}
+            stroke="#00b4d8" strokeWidth="2.5"
           />
-          <title>{fmtDate(e.date)}: {e.time}</title>
         </g>
       ))}
 
       {/* Axes */}
-      <line x1={MG.l} y1={MG.t} x2={MG.l} y2={MG.t + CH + 1} stroke="#b0c8e0" strokeWidth="1.5" />
-      <line x1={MG.l - 1} y1={MG.t + CH} x2={MG.l + CW} y2={MG.t + CH} stroke="#b0c8e0" strokeWidth="1.5" />
+      <line x1={MG.l} y1={MG.t} x2={MG.l} y2={MG.t + CH + 1} stroke="#cbd5e1" strokeWidth="1.5" />
+      <line x1={MG.l - 1} y1={MG.t + CH} x2={MG.l + CW} y2={MG.t + CH} stroke="#cbd5e1" strokeWidth="1.5" />
 
-      {/* "↑ faster" label on y-axis */}
-      <text x={MG.l - 8} y={MG.t - 6}
-        textAnchor="end" fontSize="10" fill="#00b4d8" fontFamily="inherit" fontWeight="700"
-      >↑ faster</text>
+      {/* Hover tooltip */}
+      {hov && (
+        <g>
+          {/* Vertical guide line */}
+          <line
+            x1={hovX.toFixed(1)} y1={MG.t.toFixed(1)}
+            x2={hovX.toFixed(1)} y2={(MG.t + CH).toFixed(1)}
+            stroke="#00b4d8" strokeWidth="1" strokeDasharray="4 3" opacity="0.6"
+          />
+          {/* Tooltip box */}
+          <rect x={tx} y={ty} width={TW} height={TH} rx={TR} ry={TR}
+            fill="#1e293b" opacity="0.93"
+          />
+          <text x={tx + 10} y={ty + 16} fontSize="11" fontWeight="700" fill="#94a3b8" fontFamily="inherit">
+            {fmtDate(hov.date)}
+          </text>
+          <text x={tx + 10} y={ty + 32} fontSize="13" fontWeight="800" fill="#ffffff" fontFamily="inherit">
+            {hov.time}
+          </text>
+          {hovAge !== null && (
+            <text x={tx + 10} y={ty + 50} fontSize="11" fill="#94a3b8" fontFamily="inherit">
+              Age {hovAge}
+            </text>
+          )}
+        </g>
+      )}
     </svg>
   )
 }
@@ -263,6 +322,7 @@ export default function Progress() {
   const [eventId,      setEventId]      = useState('100-free')
   const [history,      setHistory]      = useState<TimeHistory>({})
   const [dashTimes,    setDashTimes]    = useState<Times>({})
+  const [dob,          setDob]          = useState('')
   const [newDate,      setNewDate]      = useState(new Date().toISOString().slice(0, 10))
   const [newTime,      setNewTime]      = useState('')
   const [showUnknown,  setShowUnknown]  = useState(false)
@@ -274,6 +334,7 @@ export default function Progress() {
       if (!user) { navigate('/'); return }
       setHistory(user.user_metadata?.timeHistory ?? {})
       setDashTimes(user.user_metadata?.times ?? {})
+      setDob(user.user_metadata?.dob ?? '')
     })
   }, [navigate])
 
@@ -460,7 +521,7 @@ export default function Progress() {
           {/* ── Chart ── */}
           <div className="prog-chart-card">
             <div className="prog-chart-head">{displayLabel} · {course}</div>
-            <LineChart entries={entries.filter(e => e.date !== 'unknown')} />
+            <LineChart entries={entries.filter(e => e.date !== 'unknown')} dob={dob} />
           </div>
 
           {/* ── Add entry form ── */}

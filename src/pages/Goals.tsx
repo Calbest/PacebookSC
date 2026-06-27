@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Plus, Target, Trash2, ArrowRightLeft } from 'lucide-react'
+import { LayoutDashboard, Plus, Target, Trash2, ArrowRightLeft, Archive, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import './Goals.css'
@@ -40,23 +40,43 @@ function daysLeft(iso: string): number {
 
 export default function Goals() {
   const navigate = useNavigate()
-  const [goals,  setGoals]  = useState<Goal[]>([])
-  const [times,  setTimes]  = useState<Record<string, string>>({})
-  const [showTC, setShowTC] = useState(false)
+  const [goals,        setGoals]        = useState<Goal[]>([])
+  const [archive,      setArchive]      = useState<Goal[]>([])
+  const [times,        setTimes]        = useState<Record<string, string>>({})
+  const [showTC,       setShowTC]       = useState(false)
+  const [showArchive,  setShowArchive]  = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       const user = data.session?.user
       if (!user) { navigate('/'); return }
       setGoals(user.user_metadata?.goals ?? [])
+      setArchive(user.user_metadata?.goalArchive ?? [])
       setTimes(user.user_metadata?.times ?? {})
     })
   }, [navigate])
+
+  function isAchieved(goal: Goal): boolean {
+    const liveTime = times[`${goal.course}-${goal.eventId}`] || ''
+    const liveSec   = toSeconds(liveTime || goal.currentTime)
+    const targetSec = toSeconds(goal.targetTime)
+    return liveSec !== null && targetSec !== null && liveSec <= targetSec
+  }
 
   async function deleteGoal(id: string) {
     const updated = goals.filter(g => g.id !== id)
     setGoals(updated)
     await supabase.auth.updateUser({ data: { goals: updated } })
+  }
+
+  async function archiveCompleted() {
+    const achieved = goals.filter(g => isAchieved(g))
+    if (achieved.length === 0) return
+    const remaining = goals.filter(g => !isAchieved(g))
+    const newArchive = [...archive, ...achieved]
+    setGoals(remaining)
+    setArchive(newArchive)
+    await supabase.auth.updateUser({ data: { goals: remaining, goalArchive: newArchive } })
   }
 
   return (
@@ -86,6 +106,13 @@ export default function Goals() {
         </div>
 
         <div className="goals-body">
+          {/* ── Archive button ── */}
+          {goals.some(g => isAchieved(g)) && (
+            <button className="goals-archive-btn" onClick={archiveCompleted}>
+              <Archive size={14} /> Archive Completed Goals
+            </button>
+          )}
+
           {goals.length === 0 ? (
             <div className="goals-empty">
               <Target size={52} className="goals-empty-icon" />
@@ -168,6 +195,28 @@ export default function Goals() {
               </button>
             </div>
           )}
+          {/* ── Goal Archive section ── */}
+          {archive.length > 0 && (
+            <div className="goals-archive-section">
+              <button className="goals-archive-header" onClick={() => setShowArchive(v => !v)}>
+                <Archive size={15} />
+                <span>Goal Archive ({archive.length})</span>
+                <ChevronDown size={14} className={`goals-archive-chevron${showArchive ? ' open' : ''}`} />
+              </button>
+              {showArchive && (
+                <div className="goals-archive-list">
+                  {archive.map(goal => (
+                    <div key={goal.id} className="goals-archive-row">
+                      <span className="goals-archive-event">{goal.eventLabel} · {goal.course}</span>
+                      <span className="goals-archive-time">Target: {goal.targetTime}</span>
+                      <span className="goals-archive-badge">✓ Achieved</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       </div>
     </div>

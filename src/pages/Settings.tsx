@@ -301,27 +301,30 @@ export default function Settings() {
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !userId) return
-    setAvatarPreview(URL.createObjectURL(file))
     setAvatarStatus('uploading')
 
-    const ext  = file.name.split('.').pop()
-    const path = `${userId}/avatar.${ext}`
+    // Resize to 256×256 JPEG via canvas — no Storage bucket required
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 256; canvas.height = 256
+        const ctx = canvas.getContext('2d')!
+        // Crop to square from center
+        const side = Math.min(img.width, img.height)
+        const sx = (img.width  - side) / 2
+        const sy = (img.height - side) / 2
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, 256, 256)
+        resolve(canvas.toDataURL('image/jpeg', 0.82))
+      }
+      img.onerror = reject
+      img.src = URL.createObjectURL(file)
+    })
 
-    const { error: uploadErr } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true })
-
-    if (uploadErr) {
-      console.error('Avatar upload error:', uploadErr)
-      setAvatarStatus('error')
-      setAvatarPreview('')
-      return
-    }
-
-    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-    const { error: updateErr } = await supabase.auth.updateUser({ data: { avatar_url: publicUrl } })
-    if (updateErr) { console.error('Avatar metadata error:', updateErr); setAvatarStatus('error'); return }
-    setAvatarUrl(publicUrl)
+    setAvatarPreview(dataUrl)
+    const { error: updateErr } = await supabase.auth.updateUser({ data: { avatar_url: dataUrl } })
+    if (updateErr) { console.error('Avatar save error:', updateErr); setAvatarStatus('error'); return }
+    setAvatarUrl(dataUrl)
     setAvatarStatus('saved')
     setTimeout(() => setAvatarStatus('idle'), 2500)
   }
@@ -418,7 +421,7 @@ export default function Settings() {
               {avatarStatus === 'saved'     && <p className="status-success">Photo updated!</p>}
               {avatarStatus === 'error'     && (
                 <p className="status-error">
-                  Upload failed. In Supabase: go to <strong>Storage → Buckets</strong>, create a bucket named <strong>avatars</strong> (toggle Public on), then run the storage SQL from <code>supabase/rls_policies.sql</code> in the SQL Editor.
+                  Could not save photo. Please try again or choose a smaller image.
                 </p>
               )}
             </div>
