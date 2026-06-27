@@ -476,23 +476,28 @@ function App() {
               className={`bento-card${card.spanClass ? ' ' + card.spanClass : ''}`}
               {...bentoVariant(i)}
             >
-              <div className="bento-icon-wrap">
-                {card.svg ? (
-                  <img src="/swimmer.svg" alt="" className="bento-svg" />
-                ) : (
-                  <svg viewBox="0 0 80 56" className="bento-svg-inline">
-                    <rect x="4" y="4" width="72" height="48" rx="4" fill="none" stroke="#00C2FF" strokeWidth="2.5"/>
-                    <line x1="4" y1="20" x2="76" y2="20" stroke="rgba(0,194,255,0.3)" strokeWidth="1.5" strokeDasharray="4 3"/>
-                    <line x1="4" y1="36" x2="76" y2="36" stroke="rgba(0,194,255,0.3)" strokeWidth="1.5" strokeDasharray="4 3"/>
-                    <path d="M4 48 Q20 42 36 48 Q52 54 68 48 Q72 46 76 48" stroke="#00C2FF" strokeWidth="2" fill="none"/>
-                    <circle cx="22" cy="14" r="5" fill="rgba(0,194,255,0.25)"/>
-                    <path d="M26 14 C32 8 48 6 56 12" stroke="#00C2FF" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                  </svg>
-                )}
-              </div>
-              <h3 className="bento-title">{card.title}</h3>
-              <p className="bento-desc">{card.blurb}</p>
-              {card.spanClass === 'bento-span-tall' && <div className="bento-img-ph" />}
+              {card.spanClass === 'bento-span-tall' ? (
+                <>
+                  <h3 className="bento-title">{card.title}</h3>
+                  <p className="bento-desc">{card.blurb}</p>
+                  <div className="bento-img-ph bento-img-ph--full" />
+                </>
+              ) : (
+                <>
+                  <div className="bento-icon-wrap">
+                    <svg viewBox="0 0 80 56" className="bento-svg-inline">
+                      <rect x="4" y="4" width="72" height="48" rx="4" fill="none" stroke="#00C2FF" strokeWidth="2.5"/>
+                      <line x1="4" y1="20" x2="76" y2="20" stroke="rgba(0,194,255,0.3)" strokeWidth="1.5" strokeDasharray="4 3"/>
+                      <line x1="4" y1="36" x2="76" y2="36" stroke="rgba(0,194,255,0.3)" strokeWidth="1.5" strokeDasharray="4 3"/>
+                      <path d="M4 48 Q20 42 36 48 Q52 54 68 48 Q72 46 76 48" stroke="#00C2FF" strokeWidth="2" fill="none"/>
+                      <circle cx="22" cy="14" r="5" fill="rgba(0,194,255,0.25)"/>
+                      <path d="M26 14 C32 8 48 6 56 12" stroke="#00C2FF" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <h3 className="bento-title">{card.title}</h3>
+                  <p className="bento-desc">{card.blurb}</p>
+                </>
+              )}
             </motion.div>
           ))}
         </div>

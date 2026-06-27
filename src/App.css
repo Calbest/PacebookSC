@@ -633,6 +633,12 @@ p { margin: 0; }
   margin-top: 18px;
 }
 
+.bento-img-ph--full {
+  min-height: 0;
+  flex: 1;
+  margin-top: 20px;
+}
+
 /* ── About ── */
 .about {
   padding: 100px 40px;
