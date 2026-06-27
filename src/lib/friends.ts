@@ -9,6 +9,7 @@ export interface Profile {
   club_team: string | null
   high_school: string | null
   times: Record<string, string>
+  time_meta: Record<string, { date: string; meet: string }>
   updated_at: string
   dob: string | null
   banner_type: string | null

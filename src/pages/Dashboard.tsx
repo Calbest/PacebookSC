@@ -553,6 +553,7 @@ export default function Dashboard() {
         club_team:    user.user_metadata?.club_team   || null,
         high_school:  user.user_metadata?.high_school || null,
         times:        user.user_metadata?.times       || {},
+        time_meta:    user.user_metadata?.timeMeta    || {},
         dob:          user.user_metadata?.dob         || null,
         banner_type:  user.user_metadata?.bannerType  || null,
         banner_value: user.user_metadata?.bannerValue || null,

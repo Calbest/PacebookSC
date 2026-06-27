@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Camera, User, RotateCcw, Eraser, Save } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { upsertProfile } from '../lib/friends'
 import OnboardingModal from '../components/OnboardingModal'
 import './Settings.css'
 
@@ -228,11 +229,32 @@ export default function Settings() {
     fillCanvasBg(canvas.getContext('2d')!, canvas)
   }
 
+  async function syncBannerToProfile(type: string, value: string) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    const m = user.user_metadata ?? {}
+    upsertProfile({
+      id:           user.id,
+      username:     m.username   || user.email || '',
+      full_name:    m.full_name  || null,
+      avatar_url:   m.avatar_url || null,
+      gender:       m.gender     || null,
+      club_team:    m.club_team  || null,
+      high_school:  m.high_school|| null,
+      times:        m.times      || {},
+      time_meta:    m.timeMeta   || {},
+      dob:          m.dob        || null,
+      banner_type:  type,
+      banner_value: value,
+    })
+  }
+
   async function saveColorBanner(type: 'default' | 'gradient' | 'color', value = '') {
     setBannerStatus('saving')
     await supabase.auth.updateUser({ data: { bannerType: type, bannerValue: value } })
     setBannerType(type)
     setBannerValue(value)
+    syncBannerToProfile(type, value)
     setBannerStatus('saved')
     setTimeout(() => setBannerStatus('idle'), 2000)
   }
@@ -245,6 +267,7 @@ export default function Settings() {
     await supabase.auth.updateUser({ data: { bannerType: 'canvas', bannerValue: dataUrl } })
     setBannerType('canvas')
     setBannerValue(dataUrl)
+    syncBannerToProfile('canvas', dataUrl)
     setBannerStatus('saved')
     setTimeout(() => setBannerStatus('idle'), 2000)
   }
@@ -259,6 +282,7 @@ export default function Settings() {
       await supabase.auth.updateUser({ data: { bannerType: 'photo', bannerValue: dataUrl } })
       setBannerType('photo')
       setBannerValue(dataUrl)
+      syncBannerToProfile('photo', dataUrl)
       setBannerStatus('saved')
       setTimeout(() => setBannerStatus('idle'), 2000)
     }

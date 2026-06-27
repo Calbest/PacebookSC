@@ -67,11 +67,17 @@ function bannerStyle(bannerType: string | null, bannerValue: string | null): Rea
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function TimesSection({ times }: { times: Record<string, string> }) {
-  const scyTimes = SCY_ORDER.filter(k => times[k])
-  const lcmTimes = LCM_ORDER.filter(k => times[k])
+function TimesSection({
+  times,
+  timeMeta,
+}: {
+  times: Record<string, string>
+  timeMeta: Record<string, { date: string; meet: string }>
+}) {
+  const hasAnyScy = SCY_ORDER.some(k => times[k])
+  const hasAnyLcm = LCM_ORDER.some(k => times[k])
 
-  if (!scyTimes.length && !lcmTimes.length) {
+  if (!hasAnyScy && !hasAnyLcm) {
     return (
       <div className="pub-times-empty">
         <Users size={32} />
@@ -80,30 +86,38 @@ function TimesSection({ times }: { times: Record<string, string> }) {
     )
   }
 
+  function renderCourse(keys: string[], label: string) {
+    if (!keys.some(k => times[k])) return null
+    return (
+      <div className="pub-times-course">
+        <div className="pub-times-course-label">{label}</div>
+        {keys.map(k => {
+          const time = times[k]
+          const meta = timeMeta?.[k]
+          return (
+            <div key={k} className="pub-time-row">
+              <span className="pub-time-event">{EVENT_LABELS[k]}</span>
+              <div className="pub-time-right">
+                <span className={`pub-time-val${!time ? ' pub-time-val--na' : ''}`}>
+                  {time || 'N/A'}
+                </span>
+                {time && meta && (
+                  <span className="pub-time-meta">
+                    {meta.date}{meta.meet ? ` · ${meta.meet}` : ''}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   return (
     <div className="pub-times-grid">
-      {scyTimes.length > 0 && (
-        <div className="pub-times-course">
-          <div className="pub-times-course-label">Short Course Yards</div>
-          {scyTimes.map(k => (
-            <div key={k} className="pub-time-row">
-              <span className="pub-time-event">{EVENT_LABELS[k]}</span>
-              <span className="pub-time-val">{times[k]}</span>
-            </div>
-          ))}
-        </div>
-      )}
-      {lcmTimes.length > 0 && (
-        <div className="pub-times-course">
-          <div className="pub-times-course-label">Long Course Meters</div>
-          {lcmTimes.map(k => (
-            <div key={k} className="pub-time-row">
-              <span className="pub-time-event">{EVENT_LABELS[k]}</span>
-              <span className="pub-time-val">{times[k]}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {renderCourse(SCY_ORDER, 'Short Course Yards')}
+      {renderCourse(LCM_ORDER, 'Long Course Meters')}
     </div>
   )
 }
@@ -285,7 +299,7 @@ export default function PublicProfile() {
       {/* ── Personal bests ── */}
       <div className="pub-section">
         <h2 className="pub-section-title">Personal Bests</h2>
-        <TimesSection times={profile.times ?? {}} />
+        <TimesSection times={profile.times ?? {}} timeMeta={profile.time_meta ?? {}} />
       </div>
 
     </div>

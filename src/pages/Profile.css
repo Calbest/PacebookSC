@@ -289,6 +289,7 @@
   justify-content: space-between;
   padding: 9px 16px;
   border-bottom: 1px solid #f1f5f9;
+  gap: 8px;
 }
 .pub-time-row:last-child { border-bottom: none; }
 
@@ -296,6 +297,15 @@
   font-size: 13px;
   color: #334155;
   font-weight: 600;
+  flex-shrink: 0;
+}
+
+.pub-time-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 0;
 }
 
 .pub-time-val {
@@ -304,6 +314,23 @@
   color: #002855;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.2px;
+}
+
+.pub-time-val--na {
+  color: #cbd5e1;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.pub-time-meta {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 /* ── Responsive ── */
