@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, Bell, Star, Clock, Zap, Film } from 'lucide-react'
 import TimeConverterPopup from '../components/TimeConverterPopup'
+import OnboardingModal from '../components/OnboardingModal'
 import { supabase } from '../lib/supabase'
 import { upsertProfile, getFollowCounts } from '../lib/friends'
 import type { Goal } from './Goals'
@@ -448,6 +449,9 @@ export default function Dashboard() {
     try { return new Set(JSON.parse(localStorage.getItem('sw_read_notifs') ?? '[]')) }
     catch { return new Set() }
   })
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem('sw_onboarded')
+  )
   const [importBannerDismissed, setImportBannerDismissed] = useState(
     () => localStorage.getItem('sw_import_banner_dismissed') === '1'
   )
@@ -600,6 +604,15 @@ export default function Dashboard() {
 
   return (
     <>
+    {showOnboarding && (
+      <OnboardingModal
+        name={fullName.split(' ')[0]}
+        onDone={() => {
+          localStorage.setItem('sw_onboarded', '1')
+          setShowOnboarding(false)
+        }}
+      />
+    )}
     <TimeConverterPopup isOpen={showTC} onClose={() => setShowTC(false)} />
 
     {/* ── Avatar action sheet (Instagram-style) ── */}
