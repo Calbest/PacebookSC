@@ -507,11 +507,6 @@ export default function Dashboard() {
           <span>Progress</span>
         </button>
 
-        <button className="dash-event-planning" onClick={() => { playNavigate(); navigate('/event-planning') }}>
-          <CalendarCheck size={16} />
-          <span>Event Planning</span>
-        </button>
-
         <button className="dash-calendar" onClick={() => { playNavigate(); navigate('/calendar') }}>
           <CalendarCheck size={16} />
           <span>Calendar</span>
@@ -775,10 +770,7 @@ export default function Dashboard() {
           <Star size={20} />
           Quals
         </button>
-        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/event-planning') }}>
-          <CalendarCheck size={20} />
-          Events
-        </button>
+
         <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/goals') }}>
           <Target size={20} />
           Goals
