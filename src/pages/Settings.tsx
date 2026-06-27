@@ -7,7 +7,7 @@ import './Settings.css'
 type SaveStatus  = 'idle' | 'saving' | 'saved' | 'error'
 type ResetStep   = 'idle' | 'code_sent'
 type ResetStatus = 'idle' | 'loading' | 'success' | 'error'
-type BannerType  = 'default' | 'gradient' | 'color' | 'canvas'
+type BannerType  = 'default' | 'gradient' | 'color' | 'canvas' | 'photo'
 
 const GRADIENT_PRESETS = [
   { label: 'SwimSync (Default)', value: 'radial-gradient(ellipse at 10% 80%, rgba(99,102,241,0.7) 0%, transparent 45%), radial-gradient(ellipse at 55% 30%, rgba(14,165,233,0.65) 0%, transparent 50%), radial-gradient(ellipse at 95% 10%, rgba(6,182,212,0.8) 0%, transparent 45%), linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0284c7 100%)' },
@@ -40,8 +40,9 @@ function formatBirthday(isoDate: string): string {
 
 export default function Settings() {
   const navigate   = useNavigate()
-  const fileInput  = useRef<HTMLInputElement>(null)
-  const canvasRef  = useRef<HTMLCanvasElement>(null)
+  const fileInput      = useRef<HTMLInputElement>(null)
+  const bannerPhotoRef = useRef<HTMLInputElement>(null)
+  const canvasRef      = useRef<HTMLCanvasElement>(null)
   const drawingRef = useRef(false)
   const lastPos    = useRef<{ x: number; y: number } | null>(null)
 
@@ -72,7 +73,7 @@ export default function Settings() {
   // Banner
   const [bannerType,   setBannerType]   = useState<BannerType>('default')
   const [bannerValue,  setBannerValue]  = useState('')
-  const [bannerTab,    setBannerTab]    = useState<'colors' | 'paint'>('colors')
+  const [bannerTab,    setBannerTab]    = useState<'colors' | 'paint' | 'photo'>('colors')
   const [bannerStatus, setBannerStatus] = useState<SaveStatus>('idle')
   const [brushColor,   setBrushColor]   = useState('#7ee8ff')
   const [brushSize,    setBrushSize]    = useState(12)
@@ -244,10 +245,27 @@ export default function Settings() {
     setTimeout(() => setBannerStatus('idle'), 2000)
   }
 
+  function handleBannerPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBannerStatus('saving')
+    const reader = new FileReader()
+    reader.onload = async ev => {
+      const dataUrl = ev.target?.result as string
+      await supabase.auth.updateUser({ data: { bannerType: 'photo', bannerValue: dataUrl } })
+      setBannerType('photo')
+      setBannerValue(dataUrl)
+      setBannerStatus('saved')
+      setTimeout(() => setBannerStatus('idle'), 2000)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
   // current banner CSS for live preview
   const bannerPreviewStyle: React.CSSProperties =
-    bannerType === 'canvas' && bannerValue
-      ? { backgroundImage: `url(${bannerValue})`, backgroundSize: 'cover', backgroundPosition: 'center top' }
+    (bannerType === 'canvas' || bannerType === 'photo') && bannerValue
+      ? { backgroundImage: `url(${bannerValue})`, backgroundSize: 'cover', backgroundPosition: 'center' }
       : (bannerType === 'gradient' || bannerType === 'color') && bannerValue
       ? { background: bannerValue }
       : { background: 'linear-gradient(180deg, #001a3d 0%, #002855 100%)' }
@@ -453,6 +471,10 @@ export default function Settings() {
               className={`banner-mode-tab${bannerTab === 'paint' ? ' active' : ''}`}
               onClick={() => setBannerTab('paint')}
             >Paint Your Own</button>
+            <button
+              className={`banner-mode-tab${bannerTab === 'photo' ? ' active' : ''}`}
+              onClick={() => setBannerTab('photo')}
+            >Upload Photo</button>
           </div>
 
           {/* ── Colors tab ── */}
@@ -567,6 +589,53 @@ export default function Settings() {
                 </button>
               </div>
               <p className="banner-paint-hint">Draw on the canvas above — this will become your dashboard banner.</p>
+            </div>
+          )}
+
+          {/* ── Photo tab ── */}
+          {bannerTab === 'photo' && (
+            <div className="banner-photo-panel">
+              <input
+                ref={bannerPhotoRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleBannerPhoto}
+              />
+
+              {bannerType === 'photo' && bannerValue ? (
+                <div className="banner-photo-current">
+                  <img src={bannerValue} alt="Current banner" className="banner-photo-thumb" />
+                  <div className="banner-photo-actions">
+                    <button
+                      className="banner-photo-upload-btn"
+                      onClick={() => bannerPhotoRef.current?.click()}
+                      disabled={bannerStatus === 'saving'}
+                    >
+                      Replace Photo
+                    </button>
+                    <button
+                      className="banner-reset-btn"
+                      onClick={() => saveColorBanner('default')}
+                    >
+                      <RotateCcw size={13} />
+                      Remove
+                    </button>
+                  </div>
+                  {bannerStatus === 'saved' && <p className="status-success">Banner saved!</p>}
+                  {bannerStatus === 'saving' && <p className="status-info">Saving…</p>}
+                </div>
+              ) : (
+                <button
+                  className="banner-photo-drop-btn"
+                  onClick={() => bannerPhotoRef.current?.click()}
+                  disabled={bannerStatus === 'saving'}
+                >
+                  <span className="banner-photo-drop-icon">🖼️</span>
+                  <span>{bannerStatus === 'saving' ? 'Saving…' : 'Choose a photo from your library'}</span>
+                  <span className="banner-photo-drop-hint">JPG, PNG, WEBP — recommended 1200 × 280 px</span>
+                </button>
+              )}
             </div>
           )}
 

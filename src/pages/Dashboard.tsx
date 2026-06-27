@@ -697,8 +697,8 @@ export default function Dashboard() {
 
           {/* Banner strip */}
           <div className="dash-banner-strip" style={
-            bannerType === 'canvas' && bannerValue
-              ? { backgroundImage: `url(${bannerValue})`, backgroundSize: 'cover', backgroundPosition: 'center top' }
+            (bannerType === 'canvas' || bannerType === 'photo') && bannerValue
+              ? { backgroundImage: `url(${bannerValue})`, backgroundSize: 'cover', backgroundPosition: 'center' }
               : (bannerType === 'gradient' || bannerType === 'color') && bannerValue
               ? { background: bannerValue }
               : undefined
