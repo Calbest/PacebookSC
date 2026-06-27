@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { supabase } from './lib/supabase'
+import compareTimesImg from './Assets/CompareTimes.png'
+import trackProgressImg from './Assets/TrackProgress.png'
+import planEventsImg from './Assets/PlanEvents.png'
 import './App.css'
 
 // ── Star Rating ───────────────────────────────────────────────────────────────
@@ -439,15 +442,15 @@ function App() {
               <div className="uw-images">
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwLeftX }}>
                   <p className="uw-img-caption">Compare Times</p>
-                  <img src="/photos/IMG_0942.jpeg" alt="Compare Times" className="uw-img-photo" />
+                  <img src={compareTimesImg} alt="Compare Times" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale }}>
                   <p className="uw-img-caption">Track Progress</p>
-                  <img src="/photos/IMG_4189.jpeg" alt="Track Progress" className="uw-img-photo" />
+                  <img src={trackProgressImg} alt="Track Progress" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwRightX }}>
                   <p className="uw-img-caption">Plan Events</p>
-                  <div className="uw-img-placeholder" />
+                  <img src={planEventsImg} alt="Plan Events" className="uw-img-photo" />
                 </motion.div>
               </div>
             </div>
