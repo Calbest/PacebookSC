@@ -39,7 +39,7 @@ export async function upsertProfile(profile: Omit<Profile, 'updated_at'>) {
 export async function searchProfiles(query: string, excludeId = '') {
   let q = supabase
     .from('profiles')
-    .select('id, username, full_name, avatar_url, club_team, gender, times, dob, banner_type, banner_value')
+    .select('id, username, full_name, avatar_url, club_team, gender, times')
     .or(`username.ilike.%${query}%,full_name.ilike.%${query}%`)
     .limit(12)
   if (excludeId) q = q.neq('id', excludeId)

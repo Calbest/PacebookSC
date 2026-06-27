@@ -416,10 +416,9 @@ function App() {
               </button>
             ))}
           </nav>
-        </div>
 
-        {/* ── Swimmer search ── */}
-        <div ref={searchRef} className={`nav-search${searchOpen ? ' nav-search--open' : ''}`}>
+          {/* ── Swimmer search ── */}
+          <div ref={searchRef} className={`nav-search${searchOpen ? ' nav-search--open' : ''}`}>
           <Search size={14} className="nav-search-icon" />
           <input
             className="nav-search-input"
@@ -463,6 +462,7 @@ function App() {
               ))}
             </div>
           )}
+          </div>
         </div>
 
         <div className="nav-actions">
