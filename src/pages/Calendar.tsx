@@ -49,12 +49,14 @@ interface Meet {
 }
 
 interface ScheduleTemplate {
-  days:           number[]
-  twoSessionDays: number[]
-  drylandDays:    number[]
-  session1Time:   string
-  session2Time:   string
-  practiceNote:   string
+  days:             number[]
+  twoSessionDays:   number[]
+  drylandDays:      number[]
+  session1Time:     string
+  session1EndTime:  string
+  session2Time:     string
+  session2EndTime:  string
+  practiceNote:     string
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -83,12 +85,14 @@ const DRYLAND_TYPES: { id: DrylandType; label: string; color: string }[] = [
 const WEATHER_LABELS = ['','Terrible','Bad','OK','Good','Perfect']
 
 const DEFAULT_SCHEDULE: ScheduleTemplate = {
-  days:           [1, 2, 3, 4, 5],
-  twoSessionDays: [],
-  drylandDays:    [],
-  session1Time:   '',
-  session2Time:   '',
-  practiceNote:   '',
+  days:             [1, 2, 3, 4, 5],
+  twoSessionDays:   [],
+  drylandDays:      [],
+  session1Time:     '',
+  session1EndTime:  '',
+  session2Time:     '',
+  session2EndTime:  '',
+  practiceNote:     '',
 }
 
 const SESSION_KEYS: Array<{ key: 's1' | 's2'; label: string }> = [
@@ -117,8 +121,8 @@ function fmtShort(s: string) {
   })
 }
 
-function defaultSession(startTime = ''): SessionData {
-  return { startTime, endTime: '', status: 'attended', mood: null, absenceReason: '' }
+function defaultSession(startTime = '', endTime = ''): SessionData {
+  return { startTime, endTime, status: 'attended', mood: null, absenceReason: '' }
 }
 
 function migrateSession(s: Record<string, unknown> | null): SessionData | null {
@@ -455,8 +459,8 @@ function DayModal({ dateStr, initial, schedule, isPrac, onSave, onClose }: {
   const hasDryDefault = schedule.drylandDays.includes(dow)
 
   const [d, setD] = useState<DayData>(() => initial ?? {
-    s1:      defaultSession(schedule.session1Time),
-    s2:      hasTwoDefault ? defaultSession(schedule.session2Time) : null,
+    s1:      defaultSession(schedule.session1Time, schedule.session1EndTime),
+    s2:      hasTwoDefault ? defaultSession(schedule.session2Time, schedule.session2EndTime) : null,
     dryland: hasDryDefault ? { type: 'other', mood: null } : null,
   })
 
@@ -501,7 +505,7 @@ function DayModal({ dateStr, initial, schedule, isPrac, onSave, onClose }: {
           ) : (
             <button
               className="cal-add-session-btn" type="button"
-              onClick={() => setD(p => ({ ...p, s2: defaultSession(schedule.session2Time) }))}
+              onClick={() => setD(p => ({ ...p, s2: defaultSession(schedule.session2Time, schedule.session2EndTime) }))}
             >
               <Plus size={13} /> Add 2nd Session
             </button>
@@ -1424,22 +1428,49 @@ export default function Calendar() {
                 ))}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
-                <div className="cal-field">
-                  <label className="cal-field-lbl">Session 1 time</label>
-                  <input
-                    className="cal-field-input" type="time"
-                    value={sched.session1Time}
-                    onChange={e => handleSchedSave({ ...sched, session1Time: e.target.value })}
-                  />
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Session 1 times</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 6, alignItems: 'flex-end' }}>
+                  <div className="cal-field">
+                    <label className="cal-field-lbl">Start</label>
+                    <input
+                      className="cal-field-input" type="time"
+                      value={sched.session1Time}
+                      onChange={e => handleSchedSave({ ...sched, session1Time: e.target.value })}
+                    />
+                  </div>
+                  <span style={{ color: '#94a3b8', paddingBottom: 10, textAlign: 'center' }}>→</span>
+                  <div className="cal-field">
+                    <label className="cal-field-lbl">End</label>
+                    <input
+                      className="cal-field-input" type="time"
+                      value={sched.session1EndTime}
+                      onChange={e => handleSchedSave({ ...sched, session1EndTime: e.target.value })}
+                    />
+                  </div>
                 </div>
-                <div className="cal-field">
-                  <label className="cal-field-lbl">Session 2 time</label>
-                  <input
-                    className="cal-field-input" type="time"
-                    value={sched.session2Time}
-                    onChange={e => handleSchedSave({ ...sched, session2Time: e.target.value })}
-                  />
+              </div>
+
+              <div style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Session 2 times</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 6, alignItems: 'flex-end' }}>
+                  <div className="cal-field">
+                    <label className="cal-field-lbl">Start</label>
+                    <input
+                      className="cal-field-input" type="time"
+                      value={sched.session2Time}
+                      onChange={e => handleSchedSave({ ...sched, session2Time: e.target.value })}
+                    />
+                  </div>
+                  <span style={{ color: '#94a3b8', paddingBottom: 10, textAlign: 'center' }}>→</span>
+                  <div className="cal-field">
+                    <label className="cal-field-lbl">End</label>
+                    <input
+                      className="cal-field-input" type="time"
+                      value={sched.session2EndTime}
+                      onChange={e => handleSchedSave({ ...sched, session2EndTime: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
 
