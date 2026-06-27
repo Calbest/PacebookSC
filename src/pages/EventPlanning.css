@@ -50,6 +50,44 @@
 }
 .ep-nav-btn:hover { background: rgba(255,255,255,0.18); }
 
+.ep-sidebar-save {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ep-sidebar-cal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 11px 14px;
+  background: #00b4d8;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  font-family: inherit;
+}
+.ep-sidebar-cal-btn:hover:not(:disabled) { background: #0096c7; }
+.ep-sidebar-cal-btn:disabled { opacity: 0.45; cursor: default; }
+.ep-sidebar-cal-btn--saved { background: #22c55e !important; }
+
+.ep-sidebar-save-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* ── Page ── */
 .ep-page {
   flex: 1;

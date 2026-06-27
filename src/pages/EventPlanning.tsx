@@ -409,6 +409,10 @@ export default function EventPlanning() {
             <LayoutDashboard size={16} />
             <span>Dashboard</span>
           </button>
+          <button className="ep-nav-btn" onClick={() => navigate('/calendar')}>
+            <CalendarCheck size={16} />
+            <span>Calendar</span>
+          </button>
           <button className="ep-nav-btn" onClick={() => setShowLegend(true)}>
             <BookOpen size={16} />
             <span>Color Legend</span>
@@ -418,6 +422,22 @@ export default function EventPlanning() {
             <span>Time Converter</span>
           </button>
         </nav>
+
+        <div className="ep-sidebar-save">
+          <button
+            className={`ep-sidebar-cal-btn${calSaved ? ' ep-sidebar-cal-btn--saved' : ''}`}
+            onClick={saveToCalendar}
+            disabled={!meetName.trim() || !meetDate}
+            title={!meetName.trim() || !meetDate ? 'Fill in meet name and date first' : 'Save meet to your Calendar'}
+          >
+            {calSaved
+              ? <><Check size={15} /> Saved!</>
+              : <><CalendarCheck size={15} /> Save to Calendar</>}
+          </button>
+          {(!meetName.trim() || !meetDate) && (
+            <p className="ep-sidebar-save-hint">Add a meet name and date above to enable</p>
+          )}
+        </div>
       </aside>
 
       {/* ── Main ── */}
