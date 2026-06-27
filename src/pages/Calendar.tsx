@@ -442,10 +442,11 @@ function SessionBlock({ session, onChange, label, defaultTime, onRemove }: {
 
 // ─── Day Modal ────────────────────────────────────────────────────────────────
 
-function DayModal({ dateStr, initial, schedule, onSave, onClose }: {
+function DayModal({ dateStr, initial, schedule, isPrac, onSave, onClose }: {
   dateStr:  string
   initial:  DayData | null
   schedule: ScheduleTemplate
+  isPrac:   boolean
   onSave:   (d: DayData) => void
   onClose:  () => void
 }) {
@@ -474,6 +475,12 @@ function DayModal({ dateStr, initial, schedule, onSave, onClose }: {
         </div>
 
         <div className="cal-modal-body">
+          {!isPrac && !initial && (
+            <div className="cal-no-prac-notice">
+              <span>No practice scheduled this day</span>
+            </div>
+          )}
+
           {d.s1 && (
             <SessionBlock
               session={d.s1}
@@ -1222,6 +1229,7 @@ export default function Calendar() {
   const [saving,    setSaving]    = useState(false)
 
   const [dayModal,  setDayModal]  = useState<string | null>(null)
+  const dayModalIsPrac = dayModal ? sched.days.includes(new Date(dayModal + 'T12:00:00').getDay()) : false
   const [meetModal, setMeetModal] = useState<Meet | null | 'new'>(null)
 
   useEffect(() => {
@@ -1297,6 +1305,7 @@ export default function Calendar() {
           dateStr={dayModal}
           initial={attn[dayModal] ?? null}
           schedule={sched}
+          isPrac={dayModalIsPrac}
           onSave={d => handleDaySave(dayModal, d)}
           onClose={() => setDayModal(null)}
         />
@@ -1515,10 +1524,10 @@ export default function Calendar() {
                         isPrac   ? 'cal-cell--prac'     : '',
                         meet     ? 'cal-cell--meet'     : '',
                         isToday  ? 'cal-cell--today'    : '',
-                        (isPrac || meet) ? 'cal-cell--click' : '',
+                        'cal-cell--click',
                       ].filter(Boolean).join(' ')}
                       style={{ '--ci': i } as React.CSSProperties}
-                      onClick={() => { if (isPrac) setDayModal(ds) }}
+                      onClick={() => setDayModal(ds)}
                     >
                       <span className={`cal-cell-num${isToday ? ' today' : ''}`}>{day}</span>
 
