@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowRightLeft, History, Maximize2, Minimize2 } from 'lucide-react'
+import { ArrowRightLeft, History, Minimize2 } from 'lucide-react'
 import './TimeConverterPopup.css'
 
 type Course = 'SCY' | 'SCM' | 'LCM'
-type WinState = 'normal' | 'expanded' | 'minimized'
+type WinState = 'normal' | 'minimized' | 'fullscreen'
 
 const POOL_FACTORS: Record<Course, number> = { SCY: 1.0, SCM: 1.11, LCM: 1.145 }
 const STROKE_MULT: Record<string, number> = {
@@ -52,6 +52,9 @@ const DISTS = ['50','100','200','400','500','800','1000','1500','1650']
 
 const TC_HISTORY_KEY = 'sw_tc_history'
 const MAX_HISTORY = 8
+const MIN_WIDTH = 260
+const MAX_WIDTH = 700
+const DEFAULT_WIDTH = 300
 
 interface HistoryEntry {
   input: string
@@ -75,18 +78,19 @@ interface Props {
 }
 
 export default function TimeConverterPopup({ isOpen, onClose }: Props) {
-  const [input,     setInput]     = useState('')
-  const [from,      setFrom]      = useState<Course>('SCY')
-  const [stroke,    setStroke]    = useState('freestyle')
-  const [dist,      setDist]      = useState('100')
-  const [winState,  setWinState]  = useState<WinState>('normal')
-  const [showHist,  setShowHist]  = useState(false)
-  const [history,   setHistory]   = useState<HistoryEntry[]>([])
-  const ref = useRef<HTMLDivElement>(null)
+  const [input,      setInput]      = useState('')
+  const [from,       setFrom]       = useState<Course>('SCY')
+  const [stroke,     setStroke]     = useState('freestyle')
+  const [dist,       setDist]       = useState('100')
+  const [winState,   setWinState]   = useState<WinState>('normal')
+  const [showHist,   setShowHist]   = useState(false)
+  const [history,    setHistory]    = useState<HistoryEntry[]>([])
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH)
+  const ref     = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{ startX: number; startW: number } | null>(null)
 
   useEffect(() => { setHistory(loadHistory()) }, [isOpen])
 
-  // Save to history when result is valid
   useEffect(() => {
     if (!input.trim()) return
     const parsed = parseTime(input)
@@ -107,8 +111,11 @@ export default function TimeConverterPopup({ isOpen, onClose }: Props) {
 
   useEffect(() => {
     if (!isOpen || winState === 'minimized') return
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
-    function onClick(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) onClose() }
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') { if (winState === 'fullscreen') setWinState('normal'); else onClose() } }
+    function onClick(e: MouseEvent) {
+      if (winState === 'fullscreen') return
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+    }
     document.addEventListener('keydown', onKey)
     document.addEventListener('mousedown', onClick)
     return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onClick) }
@@ -117,7 +124,6 @@ export default function TimeConverterPopup({ isOpen, onClose }: Props) {
   if (!isOpen) return null
 
   const parsed = parseTime(input)
-  const others = COURSES.filter(c => c !== from)
 
   function restoreHistory(entry: HistoryEntry) {
     setInput(entry.input)
@@ -132,18 +138,38 @@ export default function TimeConverterPopup({ isOpen, onClose }: Props) {
     return `${e.dist} ${strokeLabel} (${e.from}) — ${e.input}`
   }
 
+  function onResizeStart(e: React.MouseEvent) {
+    e.preventDefault()
+    dragRef.current = { startX: e.clientX, startW: panelWidth }
+    function onMove(ev: MouseEvent) {
+      if (!dragRef.current) return
+      const delta = ev.clientX - dragRef.current.startX
+      setPanelWidth(Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, dragRef.current.startW + delta)))
+    }
+    function onUp() {
+      dragRef.current = null
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }
+
+  const panelStyle = winState === 'normal' ? { width: panelWidth } : undefined
+
   return (
     <div className={`tcp-overlay tcp-overlay--${winState}`}>
-      <div className={`tcp-panel tcp-panel--${winState}`} ref={ref}>
+      <div className={`tcp-panel tcp-panel--${winState}`} ref={ref} style={panelStyle}>
 
         {/* ── Title bar with window controls ── */}
-        <div className={`tcp-header${winState === 'minimized' ? ' tcp-header--clickable' : ''}`}
+        <div
+          className={`tcp-header${winState === 'minimized' ? ' tcp-header--clickable' : ''}`}
           onClick={winState === 'minimized' ? () => setWinState('normal') : undefined}
         >
           <div className="tcp-win-controls">
-            <button className="tcp-win-btn tcp-win-btn--close"  onClick={onClose}              title="Close"    aria-label="Close" />
-            <button className="tcp-win-btn tcp-win-btn--min"    onClick={() => setWinState(s => s === 'minimized' ? 'normal' : 'minimized')} title="Minimize" aria-label="Minimize" />
-            <button className="tcp-win-btn tcp-win-btn--expand" onClick={() => setWinState(s => s === 'expanded'  ? 'normal' : 'expanded')}  title="Expand"   aria-label="Expand" />
+            <button className="tcp-win-btn tcp-win-btn--close"  onClick={onClose}              title="Close"      aria-label="Close" />
+            <button className="tcp-win-btn tcp-win-btn--min"    onClick={() => setWinState(s => s === 'minimized' ? 'normal' : 'minimized')} title="Minimize"   aria-label="Minimize" />
+            <button className="tcp-win-btn tcp-win-btn--expand tcp-win-btn--desktop-only" onClick={() => setWinState(s => s === 'fullscreen' ? 'normal' : 'fullscreen')} title="Fullscreen" aria-label="Fullscreen" />
           </div>
           <span className="tcp-title">Time Converter</span>
           <div className="tcp-header-actions">
@@ -156,18 +182,13 @@ export default function TimeConverterPopup({ isOpen, onClose }: Props) {
                 <History size={13} />
               </button>
             )}
-            {winState === 'minimized' ? (
-              <Maximize2 size={12} className="tcp-min-hint" />
-            ) : winState === 'expanded' ? (
-              <Minimize2 size={12} className="tcp-win-hint" />
-            ) : null}
+            {winState === 'minimized' && <Minimize2 size={12} className="tcp-min-hint" />}
           </div>
         </div>
 
         {/* ── Body (hidden when minimized) ── */}
         {winState !== 'minimized' && (
           <>
-            {/* History panel */}
             {showHist && (
               <div className="tcp-history">
                 {history.length === 0 ? (
@@ -211,35 +232,27 @@ export default function TimeConverterPopup({ isOpen, onClose }: Props) {
               </button>
             </div>
 
-            <div className="tcp-results">
-              {others.map(c => {
-                const val = parsed !== null ? fmt(convert(parsed, from, c, stroke, dist)) : '—'
+            <div className={`tcp-results${winState === 'fullscreen' ? ' tcp-results--fs' : ''}`}>
+              {COURSES.map(c => {
+                const isSource = c === from
+                const val = isSource ? input || '—' : (parsed !== null ? fmt(convert(parsed, from, c, stroke, dist)) : '—')
                 return (
-                  <div key={c} className="tcp-result">
+                  <div key={c} className={`tcp-result${isSource ? ' tcp-result--source' : ''}`}>
                     <span className="tcp-result-course">{c}</span>
                     <span className="tcp-result-time">{val}</span>
+                    {isSource && <span className="tcp-result-badge">input</span>}
                   </div>
                 )
               })}
             </div>
 
-            {winState === 'expanded' && parsed !== null && (
-              <div className="tcp-all-results">
-                <div className="tcp-all-label">All courses</div>
-                {COURSES.map(c => (
-                  <div key={c} className={`tcp-all-row${c === from ? ' tcp-all-row--source' : ''}`}>
-                    <span className="tcp-all-course">{c}</span>
-                    <span className="tcp-all-time">
-                      {c === from ? input : fmt(convert(parsed, from, c, stroke, dist))}
-                    </span>
-                    {c === from && <span className="tcp-all-badge">input</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-
             <p className="tcp-note">Estimates only — FINA approximation model</p>
           </>
+        )}
+
+        {/* ── Drag-to-resize handle (desktop / normal state only) ── */}
+        {winState === 'normal' && (
+          <div className="tcp-resize-handle tcp-resize-handle--desktop-only" onMouseDown={onResizeStart} title="Drag to resize" />
         )}
       </div>
     </div>

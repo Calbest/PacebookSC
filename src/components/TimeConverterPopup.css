@@ -9,32 +9,47 @@
   justify-content: center;
 }
 
-/* When minimized, anchor to bottom-right */
 .tcp-overlay--minimized {
   align-items: flex-end;
   justify-content: flex-end;
   padding: 0 24px 24px 0;
 }
 
+/* Fullscreen overlay — panel covers everything, background dim */
+.tcp-overlay--fullscreen {
+  background: rgba(0,0,0,0.4);
+  pointer-events: all;
+}
+
 /* ── Panel ── */
 .tcp-panel {
   pointer-events: all;
+  position: relative;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.1);
-  width: 300px;
+  width: 300px; /* overridden by inline style in normal state */
   overflow: hidden;
   animation: tcp-in 0.15s ease;
 }
 
-.tcp-panel--expanded {
-  width: 400px;
-}
-
 .tcp-panel--minimized {
-  width: 260px;
+  width: 260px !important;
   border-radius: 10px;
   cursor: pointer;
+}
+
+.tcp-panel--fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow-y: auto;
+  animation: none;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes tcp-in {
@@ -51,6 +66,7 @@
   color: #fff;
   padding: 10px 12px;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .tcp-header--clickable { cursor: pointer; }
@@ -110,8 +126,7 @@
 .tcp-hist-btn:hover,
 .tcp-hist-btn.active { background: rgba(255,255,255,0.24); color: #fff; }
 
-.tcp-min-hint,
-.tcp-win-hint { color: rgba(255,255,255,0.5); }
+.tcp-min-hint { color: rgba(255,255,255,0.5); }
 
 /* ── History panel ── */
 .tcp-history {
@@ -247,6 +262,14 @@
   padding: 10px 12px 8px;
 }
 
+/* Fullscreen: show results as a larger grid */
+.tcp-results--fs {
+  flex-direction: row;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  flex: 1;
+}
+
 .tcp-result {
   display: flex;
   align-items: center;
@@ -255,6 +278,24 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   padding: 8px 12px;
+  gap: 8px;
+}
+
+/* Source course row */
+.tcp-result--source {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+/* Fullscreen: stack vertically centered, bigger text */
+.tcp-results--fs .tcp-result {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  gap: 6px;
+  border-radius: 12px;
 }
 
 .tcp-result-course {
@@ -264,6 +305,10 @@
   letter-spacing: 0.4px;
 }
 
+.tcp-results--fs .tcp-result-course {
+  font-size: 14px;
+}
+
 .tcp-result-time {
   font-size: 18px;
   font-weight: 900;
@@ -271,52 +316,12 @@
   letter-spacing: -0.3px;
 }
 
-/* ── Expanded — all results ── */
-.tcp-all-results {
-  margin: 0 12px 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
+.tcp-results--fs .tcp-result-time {
+  font-size: 36px;
+  letter-spacing: -1px;
 }
 
-.tcp-all-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  padding: 8px 12px 4px;
-  background: #f1f5f9;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.tcp-all-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-bottom: 1px solid #f1f5f9;
-}
-.tcp-all-row:last-child { border-bottom: none; }
-.tcp-all-row--source { background: #eff6ff; }
-
-.tcp-all-course {
-  font-size: 12px;
-  font-weight: 800;
-  color: #64748b;
-  width: 38px;
-  flex-shrink: 0;
-}
-
-.tcp-all-time {
-  flex: 1;
-  font-size: 16px;
-  font-weight: 800;
-  color: #002855;
-  font-variant-numeric: tabular-nums;
-}
-
-.tcp-all-badge {
+.tcp-result-badge {
   font-size: 10px;
   font-weight: 700;
   background: #dbeafe;
@@ -332,4 +337,37 @@
   text-align: center;
   padding: 0 12px 10px;
   margin: 0;
+}
+
+/* ── Drag-to-resize handle ── */
+.tcp-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.tcp-resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 36px;
+  border-radius: 2px;
+  background: rgba(0, 40, 85, 0.18);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.tcp-resize-handle:hover::after { opacity: 1; }
+
+/* ── Mobile: hide resize handle + fullscreen button ── */
+@media (max-width: 768px) {
+  .tcp-resize-handle--desktop-only { display: none; }
+  .tcp-win-btn--desktop-only       { display: none; }
 }
