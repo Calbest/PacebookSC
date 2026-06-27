@@ -1428,9 +1428,9 @@ export default function Calendar() {
                 ))}
               </div>
 
-              <div style={{ marginTop: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Session 1 times</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 6, alignItems: 'flex-end' }}>
+              <div className="cal-sched-times-block">
+                <div className="cal-sched-times-label">Session 1 times</div>
+                <div className="cal-sched-times-row">
                   <div className="cal-field">
                     <label className="cal-field-lbl">Start</label>
                     <input
@@ -1439,7 +1439,7 @@ export default function Calendar() {
                       onChange={e => handleSchedSave({ ...sched, session1Time: e.target.value })}
                     />
                   </div>
-                  <span style={{ color: '#94a3b8', paddingBottom: 10, textAlign: 'center' }}>→</span>
+                  <span className="cal-sched-times-arrow">→</span>
                   <div className="cal-field">
                     <label className="cal-field-lbl">End</label>
                     <input
@@ -1451,9 +1451,9 @@ export default function Calendar() {
                 </div>
               </div>
 
-              <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Session 2 times</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 6, alignItems: 'flex-end' }}>
+              <div className="cal-sched-times-block">
+                <div className="cal-sched-times-label">Session 2 times</div>
+                <div className="cal-sched-times-row">
                   <div className="cal-field">
                     <label className="cal-field-lbl">Start</label>
                     <input
@@ -1462,7 +1462,7 @@ export default function Calendar() {
                       onChange={e => handleSchedSave({ ...sched, session2Time: e.target.value })}
                     />
                   </div>
-                  <span style={{ color: '#94a3b8', paddingBottom: 10, textAlign: 'center' }}>→</span>
+                  <span className="cal-sched-times-arrow">→</span>
                   <div className="cal-field">
                     <label className="cal-field-lbl">End</label>
                     <input

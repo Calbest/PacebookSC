@@ -147,6 +147,34 @@
 }
 .cal-card-title { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
 
+.cal-sched-times-block {
+  margin-top: 14px;
+}
+
+.cal-sched-times-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.cal-sched-times-row {
+  display: grid;
+  grid-template-columns: 140px auto 140px;
+  gap: 8px;
+  align-items: flex-end;
+  max-width: 320px;
+}
+
+.cal-sched-times-arrow {
+  color: #94a3b8;
+  padding-bottom: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+
 .cal-sched-reset-wrap {
   margin-top: 18px;
   padding-top: 14px;
