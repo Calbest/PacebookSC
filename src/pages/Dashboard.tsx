@@ -402,29 +402,6 @@ function calcAge(dob: string): number | null {
   return age
 }
 
-// Formats raw digits into MM:SS.ss / M:SS.ss / SS.ss as the user types.
-// Works right-to-left: last 2 digits are always hundredths, next 2 are seconds, rest is minutes.
-function formatTimeDigits(raw: string): string {
-  const d = raw.replace(/\D/g, '').slice(0, 6)
-  switch (d.length) {
-    case 0: return ''
-    case 1:
-    case 2: return d
-    case 3: return `${d[0]}.${d.slice(1)}`
-    case 4: return `${d.slice(0, 2)}.${d.slice(2)}`
-    case 5: return `${d[0]}:${d.slice(1, 3)}.${d.slice(3)}`
-    case 6: return `${d.slice(0, 2)}:${d.slice(2, 4)}.${d.slice(4)}`
-    default: return d
-  }
-}
-
-// Returns true if the seconds portion of a formatted time is 00–59.
-function isValidTime(value: string): boolean {
-  if (value.length <= 2) return true // still typing
-  const match = value.match(/(?:^|:)(\d{2})\./)
-  if (!match) return true
-  return parseInt(match[1], 10) <= 59
-}
 
 
 export default function Dashboard() {
