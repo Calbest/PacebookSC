@@ -247,6 +247,27 @@ button:active { transform: scale(0.96) !important; }
   color: #ffffff;
 }
 
+.dash-friends {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(139,92,246,0.12);
+  border: 1px solid rgba(139,92,246,0.3);
+  color: #c4b5fd;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.dash-friends:hover {
+  background: rgba(139,92,246,0.22);
+  color: #ffffff;
+}
+
 .dash-import {
   display: flex;
   align-items: center;

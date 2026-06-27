@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, Bell, Star, Clock, Zap, Film } from 'lucide-react'
+import { Pencil, Check, User, LogOut, Settings, Trophy, Target, Upload, TrendingUp, X, CalendarCheck, Bell, Star, Clock, Zap, Film, Users } from 'lucide-react'
 import TimeConverterPopup from '../components/TimeConverterPopup'
 import { supabase } from '../lib/supabase'
+import { upsertProfile } from '../lib/friends'
 import { playClick, playSave, playNavigate } from '../lib/sounds'
 import './Dashboard.css'
 
@@ -377,6 +378,7 @@ export default function Dashboard() {
   const [avatarSheet,     setAvatarSheet]     = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
   const avatarFileRef = useRef<HTMLInputElement>(null)
+  const userIdRef     = useRef('')
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -414,6 +416,7 @@ export default function Dashboard() {
     supabase.auth.getSession().then(({ data }) => {
       const user = data.session?.user
       if (!user) { navigate('/'); return }
+      userIdRef.current = user.id
       setUsername(user.user_metadata?.username || user.email || 'Swimmer')
       setFullName(user.user_metadata?.full_name || '')
       setGender(user.user_metadata?.gender || '')
@@ -425,6 +428,17 @@ export default function Dashboard() {
       setTimes(user.user_metadata?.times || {})
       setTimeHistory(user.user_metadata?.timeHistory || {})
       if (user.user_metadata?.notifPrefs) setNotifPrefs(user.user_metadata.notifPrefs)
+      // Ensure public profile row exists
+      upsertProfile({
+        id:          user.id,
+        username:    user.user_metadata?.username || user.email || '',
+        full_name:   user.user_metadata?.full_name  || null,
+        avatar_url:  user.user_metadata?.avatar_url || null,
+        gender:      user.user_metadata?.gender      || null,
+        club_team:   user.user_metadata?.club_team   || null,
+        high_school: user.user_metadata?.high_school || null,
+        times:       user.user_metadata?.times       || {},
+      })
     })
   }, [navigate])
 
@@ -452,6 +466,22 @@ export default function Dashboard() {
       setSaveStatus('saved')
       playSave()
       setTimeout(() => setSaveStatus('idle'), 2000)
+      // Sync public profile so friends can see updated times
+      if (userIdRef.current) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          upsertProfile({
+            id:          user.id,
+            username:    user.user_metadata?.username || user.email || '',
+            full_name:   user.user_metadata?.full_name  || null,
+            avatar_url:  user.user_metadata?.avatar_url || null,
+            gender:      user.user_metadata?.gender      || null,
+            club_team:   user.user_metadata?.club_team   || null,
+            high_school: user.user_metadata?.high_school || null,
+            times:       nextTimes,
+          })
+        }
+      }
     }, 700)
   }, [])
 
@@ -574,6 +604,11 @@ export default function Dashboard() {
         <button className="dash-race-library" onClick={() => { playNavigate(); navigate('/race-library') }}>
           <Film size={16} />
           <span>Media Library</span>
+        </button>
+
+        <button className="dash-friends" onClick={() => { playNavigate(); navigate('/friends') }}>
+          <Users size={16} />
+          <span>Friends</span>
         </button>
 
         </nav>
@@ -843,6 +878,10 @@ export default function Dashboard() {
         <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/calendar') }}>
           <CalendarCheck size={20} />
           Calendar
+        </button>
+        <button className="dash-mobile-nav-btn" onClick={() => { playNavigate(); navigate('/friends') }}>
+          <Users size={20} />
+          Friends
         </button>
       </nav>
     </div>
