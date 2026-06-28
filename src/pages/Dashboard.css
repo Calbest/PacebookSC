@@ -416,11 +416,11 @@ button:active { transform: scale(0.96) !important; }
   border-top: none;
   border-radius: 0 0 14px 14px;
   /* left padding = avatar left(20) + avatar width(96) + gap(16) = 132px */
-  padding: 0 20px 18px 132px;
+  padding: 8px 20px 26px 132px;
   display: flex;
   align-items: flex-end;
   gap: 16px;
-  min-height: 72px;
+  min-height: 88px;
   box-shadow: 0 4px 12px rgba(0,40,85,0.07);
 }
 
@@ -558,7 +558,7 @@ button:active { transform: scale(0.96) !important; }
 .dash-profile-sub {
   font-size: 13px;
   color: #64748b;
-  margin: 0;
+  margin: 0 0 6px;
   font-weight: 700;
 }
 
@@ -566,7 +566,7 @@ button:active { transform: scale(0.96) !important; }
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 5px;
+  margin-top: 10px;
 }
 
 .dash-follow-stat {

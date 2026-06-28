@@ -276,6 +276,31 @@ const STROKE_REF: Record<string, { label: string; fast: number; slow: number; ev
 }
 const STROKE_ORDER = ['free', 'back', 'breast', 'fly', 'im']
 
+function sprintDistScore(times: Times, course: Course): number | null {
+  const DIST_SCALE: Record<string, number> = {
+    '50': 0.0, '100': 0.15, '200': 0.35, '400': 0.5, '500': 0.6,
+    '800': 0.75, '1000': 0.85, '1500': 0.95, '1650': 1.0,
+  }
+  let total = 0, count = 0
+  for (const [key, time] of Object.entries(times)) {
+    if (!time || !key.startsWith(`${course}-`)) continue
+    const parts = key.split('-')
+    const dist = parts[1], stroke = parts[2]
+    if (!dist || !stroke || stroke === 'relay') continue
+    const score = DIST_SCALE[dist]
+    if (score === undefined) continue
+    total += score; count++
+  }
+  return count > 0 ? total / count : null
+}
+
+function sprintDistColor(score: number): { fill: string; stroke: string } {
+  const r = Math.round(239 + (59  - 239) * score)
+  const g = Math.round(68  + (130 - 68)  * score)
+  const b = Math.round(68  + (246 - 68)  * score)
+  return { fill: `rgba(${r},${g},${b},0.28)`, stroke: `rgb(${r},${g},${b})` }
+}
+
 function SpecialtyChart({ times, course }: { times: Times; course: Course }) {
   const CX = 100, CY = 100, R = 78, N = 5
 
@@ -294,8 +319,10 @@ function SpecialtyChart({ times, course }: { times: Times; course: Course }) {
     return Math.max(0, Math.min(1, (ref.slow - Math.min(...best)) / (ref.slow - ref.fast)))
   })
 
-  const dataPoly = scores.map((s, i) => { const p = vertex(i, s * R); return `${p.x.toFixed(1)},${p.y.toFixed(1)}` }).join(' ')
-  const hasAny   = scores.some(s => s > 0)
+  const dataPoly  = scores.map((s, i) => { const p = vertex(i, s * R); return `${p.x.toFixed(1)},${p.y.toFixed(1)}` }).join(' ')
+  const hasAny    = scores.some(s => s > 0)
+  const sdScore   = sprintDistScore(times, course)
+  const polyColor = sdScore !== null ? sprintDistColor(sdScore) : { fill: 'rgba(0,100,200,0.22)', stroke: '#1d4ed8' }
 
   return (
     <div className="specialty-card">
@@ -305,10 +332,21 @@ function SpecialtyChart({ times, course }: { times: Times; course: Course }) {
           <polygon key={f} points={ring(R * f)} fill="none" stroke="rgba(0,40,85,0.12)" strokeWidth="1" />
         ))}
         {STROKE_ORDER.map((_, i) => { const p = vertex(i, R); return <line key={i} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="rgba(0,40,85,0.12)" strokeWidth="1" /> })}
-        {hasAny && <polygon points={dataPoly} fill="rgba(0,100,200,0.22)" stroke="#1d4ed8" strokeWidth="2" />}
+        {hasAny && <polygon points={dataPoly} fill={polyColor.fill} stroke={polyColor.stroke} strokeWidth="2" />}
         {STROKE_ORDER.map((key, i) => { const p = vertex(i, R + 16); return <text key={key} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="600" fill="#334155">{STROKE_REF[key].label}</text> })}
       </svg>
       {!hasAny && <p className="specialty-empty">Add times on the Dashboard to see your specialty.</p>}
+      {hasAny && sdScore !== null && (
+        <div className="specialty-scale">
+          <div className="specialty-scale-bar">
+            <div className="specialty-scale-indicator" style={{ left: `${sdScore * 100}%` }} />
+          </div>
+          <div className="specialty-scale-labels">
+            <span style={{ color: '#ef4444' }}>Sprint</span>
+            <span style={{ color: '#3b82f6' }}>Distance</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -421,43 +459,117 @@ export default function Progress() {
             </div>
           )}
 
-          {/* ── Top row: controls (left) + specialty chart + stats (right) ── */}
-          <div className="prog-top-row">
-            <div className="prog-controls-wrap">
+          {/* ── Two-column split layout ── */}
+          <div className="prog-split">
+            <div className="prog-split-main">
 
-          {/* ── Selectors ── */}
-          <div className="prog-controls">
-            <div className="prog-course-tabs">
-              {(['SCY', 'LCM', 'SCM'] as Course[]).map(c => (
-                <button
-                  key={c}
-                  className={`prog-course-tab${course === c ? ' active' : ''}`}
-                  onClick={() => { setCourse(c); setEventId('100-free') }}
-                >{c}</button>
-              ))}
-            </div>
+              {/* ── Selectors ── */}
+              <div className="prog-controls">
+                <div className="prog-course-tabs">
+                  {(['SCY', 'LCM', 'SCM'] as Course[]).map(c => (
+                    <button
+                      key={c}
+                      className={`prog-course-tab${course === c ? ' active' : ''}`}
+                      onClick={() => { setCourse(c); setEventId('100-free') }}
+                    >{c}</button>
+                  ))}
+                </div>
 
-            <div className="prog-event-picker">
-              <label className="prog-picker-label">Event</label>
-              <select
-                className="prog-event-select"
-                value={eventId}
-                onChange={e => setEventId(e.target.value)}
-              >
-                {groups.map(({ stroke, events }) => (
-                  <optgroup label={stroke} key={stroke}>
-                    {events.map(({ id, label }) => (
-                      <option key={id} value={id}>{label}</option>
+                <div className="prog-event-picker">
+                  <label className="prog-picker-label">Event</label>
+                  <select
+                    className="prog-event-select"
+                    value={eventId}
+                    onChange={e => setEventId(e.target.value)}
+                  >
+                    {groups.map(({ stroke, events }) => (
+                      <optgroup label={stroke} key={stroke}>
+                        {events.map(({ id, label }) => (
+                          <option key={id} value={id}>{label}</option>
+                        ))}
+                      </optgroup>
                     ))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
-          </div>
-            </div>{/* end prog-controls-wrap */}
+                  </select>
+                </div>
+              </div>
 
-            {/* ── Right column: specialty + stat chips ── */}
-            <div className="prog-right-col">
+              {/* ── Unknown-date warning ── */}
+              {unknownEntries.length > 0 && (
+                <div className="prog-unknown-banner">
+                  <button
+                    className="prog-unknown-header"
+                    onClick={() => setShowUnknown(v => !v)}
+                  >
+                    <AlertTriangle size={16} className="prog-unknown-icon" />
+                    <span>{unknownEntries.length} entr{unknownEntries.length === 1 ? 'y' : 'ies'} missing a date — these won't appear on the chart</span>
+                    <ChevronDown size={14} className={`prog-unknown-chevron${showUnknown ? ' open' : ''}`} />
+                  </button>
+                  {showUnknown && (
+                    <div className="prog-unknown-list">
+                      <p className="prog-unknown-hint">Find when you swam these times and update them using the entry list below after selecting the correct event.</p>
+                      {unknownEntries.map((e, i) => (
+                        <div key={i} className="prog-unknown-row">
+                          <span className="prog-unknown-key">{e.key}</span>
+                          <span className="prog-unknown-time">{e.time}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Chart ── */}
+              <div className="prog-chart-card">
+                <div className="prog-chart-head">{displayLabel} · {course}</div>
+                <LineChart entries={entries.filter(e => e.date !== 'unknown')} dob={dob} fastest={fastest} />
+                {entries.length > 0 && (
+                  <div className="prog-chart-legend">
+                    <span className="prog-legend-item">
+                      <span className="prog-legend-dot prog-legend-dot--regular" />
+                      Entry
+                    </span>
+                    <span className="prog-legend-item">
+                      <span className="prog-legend-dot prog-legend-dot--pb">★</span>
+                      Personal Best
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Entry list ── */}
+              {entries.length > 0 && (
+                <div className="prog-list-card">
+                  <div className="prog-list-head">All Entries</div>
+                  <div className="prog-list">
+                    {[...entries].reverse().map((e, revIdx) => {
+                      const origIdx = entries.length - 1 - revIdx
+                      const s = toSec(e.time)
+                      const fastSec = fastest ? toSec(fastest.time) : null
+                      const isBest = s !== null && fastSec !== null && s === fastSec
+                      return (
+                        <div key={`${e.date}|${e.time}|${origIdx}`} className={`prog-entry${isBest ? ' prog-entry--pb' : ''}`}>
+                          <span className="prog-entry-date">{fmtDate(e.date)}</span>
+                          <span className={`prog-entry-time${isBest ? ' prog-entry-time--best' : ''}`}>
+                            {e.time}
+                            {isBest && <span className="prog-best-tag">★ PB</span>}
+                          </span>
+                          <button
+                            className="prog-entry-del"
+                            onClick={() => deleteEntry(origIdx)}
+                            title="Delete entry"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+            </div>{/* end prog-split-main */}
+
+            <div className="prog-split-side">
               <SpecialtyChart times={dashTimes} course={course} />
               {entries.length >= 1 && (
                 <div className="prog-stats">
@@ -489,82 +601,8 @@ export default function Progress() {
                   )}
                 </div>
               )}
-            </div>
-          </div>{/* end prog-top-row */}
-
-          {/* ── Unknown-date warning ── */}
-          {unknownEntries.length > 0 && (
-            <div className="prog-unknown-banner">
-              <button
-                className="prog-unknown-header"
-                onClick={() => setShowUnknown(v => !v)}
-              >
-                <AlertTriangle size={16} className="prog-unknown-icon" />
-                <span>{unknownEntries.length} entr{unknownEntries.length === 1 ? 'y' : 'ies'} missing a date — these won't appear on the chart</span>
-                <ChevronDown size={14} className={`prog-unknown-chevron${showUnknown ? ' open' : ''}`} />
-              </button>
-              {showUnknown && (
-                <div className="prog-unknown-list">
-                  <p className="prog-unknown-hint">Find when you swam these times and update them using the entry list below after selecting the correct event.</p>
-                  {unknownEntries.map((e, i) => (
-                    <div key={i} className="prog-unknown-row">
-                      <span className="prog-unknown-key">{e.key}</span>
-                      <span className="prog-unknown-time">{e.time}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Chart ── */}
-          <div className="prog-chart-card">
-            <div className="prog-chart-head">{displayLabel} · {course}</div>
-            <LineChart entries={entries.filter(e => e.date !== 'unknown')} dob={dob} fastest={fastest} />
-            {entries.length > 0 && (
-              <div className="prog-chart-legend">
-                <span className="prog-legend-item">
-                  <span className="prog-legend-dot prog-legend-dot--regular" />
-                  Entry
-                </span>
-                <span className="prog-legend-item">
-                  <span className="prog-legend-dot prog-legend-dot--pb">★</span>
-                  Personal Best
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* ── Entry list ── */}
-          {entries.length > 0 && (
-            <div className="prog-list-card">
-              <div className="prog-list-head">All Entries</div>
-              <div className="prog-list">
-                {[...entries].reverse().map((e, revIdx) => {
-                  const origIdx = entries.length - 1 - revIdx
-                  const s = toSec(e.time)
-                  const fastSec = fastest ? toSec(fastest.time) : null
-                  const isBest = s !== null && fastSec !== null && s === fastSec
-                  return (
-                    <div key={`${e.date}|${e.time}|${origIdx}`} className={`prog-entry${isBest ? ' prog-entry--pb' : ''}`}>
-                      <span className="prog-entry-date">{fmtDate(e.date)}</span>
-                      <span className={`prog-entry-time${isBest ? ' prog-entry-time--best' : ''}`}>
-                        {e.time}
-                        {isBest && <span className="prog-best-tag">★ PB</span>}
-                      </span>
-                      <button
-                        className="prog-entry-del"
-                        onClick={() => deleteEntry(origIdx)}
-                        title="Delete entry"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+            </div>{/* end prog-split-side */}
+          </div>{/* end prog-split */}
 
         </div>
       </div>

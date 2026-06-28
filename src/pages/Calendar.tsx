@@ -1286,7 +1286,8 @@ export default function Calendar() {
   const [meets,     setMeets]     = useState<Meet[]>([])
   const [attn,      setAttn]      = useState<AttendanceMap>({})
   const [sched,       setSched]       = useState<ScheduleTemplate>(DEFAULT_SCHEDULE)
-  const [showSched,   setShowSched]   = useState(false)
+  const [showSched,     setShowSched]     = useState(false)
+  const [showSchedHelp, setShowSchedHelp] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
   const [showTC,    setShowTC]    = useState(false)
   const [saving,    setSaving]    = useState(false)
@@ -1318,6 +1319,13 @@ export default function Calendar() {
       if (prefillName) setMeetModal('new')
     })
   }, [navigate]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!localStorage.getItem('sw_sched_help_seen')) {
+      setShowSchedHelp(true)
+      localStorage.setItem('sw_sched_help_seen', '1')
+    }
+  }, [])
 
   async function persist(patch: object) {
     setSaving(true)
@@ -1466,12 +1474,6 @@ export default function Calendar() {
             <ArrowRightLeft size={16} /><span>Time Converter</span>
           </button>
         </nav>
-        <div className="cal-sidebar-lower">
-          <button className="cal-sidebar-action-btn" onClick={() => setShowSched(v => !v)}>
-            {showSched ? 'Close Schedule' : 'Edit Schedule'}
-          </button>
-          {saving && <span className="cal-saving">Saving…</span>}
-        </div>
       </aside>
 
       {/* ── Page ── */}
@@ -1480,9 +1482,16 @@ export default function Calendar() {
           <button className="page-mob-back" onClick={() => navigate('/dashboard')}>
             <ChevronLeft size={15} /> Dashboard
           </button>
-          <div>
-            <h1 className="cal-title">Practice Calendar</h1>
-            <p className="cal-subtitle">Track attendance, mood, dryland, and meets</p>
+          <div className="cal-title-wrap">
+            <div>
+              <h1 className="cal-title">Practice Calendar</h1>
+              <p className="cal-subtitle">Track attendance, mood, dryland, and meets</p>
+            </div>
+            <button className="cal-edit-sched-header-btn" onClick={() => setShowSched(v => !v)}>
+              <Pencil size={15} />
+              {showSched ? 'Close Schedule' : 'Edit Schedule'}
+            </button>
+            {saving && <span className="cal-saving">Saving…</span>}
           </div>
           <img src="/logos/scs.svg" alt="SCS" className="scs-logo-corner" />
         </div>
@@ -1505,7 +1514,10 @@ export default function Calendar() {
           {/* Schedule editor */}
           {showSched && (
             <div className="cal-card cal-fade-in">
-              <h2 className="cal-card-title">Practice Schedule</h2>
+              <div className="cal-card-title-row">
+                <h2 className="cal-card-title">Practice Schedule</h2>
+                <button className="cal-sched-help-btn" onClick={() => setShowSchedHelp(true)} title="How to set up your schedule">?</button>
+              </div>
 
               {/* Day tabs */}
               <div className="cal-sched-day-tabs">
@@ -1906,6 +1918,49 @@ export default function Calendar() {
           )}
 
         </div>
+
+        {/* ── Schedule help popup ── */}
+        {showSchedHelp && (
+          <div className="cal-help-overlay" onClick={() => setShowSchedHelp(false)}>
+            <div className="cal-help-panel" onClick={e => e.stopPropagation()}>
+              <div className="cal-help-header">
+                <span>How to set up your Practice Schedule</span>
+                <button className="cal-help-close" onClick={() => setShowSchedHelp(false)}>✕</button>
+              </div>
+              <div className="cal-help-body">
+                <p className="cal-help-intro">
+                  The Practice Schedule tells PaceBook which days you normally train.
+                  The calendar uses it to highlight expected practice days and track your attendance rate.
+                </p>
+                <div className="cal-help-steps">
+                  <div className="cal-help-step">
+                    <div className="cal-help-step-num">1</div>
+                    <div><strong>Click "Edit Schedule"</strong> in the header above to open the schedule editor.</div>
+                  </div>
+                  <div className="cal-help-step">
+                    <div className="cal-help-step-num">2</div>
+                    <div><strong>Select a day tab</strong> (Mon, Tue, Wed, etc.) to configure that day.</div>
+                  </div>
+                  <div className="cal-help-step">
+                    <div className="cal-help-step-num">3</div>
+                    <div><strong>Check "Practice on [Day]s"</strong> to mark it as a regular practice day and set your session start/end times.</div>
+                  </div>
+                  <div className="cal-help-step">
+                    <div className="cal-help-step-num">4</div>
+                    <div><strong>Click "Save Session"</strong> to confirm, then repeat for each practice day.</div>
+                  </div>
+                  <div className="cal-help-step">
+                    <div className="cal-help-step-num">5</div>
+                    <div><strong>Log attendance</strong> by clicking any calendar day — green means attended, red means absent.</div>
+                  </div>
+                </div>
+                <div className="cal-help-tip">
+                  <strong>Tip:</strong> You can add a second practice session per day (e.g. morning + evening) using the Session 2 toggle in the editor.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

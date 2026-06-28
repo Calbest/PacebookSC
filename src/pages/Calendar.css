@@ -1491,4 +1491,143 @@
   .cal-year-grid     { grid-template-columns: repeat(2, 1fr); }
   .cal-career-head span:nth-child(3),
   .cal-career-row  span:nth-child(3) { display: none; }
+  .cal-edit-sched-header-btn { padding: 8px 12px; font-size: 12px; }
+  .cal-title-wrap { gap: 10px; }
+}
+
+/* ── Edit Schedule header button ── */
+.cal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cal-edit-sched-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+.cal-edit-sched-header-btn:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.65);
+}
+
+/* ── Schedule card title row with ? button ── */
+.cal-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.cal-card-title-row .cal-card-title { margin-bottom: 0; }
+.cal-sched-help-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #64748b;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  font-family: inherit;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.cal-sched-help-btn:hover { border-color: #1d4ed8; color: #1d4ed8; background: #eff6ff; }
+
+/* ── Schedule help popup ── */
+.cal-help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.cal-help-panel {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+}
+.cal-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  z-index: 1;
+}
+.cal-help-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.cal-help-close:hover { color: #0f172a; }
+.cal-help-body { padding: 20px 22px 26px; }
+.cal-help-intro { font-size: 13px; color: #475569; margin: 0 0 18px; line-height: 1.6; }
+.cal-help-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+.cal-help-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.55;
+}
+.cal-help-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.cal-help-tip {
+  background: #f0fdf4;
+  border-left: 4px solid #22c55e;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #166534;
+  line-height: 1.55;
 }
