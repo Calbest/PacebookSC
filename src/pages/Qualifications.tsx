@@ -305,7 +305,7 @@ export default function Qualifications() {
                               return <span key={m.key} className="quals-cell quals-cell--no-time">{cut}</span>
                             }
                             const pClass = getProximityClass(uSec, cSec)
-                            const showGoal = ['close','near','far'].includes(pClass)
+                            const showGoal = ['close','near','far','very-far'].includes(pClass)
                             return (
                               <div key={m.key} className={`quals-cell quals-cell--${pClass}`}>
                                 {cut}
