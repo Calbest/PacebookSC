@@ -254,6 +254,18 @@
   width: 100%;
   margin: 0 auto;
 }
+.pub-section--compact {
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pub-phone-label { font-size: 16px; }
+.pub-phone-val {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
 
 .pub-section-title {
   font-size: 16px;

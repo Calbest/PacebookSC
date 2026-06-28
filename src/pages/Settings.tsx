@@ -91,6 +91,7 @@ export default function Settings() {
 
   // Contact
   const [phone,       setPhone]       = useState('')
+  const [showPhone,   setShowPhone]   = useState(false)
   const [phoneStatus, setPhoneStatus] = useState<SaveStatus>('idle')
 
   // Avatar
@@ -135,7 +136,7 @@ export default function Settings() {
     sharePBs:           true,
     shareMeets:         true,
     shareMonthlyReport: true,
-    privateAccount:     false,
+    privateAccount:     true,
   })
   const [privacyStatus, setPrivacyStatus] = useState<SaveStatus>('idle')
   const [blockQuery,    setBlockQuery]    = useState('')
@@ -171,6 +172,7 @@ export default function Settings() {
       setClubTeam(m.club_team ?? '')
       setHighSchool(m.high_school ?? '')
       setPhone(m.phone ?? '')
+      setShowPhone(m.showPhone ?? false)
       setAvatarUrl(m.avatar_url ?? '')
       setBannerType((m.bannerType as BannerType) ?? 'default')
       setBannerValue(m.bannerValue ?? '')
@@ -316,6 +318,9 @@ export default function Settings() {
       top_events:            (m.topEvents as string[] | undefined) ?? [],
       latest_monthly_report: (m.latestMonthlyReport as import('../lib/friends').MonthlyReport | undefined) ?? null,
       share_monthly_report:  (m.privacySettings as Record<string,boolean> | undefined)?.shareMonthlyReport ?? true,
+      phone:                 (m.phone as string | undefined) ?? null,
+      show_phone:            (m.showPhone as boolean | undefined) ?? false,
+      is_private:            (m.privacySettings as Record<string,boolean> | undefined)?.privateAccount ?? true,
     })
   }
 
@@ -410,8 +415,11 @@ export default function Settings() {
 
   async function savePhone() {
     setPhoneStatus('saving')
-    const { error } = await supabase.auth.updateUser({ data: { phone } })
+    const { error } = await supabase.auth.updateUser({ data: { phone, showPhone } })
     if (error) { setPhoneStatus('error'); return }
+    try {
+      await supabase.from('profiles').update({ phone: phone || null, show_phone: showPhone }).eq('id', userId)
+    } catch { /* ignore */ }
     setPhoneStatus('saved')
     setTimeout(() => setPhoneStatus('idle'), 2500)
   }
@@ -996,7 +1004,9 @@ export default function Settings() {
         <section className="settings-card">
           <h2 className="settings-section-title">Contact</h2>
           <div className="settings-field">
-            <label className="settings-label">Phone Number</label>
+            <label className="settings-label">
+              Phone Number <span className="settings-label-optional">(optional)</span>
+            </label>
             <div className="settings-row">
               <input
                 className="settings-input"
@@ -1005,6 +1015,27 @@ export default function Settings() {
                 placeholder="+1 (555) 000-0000"
                 onChange={e => setPhone(e.target.value)}
               />
+            </div>
+            <div className="notif-row" style={{ marginTop: 12, padding: 0 }}>
+              <div className="notif-row-text">
+                <span className="notif-row-label">Show on public profile</span>
+                <span className="notif-row-desc">Allow your followers to see your phone number</span>
+              </div>
+              <button
+                role="switch"
+                aria-checked={showPhone}
+                className={`notif-toggle${showPhone ? ' on' : ''}`}
+                onClick={() => setShowPhone(v => !v)}
+              >
+                <span className="notif-toggle-thumb" />
+              </button>
+            </div>
+            {showPhone && (
+              <div className="settings-phone-warning">
+                ⚠️ Anyone following you will be able to see this number on your public profile.
+              </div>
+            )}
+            <div className="settings-footer" style={{ marginTop: 16 }}>
               <button
                 className={`settings-save${phoneStatus === 'saved' ? ' --saved' : ''}`}
                 onClick={savePhone}
@@ -1012,8 +1043,8 @@ export default function Settings() {
               >
                 {phoneStatus === 'saving' ? 'Saving…' : phoneStatus === 'saved' ? 'Saved!' : 'Save'}
               </button>
+              {phoneStatus === 'error' && <p className="status-error">Could not save phone number.</p>}
             </div>
-            {phoneStatus === 'error' && <p className="status-error">Could not save phone number.</p>}
           </div>
         </section>
 

@@ -17,6 +17,9 @@ export interface Profile {
   top_events: string[]
   latest_monthly_report: MonthlyReport | null
   share_monthly_report: boolean
+  phone: string | null
+  show_phone: boolean
+  is_private: boolean
 }
 
 export interface MonthlyReport {
@@ -95,6 +98,77 @@ export async function unfollow(followingId: string) {
     .eq('following_id', followingId)
 }
 
+// ── Follow Requests ───────────────────────────────────────────────────────────
+
+export async function sendFollowRequest(
+  targetId: string,
+  fromProfile: Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url'>,
+): Promise<{ error: unknown }> {
+  try {
+    const { error } = await supabase
+      .from('follow_requests')
+      .insert({ requester_id: fromProfile.id, target_id: targetId })
+    if (error) return { error }
+    const name = fromProfile.full_name || fromProfile.username
+    await supabase.from('notifications').insert({
+      user_id:      targetId,
+      type:         'follow_request',
+      title:        'Follow request',
+      message:      `${name} wants to follow you.`,
+      from_user_id: fromProfile.id,
+      data:         { requesterId: fromProfile.id, requesterName: name, requesterAvatar: fromProfile.avatar_url },
+    })
+    return { error: null }
+  } catch (e) {
+    return { error: e }
+  }
+}
+
+export async function checkFollowRequest(targetId: string): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+  try {
+    const { data } = await supabase
+      .from('follow_requests')
+      .select('id')
+      .eq('requester_id', user.id)
+      .eq('target_id', targetId)
+      .maybeSingle()
+    return !!data
+  } catch { return false }
+}
+
+export async function acceptFollowRequest(requesterId: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  try {
+    await supabase.from('follows').insert({ follower_id: requesterId, following_id: user.id })
+    await supabase.from('follow_requests').delete()
+      .eq('requester_id', requesterId).eq('target_id', user.id)
+    await supabase.from('notifications')
+      .update({ read: true })
+      .eq('user_id', user.id)
+      .eq('type', 'follow_request')
+      .eq('from_user_id', requesterId)
+    const myProf = await getProfile(user.id)
+    if (myProf.data) await writeFollowNotification(requesterId, myProf.data)
+  } catch { /* ignore */ }
+}
+
+export async function declineFollowRequest(requesterId: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  try {
+    await supabase.from('follow_requests').delete()
+      .eq('requester_id', requesterId).eq('target_id', user.id)
+    await supabase.from('notifications')
+      .update({ read: true })
+      .eq('user_id', user.id)
+      .eq('type', 'follow_request')
+      .eq('from_user_id', requesterId)
+  } catch { /* ignore */ }
+}
+
 export async function getFollowers(userId: string): Promise<{ data: Profile[]; error: unknown }> {
   const { data: rows, error } = await supabase
     .from('follows')
@@ -103,7 +177,18 @@ export async function getFollowers(userId: string): Promise<{ data: Profile[]; e
   if (error || !rows?.length) return { data: [], error }
   const ids = rows.map((r: { follower_id: string }) => r.follower_id)
   const res = await supabase.from('profiles').select('*').in('id', ids)
-  return { data: (res.data ?? []) as Profile[], error: res.error }
+  const profiles = (res.data ?? []) as Profile[]
+  const profileIds = new Set(profiles.map(p => p.id))
+  const placeholders: Profile[] = ids
+    .filter(id => !profileIds.has(id))
+    .map(id => ({
+      id, username: id.slice(0, 8), full_name: 'Swimmer', avatar_url: null,
+      gender: null, club_team: null, high_school: null, times: {}, time_meta: {},
+      updated_at: '', dob: null, banner_type: null, banner_value: null,
+      top_events: [], latest_monthly_report: null, share_monthly_report: true,
+      phone: null, show_phone: false, is_private: false,
+    }))
+  return { data: [...profiles, ...placeholders], error: res.error }
 }
 
 export async function getFollowing(userId: string): Promise<{ data: Profile[]; error: unknown }> {

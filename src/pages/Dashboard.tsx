@@ -662,6 +662,9 @@ export default function Dashboard() {
         top_events:            (user.user_metadata?.topEvents as string[] | undefined) ?? [],
         latest_monthly_report: (user.user_metadata?.latestMonthlyReport as import('../lib/friends').MonthlyReport | undefined) ?? null,
         share_monthly_report:  (user.user_metadata?.privacySettings as Record<string,boolean> | undefined)?.shareMonthlyReport ?? true,
+        phone:                 (user.user_metadata?.phone as string | undefined) ?? null,
+        show_phone:            (user.user_metadata?.showPhone as boolean | undefined) ?? false,
+        is_private:            (user.user_metadata?.privacySettings as Record<string,boolean> | undefined)?.privateAccount ?? true,
       })
       // Monthly report check (runs async in background, no UI block)
       maybeGenerateMonthlyReport({ id: user.id, user_metadata: user.user_metadata ?? {} })

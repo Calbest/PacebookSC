@@ -5,9 +5,9 @@ import type { Profile, FeedNotif } from '../lib/friends'
 import {
   searchProfiles, getProfile, getFollowers, getFollowing,
   follow, unfollow, getFeedNotifications, markFeedNotifsRead,
-  writeFollowNotification,
+  writeFollowNotification, acceptFollowRequest, declineFollowRequest,
 } from '../lib/friends'
-import { ChevronLeft, Search, Loader, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
+import { ChevronLeft, Search, Loader } from 'lucide-react'
 import './Friends.css'
 
 type Tab = 'followers' | 'following' | 'discover' | 'activity'
@@ -42,6 +42,7 @@ function notifIcon(type: string) {
   if (type === 'pb')             return '🏊'
   if (type === 'meet')           return '📅'
   if (type === 'monthly_report') return '📊'
+  if (type === 'follow_request') return '🔔'
   return '📣'
 }
 
@@ -132,7 +133,6 @@ export default function Friends() {
   const [followingIds,  setFollowingIds]  = useState<Set<string>>(new Set())
   const [followerIds,   setFollowerIds]   = useState<Set<string>>(new Set())
   const [pending,       setPending]       = useState<Set<string>>(new Set())
-  const [expanded,      setExpanded]      = useState<string | null>(null)
   const [loading,       setLoading]       = useState(true)
 
   const [feedNotifs,    setFeedNotifs]    = useState<FeedNotif[]>([])
@@ -215,6 +215,21 @@ export default function Friends() {
     setPending(prev => { const s = new Set(prev); s.delete(userId); return s })
   }
 
+  async function handleAcceptRequest(requesterId: string, notifId: string) {
+    await acceptFollowRequest(requesterId)
+    setFeedNotifs(prev => prev.filter(n => n.id !== notifId))
+    setFollowers(prev => {
+      if (prev.find(p => p.id === requesterId)) return prev
+      return [...prev, { id: requesterId, username: '', full_name: 'New follower', avatar_url: null, gender: null, club_team: null, high_school: null, times: {}, time_meta: {}, updated_at: '', dob: null, banner_type: null, banner_value: null, top_events: [], latest_monthly_report: null, share_monthly_report: true, phone: null, show_phone: false, is_private: false }]
+    })
+    setFollowerIds(prev => new Set([...prev, requesterId]))
+  }
+
+  async function handleDeclineRequest(requesterId: string, notifId: string) {
+    await declineFollowRequest(requesterId)
+    setFeedNotifs(prev => prev.filter(n => n.id !== notifId))
+  }
+
   async function handleUnfollow(userId: string) {
     setPending(prev => new Set([...prev, userId]))
     const { error } = await unfollow(userId)
@@ -253,19 +268,18 @@ export default function Friends() {
   }
 
   function UserCard({ profile }: { profile: Profile }) {
-    const isExpanded = expanded === profile.id
-    const isMutual   = followingIds.has(profile.id) && followerIds.has(profile.id)
+    const isMutual = followingIds.has(profile.id) && followerIds.has(profile.id)
 
     return (
-      <div className={`fr-user-card${isExpanded ? ' fr-user-card--open' : ''}`}>
-        <div className="fr-user-card-top" onClick={() => setExpanded(isExpanded ? null : profile.id)}>
-          <button
-            className="fr-avatar-btn"
-            onClick={e => { e.stopPropagation(); navigate(`/profile/${profile.id}`) }}
-            title="View profile"
-          >
+      <div
+        className="fr-user-card"
+        onClick={() => navigate(`/profile/${profile.id}`)}
+        style={{ cursor: 'pointer' }}
+      >
+        <div className="fr-user-card-top">
+          <div className="fr-avatar-wrap-static">
             <Avatar profile={profile} size={48} />
-          </button>
+          </div>
           <div className="fr-user-card-info">
             <div className="fr-user-name-row">
               <span className="fr-user-name">{profile.full_name || profile.username}</span>
@@ -277,30 +291,20 @@ export default function Friends() {
             </span>
           </div>
           <div className="fr-user-card-right">
-            {profile.id !== myId && <FollowButton userId={profile.id} />}
-            <span className="fr-user-card-chevron">
-              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-            </span>
+            {profile.id !== myId && (
+              <div onClick={e => e.stopPropagation()}>
+                <FollowButton userId={profile.id} />
+              </div>
+            )}
           </div>
         </div>
-
-        {isExpanded && (
-          <div className="fr-user-card-times">
-            <button
-              className="fr-view-profile-btn"
-              onClick={() => navigate(`/profile/${profile.id}`)}
-            >
-              <ExternalLink size={13} />
-              View full profile
-            </button>
-            <TimesPanel times={profile.times ?? {}} />
-          </div>
-        )}
       </div>
     )
   }
 
-  const activityNotifs = feedNotifs.filter(n => n.type === 'pb' || n.type === 'meet' || n.type === 'monthly_report')
+  const activityNotifs = feedNotifs.filter(n =>
+    n.type === 'pb' || n.type === 'meet' || n.type === 'monthly_report' || n.type === 'follow_request'
+  )
   const unreadActivityCount = activityNotifs.filter(n => !n.read).length
 
   const listToShow: Profile[] =
@@ -358,7 +362,7 @@ export default function Friends() {
           <button
             key={t}
             className={`fr-tab${tab === t ? ' fr-tab--active' : ''}`}
-            onClick={() => { setTab(t); setExpanded(null) }}
+            onClick={() => setTab(t)}
           >
             {t === 'followers' ? 'Followers' :
              t === 'following' ? 'Following' :
@@ -402,8 +406,9 @@ export default function Friends() {
           {!loading && activityNotifs.map(n => (
             <div
               key={n.id}
-              className={`fr-activity-item${n.read ? '' : ' fr-activity-item--unread'}`}
+              className={`fr-activity-item${n.read ? '' : ' fr-activity-item--unread'}${n.type === 'follow_request' ? ' fr-activity-item--request' : ''}`}
               onClick={() => {
+                if (n.type === 'follow_request') return
                 if (n.type === 'meet') {
                   const meetDate = (n.data?.meetDate as string) ?? ''
                   const today = new Date().toISOString().slice(0, 10)
@@ -416,19 +421,33 @@ export default function Friends() {
                   if (n.data?.meetDate) params.set('prefill_date', n.data.meetDate as string)
                   if (n.data?.meetTime) params.set('prefill_time', n.data.meetTime as string)
                   navigate(`/calendar?${params.toString()}`)
-                } else if (n.type === 'monthly_report' && n.from_user_id) {
-                  navigate(`/profile/${n.from_user_id}`)
                 } else if (n.from_user_id) {
                   navigate(`/profile/${n.from_user_id}`)
                 }
               }}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: n.type === 'follow_request' ? 'default' : 'pointer' }}
             >
               <div className="fr-activity-icon">{notifIcon(n.type)}</div>
               <div className="fr-activity-body">
                 <div className="fr-activity-title">{n.title}</div>
                 <div className="fr-activity-msg">{n.message}</div>
                 <div className="fr-activity-time">{relativeTime(n.created_at)}</div>
+                {n.type === 'follow_request' && n.from_user_id && (
+                  <div className="fr-request-actions">
+                    <button
+                      className="fr-request-btn fr-request-btn--accept"
+                      onClick={e => { e.stopPropagation(); handleAcceptRequest(n.from_user_id!, n.id) }}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="fr-request-btn fr-request-btn--decline"
+                      onClick={e => { e.stopPropagation(); handleDeclineRequest(n.from_user_id!, n.id) }}
+                    >
+                      Decline
+                    </button>
+                  </div>
+                )}
               </div>
               {!n.read && <div className="fr-activity-dot" />}
             </div>

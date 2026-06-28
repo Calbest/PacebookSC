@@ -4,6 +4,7 @@ import { ChevronLeft, UserPlus, UserCheck, Users, GitCompare } from 'lucide-reac
 import { supabase } from '../lib/supabase'
 import {
   getProfile, checkIsFollowing, follow, unfollow, getFollowCounts,
+  sendFollowRequest, checkFollowRequest,
 } from '../lib/friends'
 import type { Profile as ProfileType } from '../lib/friends'
 import './Profile.css'
@@ -150,6 +151,7 @@ export default function PublicProfile() {
   const [isBlocked,     setIsBlocked]     = useState(false)
   const [myId,          setMyId]          = useState<string | null>(null)
   const [isFollowing,   setIsFollowing]   = useState(false)
+  const [isPending,     setIsPending]     = useState(false)
   const [followPending, setFollowPending] = useState(false)
   const [counts,        setCounts]        = useState({ followers: 0, following: 0 })
   const didInit = useRef(false)
@@ -167,13 +169,26 @@ export default function PublicProfile() {
 
       setMyId(user?.id ?? null)
       if (!profileRes.data) { setNotFound(true); setLoading(false); return }
-      const prof = profileRes.data as ProfileType & { is_private?: boolean }
+      let prof = profileRes.data as ProfileType & { is_private?: boolean }
+      // For own profile, override banner from auth metadata so it's always current
+      if (user && user.id === userId) {
+        const m = user.user_metadata ?? {}
+        prof = {
+          ...prof,
+          banner_type:  (m.bannerType  as string | null) ?? prof.banner_type,
+          banner_value: (m.bannerValue as string | null) ?? prof.banner_value,
+        }
+      }
       setProfile(prof)
       setCounts(countsRes)
 
       if (user && user.id !== userId) {
-        const following = await checkIsFollowing(userId!)
+        const [following, pending] = await Promise.all([
+          checkIsFollowing(userId!),
+          checkFollowRequest(userId!),
+        ])
         setIsFollowing(following)
+        setIsPending(pending)
 
         // Check if viewer is blocked by profile owner
         try {
@@ -186,8 +201,8 @@ export default function PublicProfile() {
           if (block) { setIsBlocked(true); setLoading(false); return }
         } catch { /* blocks table may not exist yet */ }
 
-        // Check private account
-        if (prof.is_private && !following) {
+        // Check private account — still show lock page if not following
+        if ((prof as ProfileType & { is_private?: boolean }).is_private && !following) {
           setIsPrivate(true)
         }
       }
@@ -200,10 +215,25 @@ export default function PublicProfile() {
   async function handleFollow() {
     if (!myId) { navigate('/sign-in'); return }
     setFollowPending(true)
-    const { error } = await follow(userId!)
-    if (!error) {
-      setIsFollowing(true)
-      setCounts(c => ({ ...c, followers: c.followers + 1 }))
+    const isPrivateAccount = (profile as ProfileType & { is_private?: boolean })?.is_private ?? false
+    if (isPrivateAccount) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const m = user.user_metadata ?? {}
+        await sendFollowRequest(userId!, {
+          id: user.id,
+          full_name: m.full_name || null,
+          username: m.username || '',
+          avatar_url: m.avatar_url || null,
+        })
+        setIsPending(true)
+      }
+    } else {
+      const { error } = await follow(userId!)
+      if (!error) {
+        setIsFollowing(true)
+        setCounts(c => ({ ...c, followers: c.followers + 1 }))
+      }
     }
     setFollowPending(false)
   }
@@ -265,7 +295,24 @@ export default function PublicProfile() {
         <div className="pub-404-body">
           <span className="pub-404-icon">🔒</span>
           <h2>This account is private</h2>
-          <p>Follow this swimmer to see their profile and times.</p>
+          <p>Send a follow request to see their profile and times.</p>
+          {myId && (
+            isPending ? (
+              <button className="pub-follow-btn pub-follow-btn--following" style={{ marginTop: 16 }} disabled>
+                Requested
+              </button>
+            ) : (
+              <button
+                className="pub-follow-btn pub-follow-btn--follow"
+                style={{ marginTop: 16 }}
+                onClick={handleFollow}
+                disabled={followPending}
+              >
+                <UserPlus size={15} />
+                {followPending ? '…' : 'Request to Follow'}
+              </button>
+            )
+          )}
         </div>
       </div>
     )
@@ -321,6 +368,10 @@ export default function PublicProfile() {
                 <UserCheck size={15} />
                 {followPending ? '…' : 'Following'}
               </button>
+            ) : isPending ? (
+              <button className="pub-follow-btn pub-follow-btn--following" disabled>
+                Requested
+              </button>
             ) : (
               <button
                 className="pub-follow-btn pub-follow-btn--follow"
@@ -368,6 +419,14 @@ export default function PublicProfile() {
           </button>
         )}
       </div>
+
+      {/* ── Phone (followers only) ── */}
+      {profile.show_phone && profile.phone && isFollowing && (
+        <div className="pub-section pub-section--compact">
+          <span className="pub-phone-label">📞</span>
+          <span className="pub-phone-val">{profile.phone}</span>
+        </div>
+      )}
 
       {/* ── Top Events ── */}
       {(profile.top_events ?? []).filter(Boolean).length > 0 && (
