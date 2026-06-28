@@ -146,7 +146,6 @@ export default function PublicProfile() {
 
   const [profile,       setProfile]       = useState<ProfileType | null>(null)
   const [loading,       setLoading]       = useState(true)
-  const [notFound,      setNotFound]      = useState(false)
   const [isPrivate,     setIsPrivate]     = useState(false)
   const [isBlocked,     setIsBlocked]     = useState(false)
   const [myId,          setMyId]          = useState<string | null>(null)
@@ -282,7 +281,7 @@ export default function PublicProfile() {
     )
   }
 
-  if (notFound || !profile) {
+  if (!profile) {
     return (
       <div className="pub-page pub-page--404">
         <button className="pub-back" onClick={() => navigate('/')}>
