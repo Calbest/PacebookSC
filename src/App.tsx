@@ -11,8 +11,8 @@ import planEventsImg from './Assets/PlanEvents.png'
 import bentoCompareImg from './Assets/CompareTimes.png'
 import bentoQualImg from './Assets/Qualifications.png'
 import bentoGoalsImg from './Assets/Goals.png'
-import bentoImprovImg from './Assets/See your improvement.png'
-import bentoEventImg from './Assets/Event Planning.png'
+import bentoImprovImg from './Assets/SeeYourImprovement.png'
+import bentoEventImg from './Assets/EventPlanning.png'
 import './App.css'
 
 // ── Star Rating ───────────────────────────────────────────────────────────────
