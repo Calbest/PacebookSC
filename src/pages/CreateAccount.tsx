@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { upsertProfile } from '../lib/friends'
 import '../App.css'
 import './CreateAccount.css'
 
@@ -68,7 +69,7 @@ export default function CreateAccount() {
       return
     }
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -88,6 +89,30 @@ export default function CreateAccount() {
       console.error('Supabase signUp error:', signUpError)
       setError(signUpError.message || JSON.stringify(signUpError))
     } else {
+      // Create the profiles row immediately so their name appears correctly
+      // for any followers/following lookups before they visit Dashboard.
+      if (signUpData.user) {
+        await upsertProfile({
+          id: signUpData.user.id,
+          username: username.trim().toLowerCase(),
+          full_name: fullName.trim() || null,
+          gender: gender || null,
+          dob: dob || null,
+          club_team: clubTeam.trim() || null,
+          high_school: highSchool.trim() || null,
+          avatar_url: null,
+          banner_type: null,
+          banner_value: null,
+          times: {},
+          time_meta: {},
+          top_events: [],
+          latest_monthly_report: null,
+          share_monthly_report: false,
+          phone: null,
+          show_phone: false,
+          is_private: true,
+        })
+      }
       localStorage.setItem('sw_new_account', '1')
       navigate('/dashboard')
     }

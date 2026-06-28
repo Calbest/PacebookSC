@@ -174,7 +174,7 @@ export default function PublicProfile() {
         prof = {
           id: userId!,
           username: userId!.slice(0, 8),
-          full_name: null,
+          full_name: 'Swimmer',
           avatar_url: null,
           gender: null,
           club_team: null,
