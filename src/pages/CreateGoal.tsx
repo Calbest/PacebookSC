@@ -211,6 +211,7 @@ export default function CreateGoal() {
                     setCurrentTime('')
                   }}
                   onFocus={() => setShowDropdown(true)}
+                  onClick={() => setShowDropdown(true)}
                   onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                 />
                 <ChevronDown size={16} className="cg-chevron" />

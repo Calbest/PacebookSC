@@ -286,7 +286,7 @@ const FEATURES: { title: string; blurb: string; svg?: boolean; spanClass?: strin
   {
     title: 'Goals',
     blurb: 'Set target times with optional deadlines. Goals appear next to your bests across the entire app.',
-    spanClass: 'bento-span-rows-3',
+    spanClass: 'bento-span-rows-4',
   },
   {
     title: 'See Your Improvement',
