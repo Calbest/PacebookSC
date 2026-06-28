@@ -168,8 +168,34 @@ export default function PublicProfile() {
       ])
 
       setMyId(user?.id ?? null)
-      if (!profileRes.data) { setNotFound(true); setLoading(false); return }
-      let prof = profileRes.data as ProfileType & { is_private?: boolean }
+      let prof: ProfileType & { is_private?: boolean }
+      if (!profileRes.data) {
+        // User exists (e.g. followed someone) but hasn't completed profile setup yet.
+        // Build a minimal placeholder so we show a real page instead of "not found".
+        prof = {
+          id: userId!,
+          username: userId!.slice(0, 8),
+          full_name: null,
+          avatar_url: null,
+          gender: null,
+          club_team: null,
+          high_school: null,
+          times: {},
+          time_meta: {},
+          updated_at: '',
+          dob: null,
+          banner_type: null,
+          banner_value: null,
+          top_events: [],
+          latest_monthly_report: null,
+          share_monthly_report: false,
+          phone: null,
+          show_phone: false,
+          is_private: false,
+        }
+      } else {
+        prof = profileRes.data as ProfileType & { is_private?: boolean }
+      }
       // For own profile, override banner from auth metadata so it's always current
       if (user && user.id === userId) {
         const m = user.user_metadata ?? {}
