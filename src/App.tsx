@@ -560,8 +560,8 @@ function App() {
                   <img src={trackProgressImg} alt="Track Progress" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwRightX }}>
-                  <p className="uw-img-caption">Compete Friends</p>
-                  <img src={planEventsImg} alt="Compete Friends" className="uw-img-photo" />
+                  <p className="uw-img-caption">Compete with Friends</p>
+                  <img src={planEventsImg} alt="Compete with Friends" className="uw-img-photo" style={{ objectPosition: 'top center' }} />
                 </motion.div>
               </div>
               <p className="uw-and-more">And More</p>
