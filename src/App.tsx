@@ -289,8 +289,8 @@ const FEATURES: { title: string; blurb: string; svg?: boolean; spanClass?: strin
     spanClass: 'bento-span-rows-3',
   },
   {
-    title: 'Store & Share Media',
-    blurb: 'Import your swim photos and pull images from an associated Instagram or Facebook handle — such as your league\'s official account — for a specific date range to collect and review meet-day content.',
+    title: 'See Your Improvement',
+    blurb: 'Track every event over time with a live progress chart. Watch your best times trend downward, compare splits across sessions, and visualize exactly how far you\'ve come.',
     spanClass: 'bento-span-rows',
   },
   {
@@ -555,6 +555,7 @@ function App() {
                   <img src={planEventsImg} alt="Plan Events" className="uw-img-photo" />
                 </motion.div>
               </div>
+              <p className="uw-and-more">And More</p>
             </div>
           </motion.div>
 

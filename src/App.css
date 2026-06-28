@@ -590,6 +590,16 @@ p { margin: 0; }
   display: block;
 }
 
+.uw-and-more {
+  margin-top: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-align: center;
+}
+
 /* Scene 3 — Deep */
 .deep-bg {
   position: absolute;
@@ -658,7 +668,7 @@ p { margin: 0; }
   margin: 0 auto;
 }
 
-.bento-span-tall   { grid-column: span 2; grid-row: span 2; }
+.bento-span-tall   { grid-column: span 2; grid-row: span 3; }
 .bento-span-wide   { grid-column: span 2; }
 .bento-span-rows   { grid-row: span 2; }
 .bento-span-rows-3 { grid-row: span 3; }
@@ -722,7 +732,7 @@ p { margin: 0; }
 }
 
 .bento-span-tall .bento-title {
-  font-size: 22px;
+  font-size: 26px;
   margin-bottom: 14px;
 }
 
@@ -737,6 +747,7 @@ p { margin: 0; }
 .bento-span-tall .bento-desc {
   font-size: 15px;
   color: rgba(255, 255, 239, 0.55);
+  flex: none;
 }
 
 .bento-img-ph {
@@ -749,9 +760,9 @@ p { margin: 0; }
 }
 
 .bento-img-ph--full {
-  min-height: 0;
+  min-height: 340px;
   flex: 1;
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 /* ── About ── */
