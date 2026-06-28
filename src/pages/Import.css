@@ -56,12 +56,12 @@
 /* ── Body ── */
 .import-body {
   flex: 1;
-  padding: 36px 48px;
+  padding: 20px 48px 40px;
   max-width: 800px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 /* ── Notice banners ── */
@@ -126,11 +126,11 @@
 }
 .import-source-tab {
   flex: 1;
-  padding: 14px 20px;
+  padding: 10px 14px;
   border: none;
   background: #f8fafc;
   color: #64748b;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -144,28 +144,28 @@
 /* ── Instruction list ── */
 .import-steps {
   margin: 0;
-  padding: 20px 24px 20px 44px;
+  padding: 12px 20px 12px 40px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  font-size: 14px;
+  gap: 7px;
+  font-size: 13px;
   color: #334155;
-  line-height: 1.6;
+  line-height: 1.5;
 }
-.import-steps li { padding-left: 4px; }
+.import-steps li { padding-left: 3px; }
 .import-steps strong { color: #002855; }
 
 .import-step-note {
   display: flex !important;
   align-items: flex-start;
-  gap: 8px;
+  gap: 7px;
   background: #fffbeb;
   border: 1px solid #fde68a;
-  border-radius: 8px;
-  padding: 10px 12px !important;
-  margin-left: -20px;
+  border-radius: 7px;
+  padding: 8px 10px !important;
+  margin-left: -16px;
   list-style: none;
-  font-size: 13px;
+  font-size: 12px;
   color: #92400e;
 }
 .import-step-note svg { flex-shrink: 0; margin-top: 2px; color: #f59e0b; }
@@ -173,12 +173,12 @@
 /* ── Paste area ── */
 .import-label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 16px 20px 8px;
+  padding: 12px 20px 6px;
 }
 .import-textarea {
   display: block;
@@ -556,19 +556,21 @@
 
 /* ── PDF instructions ── */
 .import-pdf-instructions p {
-  font-size: 14px;
+  font-size: 13px;
   color: #475569;
-  line-height: 1.6;
-  margin: 0 0 12px;
+  line-height: 1.5;
+  margin: 0 0 4px;
+  padding: 10px 20px 0;
 }
 
 /* ── Name input ── */
 .import-name-input {
-  width: 100%;
-  padding: 10px 14px;
+  width: calc(100% - 40px);
+  margin: 0 20px;
+  padding: 8px 12px;
   border: 1.5px solid #cbd5e1;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
   color: #0f172a;
   background: #fff;
@@ -579,14 +581,14 @@
 .import-name-hint {
   font-size: 12px;
   color: #94a3b8;
-  margin: 6px 0 0;
+  margin: 5px 20px 12px;
 }
 
 /* ── Drop zone ── */
 .import-dropzone {
   border: 2px dashed #cbd5e1;
   border-radius: 12px;
-  padding: 40px 24px;
+  padding: 22px 24px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -594,8 +596,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin: 0 20px 12px;
 }
 .import-dropzone:hover,
 .import-dropzone--over { border-color: #0078d4; background: #eff6ff; }
