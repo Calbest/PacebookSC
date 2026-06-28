@@ -170,6 +170,21 @@
 }
 .import-step-note svg { flex-shrink: 0; margin-top: 2px; color: #f59e0b; }
 
+/* ── Instruction images ── */
+.import-instr-img {
+  display: block;
+  width: calc(100% - 40px);
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin: 10px 20px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.import-instr-img--constrained {
+  width: auto;
+  max-width: 420px;
+}
+
 /* ── Paste area ── */
 .import-label {
   display: block;

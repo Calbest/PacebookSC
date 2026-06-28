@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, CheckCircle2, Info, FileText, Upload } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import overallTimeImg from '../Assets/OverallTime.png'
+import byMeets1Img    from '../Assets/ByMeets1.png'
+import byMeets2Img    from '../Assets/ByMeets2.png'
 import './Import.css'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -693,6 +696,8 @@ export default function Import() {
                     <li className="import-step-note"><AlertTriangle size={13} /><span>Use the per-event Times tab, not the Best Times comparison table (which mixes courses on the same row).</span></li>
                   </ol>
 
+                  <img src={overallTimeImg} alt="SwimCloud overall times tab" className="import-instr-img" />
+
                   {/* ── Manual event mapping ── */}
                   <div className="import-mapping-block">
                     <div className="import-mapping-header">
@@ -751,6 +756,9 @@ export default function Import() {
                     <li>Enter the meet name and the date you swam. Use <strong>Add another meet</strong> to import multiple meets at once.</li>
                     <li className="import-step-note"><Info size={13} /><span>Events with "Y" in the name are imported as SCY; events with "M" are imported as LCM.</span></li>
                   </ol>
+
+                  <img src={byMeets1Img} alt="SwimCloud meet results header" className="import-instr-img" />
+                  <img src={byMeets2Img} alt="SwimCloud meet results table"  className="import-instr-img import-instr-img--constrained" />
 
                   {meets.map((meet, idx) => (
                     <div key={meet.id} className="import-meet-block">
