@@ -7,7 +7,7 @@ import { searchProfiles } from './lib/friends'
 import type { Profile as SwimmerProfile } from './lib/friends'
 import compareTimesImg from './Assets/CompareTimes.png'
 import trackProgressImg from './Assets/TrackProgress.png'
-import planEventsImg from './Assets/PlanEvents.png'
+import planEventsImg from './Assets/CompeteFriends.png'
 import bentoCompareImg from './Assets/CompareTimes.png'
 import bentoQualImg from './Assets/Qualifications.png'
 import bentoGoalsImg from './Assets/Goals.png'
@@ -560,8 +560,8 @@ function App() {
                   <img src={trackProgressImg} alt="Track Progress" className="uw-img-photo" />
                 </motion.div>
                 <motion.div className="uw-img-item" style={{ scale: uwImgScale, x: uwRightX }}>
-                  <p className="uw-img-caption">Plan Events</p>
-                  <img src={planEventsImg} alt="Plan Events" className="uw-img-photo" />
+                  <p className="uw-img-caption">Compete Friends</p>
+                  <img src={planEventsImg} alt="Compete Friends" className="uw-img-photo" />
                 </motion.div>
               </div>
               <p className="uw-and-more">And More</p>

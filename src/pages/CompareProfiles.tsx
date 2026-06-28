@@ -260,7 +260,7 @@ export default function CompareProfiles() {
     <div className="cp-page">
 
       {/* ── Back ── */}
-      <button className="cp-back" onClick={() => navigate(`/profile/${userId}`)}>
+      <button className="cp-back" onClick={() => navigate(-1)}>
         <ChevronLeft size={18} /> Back to Profile
       </button>
 
